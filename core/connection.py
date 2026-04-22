@@ -2,33 +2,43 @@ import os
 import re
 import yaml
 import logging
+import threading
 from typing import Optional, Dict, Any
 from tqsdk import TqApi, TqAuth
 
 
 class TqConnector:
     _instance: Optional['TqConnector'] = None
+    _lock: threading.Lock = threading.Lock()
     
     def __new__(cls, config_path: str = None):
         if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    cls._instance._initialized = False
+                    cls._instance.api = None
+                    cls._instance.config = {}
         return cls._instance
     
     def __init__(self, config_path: str = None):
         if self._initialized:
             return
         
-        self.config_path = config_path or os.path.join(
-            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "config",
-            "settings.yaml"
-        )
-        self.config: Dict[str, Any] = {}
-        self.api: Optional[TqApi] = None
-        self.logger = logging.getLogger(__name__)
-        self._load_config()
-        self._initialized = True
+        with self._lock:
+            if self._initialized:
+                return
+            
+            self.config_path = config_path or os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "config",
+                "settings.yaml"
+            )
+            self.config: Dict[str, Any] = {}
+            self.api: Optional[TqApi] = None
+            self.logger = logging.getLogger(__name__)
+            self._load_config()
+            self._initialized = True
     
     def _load_config(self) -> None:
         if not os.path.exists(self.config_path):
@@ -86,9 +96,11 @@ class TqConnector:
             raise
 
     def disconnect(self) -> None:
-        if self.api and not self.api.is_closed():
-            self.api.close()
-            self.logger.info("天勤 API 已断开连接")
+        api = getattr(self, 'api', None)
+        if api is not None and not api.is_closed():
+            api.close()
+            if hasattr(self, 'logger'):
+                self.logger.info("天勤 API 已断开连接")
         self.api = None
 
     def is_connected(self) -> bool:
@@ -113,6 +125,7 @@ class TqConnector:
 
     @classmethod
     def reset_instance(cls):
-        if cls._instance:
-            cls._instance.disconnect()
-        cls._instance = None
+        with cls._lock:
+            if cls._instance:
+                cls._instance.disconnect()
+            cls._instance = None
