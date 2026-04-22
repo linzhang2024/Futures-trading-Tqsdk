@@ -40,7 +40,8 @@ class TqConnector:
             self.config: Dict[str, Any] = {}
             self.api: Optional[TqApi] = None
             self._retry_times: int = 3
-            self._retry_delay: int = 5
+            self._initial_retry_delay: int = 2
+            self._max_retry_delay: int = 30
             self._env_mode: str = "sim"
             
             self._load_config()
@@ -58,7 +59,8 @@ class TqConnector:
         
         conn_config = self.config.get('connection', {})
         self._retry_times = conn_config.get('retry_times', 3)
-        self._retry_delay = conn_config.get('retry_delay', 5)
+        self._initial_retry_delay = conn_config.get('initial_retry_delay', 2)
+        self._max_retry_delay = conn_config.get('max_retry_delay', 30)
         
         env_config = self.config.get('env', {})
         self._env_mode = env_config.get('mode', 'sim').lower()
@@ -70,7 +72,7 @@ class TqConnector:
         
         log_config = self.config.get('logging', {})
         log_level_str = log_config.get('level', 'INFO')
-        log_file = log_config.get('file', 'logs/trading.log')
+        log_file = log_config.get('file', 'logs/app.log')
         log_format = log_config.get('format', "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         log_datefmt = log_config.get('datefmt', "%Y-%m-%d %H:%M:%S")
         
@@ -155,6 +157,10 @@ class TqConnector:
         else:
             raise ValueError(f"不支持的环境模式: {self._env_mode}，请使用 'sim' 或 'real'")
 
+    def _calculate_exponential_backoff(self, attempt: int) -> float:
+        delay = self._initial_retry_delay * (2 ** (attempt - 1))
+        return min(delay, self._max_retry_delay)
+
     def connect(self) -> TqApi:
         if self.api and not self.api.is_closed():
             self.logger.info("API 已连接，无需重新连接")
@@ -186,14 +192,16 @@ class TqConnector:
                 
             except Exception as e:
                 last_exception = e
-                self.logger.error(f"[{attempt}/{self._retry_times}] 连接失败: {str(e)}")
+                self.logger.error(f"[{attempt}/{self._retry_times}] 连接失败: {str(e)}", exc_info=True)
                 
                 if attempt < self._retry_times:
-                    self.logger.info(f"等待 {self._retry_delay} 秒后重试...")
-                    time.sleep(self._retry_delay)
+                    delay = self._calculate_exponential_backoff(attempt)
+                    self.logger.info(f"指数退避等待 {delay} 秒后进行第 {attempt + 1} 次重试...")
+                    time.sleep(delay)
         
-        self.logger.error(f"连接失败，已重试 {self._retry_times} 次，最后错误: {str(last_exception)}")
-        raise last_exception
+        final_msg = f"连接失败，已尝试 {self._retry_times} 次，最后错误: {str(last_exception)}"
+        self.logger.critical(final_msg)
+        raise ConnectionError(final_msg) from last_exception
 
     def disconnect(self) -> None:
         api = getattr(self, 'api', None)
@@ -219,10 +227,11 @@ class TqConnector:
     def get_contracts(self) -> list:
         return self.config.get('trading', {}).get('contracts', [])
 
-    def get_retry_config(self) -> Dict[str, int]:
+    def get_retry_config(self) -> Dict[str, Any]:
         return {
             'retry_times': self._retry_times,
-            'retry_delay': self._retry_delay
+            'initial_retry_delay': self._initial_retry_delay,
+            'max_retry_delay': self._max_retry_delay
         }
 
     def __enter__(self):

@@ -43,7 +43,8 @@ class TestTqConnector:
             },
             "connection": {
                 "retry_times": 3,
-                "retry_delay": 1
+                "initial_retry_delay": 2,
+                "max_retry_delay": 30
             },
             "logging": {
                 "level": "DEBUG",
@@ -142,7 +143,7 @@ class TestTqConnector:
             "tq_sdk": {"account": "test", "password": "test"},
             "env": {"mode": "sim", "sim": {"init_balance": 1000000.0, "account_type": "tqkq"}},
             "trading": {"default_contract": "SHFE.rb2410", "contracts": []},
-            "connection": {"retry_times": 3, "retry_delay": 1},
+            "connection": {"retry_times": 3, "initial_retry_delay": 2, "max_retry_delay": 30},
             "logging": {"level": "DEBUG", "file": "logs/test.log"}
         }
         
@@ -184,7 +185,7 @@ class TestTqConnector:
                 }
             },
             "trading": {"default_contract": "SHFE.rb2410", "contracts": []},
-            "connection": {"retry_times": 3, "retry_delay": 1},
+            "connection": {"retry_times": 3, "initial_retry_delay": 2, "max_retry_delay": 30},
             "logging": {"level": "DEBUG", "file": "logs/test.log"}
         }
         
@@ -295,6 +296,15 @@ class TestTqConnector:
         
         assert result == config
 
+    def test_calculate_exponential_backoff(self, temp_config_file):
+        connector = TqConnector(config_path=temp_config_file)
+        
+        assert connector._calculate_exponential_backoff(1) == 2
+        assert connector._calculate_exponential_backoff(2) == 4
+        assert connector._calculate_exponential_backoff(3) == 8
+        assert connector._calculate_exponential_backoff(4) == 16
+        assert connector._calculate_exponential_backoff(5) == 30
+
     @pytest.mark.skipif(USE_REAL_CONNECTION, reason="Mock测试被跳过，使用真实连接")
     @patch('core.connection.TqAuth')
     @patch('core.connection.TqSim')
@@ -323,7 +333,7 @@ class TestTqConnector:
             },
             "env": {"mode": "sim", "sim": {"init_balance": 1000000.0}},
             "trading": {"default_contract": "SHFE.rb2410", "contracts": []},
-            "connection": {"retry_times": 3, "retry_delay": 1},
+            "connection": {"retry_times": 3, "initial_retry_delay": 2, "max_retry_delay": 30},
             "logging": {"level": "DEBUG", "file": "logs/test.log"}
         }
         
@@ -446,14 +456,15 @@ class TestTqConnector:
         connector = TqConnector(config_path=temp_config_file)
         retry_config = connector.get_retry_config()
         assert retry_config['retry_times'] == 3
-        assert retry_config['retry_delay'] == 1
+        assert retry_config['initial_retry_delay'] == 2
+        assert retry_config['max_retry_delay'] == 30
 
     @pytest.mark.skipif(USE_REAL_CONNECTION, reason="Mock测试被跳过，使用真实连接")
     @patch('time.sleep')
     @patch('core.connection.TqAuth')
     @patch('core.connection.TqSim')
     @patch('core.connection.TqApi')
-    def test_auto_retry_on_connection_failure(self, mock_tqapi, mock_tqsim, mock_tqauth, mock_sleep, temp_config_file):
+    def test_exponential_backoff_retry(self, mock_tqapi, mock_tqsim, mock_tqauth, mock_sleep, temp_config_file):
         mock_api = Mock()
         mock_api.is_closed.return_value = False
         
@@ -468,7 +479,8 @@ class TestTqConnector:
         
         assert mock_tqapi.call_count == 3
         assert mock_sleep.call_count == 2
-        mock_sleep.assert_has_calls([call(1), call(1)])
+        
+        mock_sleep.assert_has_calls([call(2), call(4)])
         
         assert connector.is_connected() is True
         assert api == mock_api
@@ -487,12 +499,13 @@ class TestTqConnector:
         
         connector = TqConnector(config_path=temp_config_file)
         
-        with pytest.raises(Exception) as exc_info:
+        with pytest.raises(ConnectionError) as exc_info:
             connector.connect()
         
         assert "Network error" in str(exc_info.value)
         assert mock_tqapi.call_count == 3
         assert mock_sleep.call_count == 2
+        mock_sleep.assert_has_calls([call(2), call(4)])
         assert connector.is_connected() is False
 
     @pytest.mark.skipif(USE_REAL_CONNECTION, reason="Mock测试被跳过，使用真实连接")
@@ -500,43 +513,50 @@ class TestTqConnector:
     @patch('core.connection.TqAuth')
     @patch('core.connection.TqSim')
     @patch('core.connection.TqApi')
-    def test_logging_on_connection_attempts(self, mock_tqapi, mock_tqsim, mock_tqauth, mock_sleep, temp_config_file):
+    def test_logging_during_retry_process(self, mock_tqapi, mock_tqsim, mock_tqauth, mock_sleep, temp_config_file):
         mock_api = Mock()
         mock_api.is_closed.return_value = False
         mock_tqapi.side_effect = [Exception("Network error"), mock_api]
         
-        log_messages = []
+        log_calls = []
         
         connector = TqConnector(config_path=temp_config_file)
         logger = connector.logger
         
         original_info = logger.info
         original_error = logger.error
+        original_critical = logger.critical
         
         def capture_info(msg, *args, **kwargs):
-            log_messages.append(('INFO', str(msg)))
+            log_calls.append(('info', str(msg)))
             return original_info(msg, *args, **kwargs)
         
         def capture_error(msg, *args, **kwargs):
-            log_messages.append(('ERROR', str(msg)))
+            log_calls.append(('error', str(msg)))
             return original_error(msg, *args, **kwargs)
+        
+        def capture_critical(msg, *args, **kwargs):
+            log_calls.append(('critical', str(msg)))
+            return original_critical(msg, *args, **kwargs)
         
         logger.info = capture_info
         logger.error = capture_error
+        logger.critical = capture_critical
         
         try:
             connector.connect()
             
-            info_messages = [msg for level, msg in log_messages if level == 'INFO']
-            error_messages = [msg for level, msg in log_messages if level == 'ERROR']
+            info_messages = [msg for method, msg in log_calls if method == 'info']
+            error_messages = [msg for method, msg in log_calls if method == 'error']
             
             assert any('正在连接' in msg for msg in info_messages)
             assert any('连接成功' in msg for msg in info_messages)
+            assert any('指数退避等待' in msg for msg in info_messages)
             assert any('连接失败' in msg for msg in error_messages)
-            assert any('等待' in msg and '秒后重试' in msg for msg in info_messages)
         finally:
             logger.info = original_info
             logger.error = original_error
+            logger.critical = original_critical
 
     def test_logging_setup(self, temp_config_file):
         connector = TqConnector(config_path=temp_config_file)
@@ -550,7 +570,7 @@ class TestTqConnector:
             "tq_sdk": {"account": "test", "password": "test"},
             "env": {"mode": "invalid_mode"},
             "trading": {"default_contract": "SHFE.rb2410", "contracts": []},
-            "connection": {"retry_times": 3, "retry_delay": 1},
+            "connection": {"retry_times": 3, "initial_retry_delay": 2, "max_retry_delay": 30},
             "logging": {"level": "DEBUG", "file": "logs/test.log"}
         }
         
@@ -578,7 +598,7 @@ class TestTqConnector:
                 }
             },
             "trading": {"default_contract": "SHFE.rb2410", "contracts": []},
-            "connection": {"retry_times": 3, "retry_delay": 1},
+            "connection": {"retry_times": 3, "initial_retry_delay": 2, "max_retry_delay": 30},
             "logging": {"level": "DEBUG", "file": "logs/test.log"}
         }
         
@@ -593,6 +613,42 @@ class TestTqConnector:
         finally:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
+
+    def test_env_mode_via_config(self):
+        config_data = {
+            "tq_sdk": {"account": "test", "password": "test"},
+            "env": {"mode": "real", "sim": {"init_balance": 1000000.0}, "real": {"broker_id": "H海通期货", "futures_account": "022631", "futures_password": "123456"}},
+            "trading": {"default_contract": "SHFE.rb2410", "contracts": []},
+            "connection": {"retry_times": 3, "initial_retry_delay": 2, "max_retry_delay": 30},
+            "logging": {"level": "DEBUG", "file": "logs/test.log"}
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False, encoding='utf-8') as f:
+            yaml.dump(config_data, f)
+            temp_path = f.name
+        
+        try:
+            connector = TqConnector(config_path=temp_path)
+            assert connector.get_env_mode() == 'real'
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    @pytest.mark.skipif(USE_REAL_CONNECTION, reason="Mock测试被跳过，使用真实连接")
+    @patch('time.sleep')
+    @patch('core.connection.TqAuth')
+    @patch('core.connection.TqSim')
+    @patch('core.connection.TqApi')
+    def test_connection_error_raised_after_retries(self, mock_tqapi, mock_tqsim, mock_tqauth, mock_sleep, temp_config_file):
+        mock_tqapi.side_effect = Exception("Network failure")
+        
+        connector = TqConnector(config_path=temp_config_file)
+        
+        with pytest.raises(ConnectionError) as exc_info:
+            connector.connect()
+        
+        assert "已尝试 3 次" in str(exc_info.value)
+        assert "Network failure" in str(exc_info.value)
 
     @pytest.mark.skipif(not USE_REAL_CONNECTION, reason="需要设置 USE_REAL_CONNECTION=true")
     @pytest.mark.skipif(not TEST_TQ_ACCOUNT or not TEST_TQ_PASSWORD, 
