@@ -1,0 +1,15 @@
+tq_sdk:
+  account: ${TQ_ACCOUNT:your_account}
+  password: ${TQ_PASSWORD:your_password}
+  
+trading:
+  default_contract: "SHFE.rb2410"
+  contracts:
+    - "SHFE.rb2410"
+    - "SHFE.hc2410"
+    - "DCE.i2409"
+    - "CZCE.CF409"
+
+logging:
+  level: INFO
+  file: logs/trading.log
