@@ -24,10 +24,11 @@ trading:
 
 connection:
   retry_times: 3
-  retry_delay: 5
+  initial_retry_delay: 2
+  max_retry_delay: 30
 
 logging:
   level: INFO
-  file: logs/trading.log
+  file: logs/app.log
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   datefmt: "%Y-%m-%d %H:%M:%S"
