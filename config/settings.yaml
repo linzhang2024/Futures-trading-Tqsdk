@@ -2,6 +2,18 @@ tq_sdk:
   account: ${TQ_ACCOUNT:your_account}
   password: ${TQ_PASSWORD:your_password}
   
+env:
+  mode: ${ENV_MODE:sim}
+  sim:
+    init_balance: 10000000.0
+    account_type: "tqsim"
+  real:
+    broker_id: ${BROKER_ID:your_broker}
+    futures_account: ${FUTURES_ACCOUNT:your_futures_account}
+    futures_password: ${FUTURES_PASSWORD:your_futures_password}
+    front_broker: null
+    front_url: null
+
 trading:
   default_contract: "SHFE.rb2410"
   contracts:
@@ -10,6 +22,12 @@ trading:
     - "DCE.i2409"
     - "CZCE.CF409"
 
+connection:
+  retry_times: 3
+  retry_delay: 5
+
 logging:
   level: INFO
   file: logs/trading.log
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  datefmt: "%Y-%m-%d %H:%M:%S"
