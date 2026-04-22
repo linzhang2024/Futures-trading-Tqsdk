@@ -7,7 +7,18 @@ from tqsdk import TqApi, TqAuth
 
 
 class TqConnector:
+    _instance: Optional['TqConnector'] = None
+    
+    def __new__(cls, config_path: str = None):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    
     def __init__(self, config_path: str = None):
+        if self._initialized:
+            return
+        
         self.config_path = config_path or os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "config",
@@ -17,7 +28,8 @@ class TqConnector:
         self.api: Optional[TqApi] = None
         self.logger = logging.getLogger(__name__)
         self._load_config()
-
+        self._initialized = True
+    
     def _load_config(self) -> None:
         if not os.path.exists(self.config_path):
             raise FileNotFoundError(f"配置文件不存在: {self.config_path}")
@@ -98,3 +110,9 @@ class TqConnector:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.disconnect()
         return False
+
+    @classmethod
+    def reset_instance(cls):
+        if cls._instance:
+            cls._instance.disconnect()
+        cls._instance = None
