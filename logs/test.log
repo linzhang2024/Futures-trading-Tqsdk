@@ -1,0 +1,66 @@
+2026-04-22 22:39:30 - TqConnector - INFO - [1/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:30 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim
+2026-04-22 22:39:30 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-22 22:39:30 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 正在连接天勤 API，账号: test，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用快期模拟账户模式 (TqKq)
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-22 22:39:31 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 正在连接天勤 API，账号: test，环境模式: real
+2026-04-22 22:39:31 - TqConnector - INFO - 使用实盘模式 (TqAccount)，期货公司: H海通期货
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: real
+2026-04-22 22:39:31 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-22 22:39:31 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim
+2026-04-22 22:39:31 - TqConnector - INFO - API 已连接，无需重新连接
+2026-04-22 22:39:31 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-22 22:39:31 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-22 22:39:31 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-22 22:39:31 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-22 22:39:31 - TqConnector - ERROR - 缺少天勤账号或密码配置
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:31 - TqConnector - ERROR - [1/3] 连接失败: Network error 1
+2026-04-22 22:39:31 - TqConnector - INFO - 等待 1 秒后重试...
+2026-04-22 22:39:31 - TqConnector - INFO - [2/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:31 - TqConnector - ERROR - [2/3] 连接失败: Network error 2
+2026-04-22 22:39:31 - TqConnector - INFO - 等待 1 秒后重试...
+2026-04-22 22:39:31 - TqConnector - INFO - [3/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:31 - TqConnector - INFO - [3/3] 天勤 API 连接成功！环境: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-22 22:39:31 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:31 - TqConnector - ERROR - [1/3] 连接失败: Network error 1
+2026-04-22 22:39:31 - TqConnector - INFO - 等待 1 秒后重试...
+2026-04-22 22:39:31 - TqConnector - INFO - [2/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:31 - TqConnector - ERROR - [2/3] 连接失败: Network error 2
+2026-04-22 22:39:31 - TqConnector - INFO - 等待 1 秒后重试...
+2026-04-22 22:39:31 - TqConnector - INFO - [3/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:31 - TqConnector - ERROR - [3/3] 连接失败: Network error 3
+2026-04-22 22:39:31 - TqConnector - ERROR - 连接失败，已重试 3 次，最后错误: Network error 3
+2026-04-22 22:39:31 - TqConnector - INFO - [1/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:31 - TqConnector - ERROR - [1/3] 连接失败: Network error
+2026-04-22 22:39:31 - TqConnector - INFO - 等待 1 秒后重试...
+2026-04-22 22:39:31 - TqConnector - INFO - [2/3] 正在连接天勤 API，账号: test_account，环境模式: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-22 22:39:31 - TqConnector - INFO - [2/3] 天勤 API 连接成功！环境: sim
+2026-04-22 22:39:31 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-22 22:39:31 - TqConnector - INFO - 天勤 API 已断开连接
