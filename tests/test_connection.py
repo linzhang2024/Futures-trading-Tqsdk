@@ -2,6 +2,8 @@ import os
 import sys
 import pytest
 import tempfile
+import threading
+import time
 import yaml
 from unittest.mock import Mock, patch, MagicMock
 
@@ -43,9 +45,9 @@ class TestTqConnector:
 
     @pytest.fixture(autouse=True)
     def reset_singleton(self):
-        TqConnector._instance = None
+        TqConnector.reset_instance()
         yield
-        TqConnector._instance = None
+        TqConnector.reset_instance()
 
     def test_init_with_valid_config(self, temp_config_file):
         connector = TqConnector(config_path=temp_config_file)
@@ -222,7 +224,7 @@ class TestTqConnector:
             assert connector1 is connector2
             assert id(connector1) == id(connector2)
             
-            TqConnector._instance = None
+            TqConnector.reset_instance()
             connector3 = TqConnector(config_path=temp_config_file)
             assert connector1 is not connector3
 
@@ -241,9 +243,7 @@ class TestTqConnector:
                 assert connector1 is connector2
                 assert id(connector1) == id(connector2)
             finally:
-                if TqConnector._instance:
-                    TqConnector._instance.disconnect()
-                    TqConnector._instance = None
+                TqConnector.reset_instance()
 
     @pytest.mark.skipif(USE_REAL_CONNECTION, reason="Mock测试被跳过，使用真实连接")
     @patch('core.connection.TqAuth')
@@ -287,3 +287,102 @@ class TestTqConnector:
             
             assert connector.is_connected() is False
             print(f"登录失败异常: {str(exc_info.value)}")
+
+    def test_thread_safe_singleton_creation(self, temp_config_file):
+        instances = []
+        errors = []
+        
+        def create_connector():
+            try:
+                connector = TqConnector(config_path=temp_config_file)
+                instances.append(connector)
+            except Exception as e:
+                errors.append(e)
+        
+        threads = []
+        for _ in range(10):
+            t = threading.Thread(target=create_connector)
+            threads.append(t)
+        
+        for t in threads:
+            t.start()
+        
+        for t in threads:
+            t.join()
+        
+        assert len(errors) == 0, f"发生了 {len(errors)} 个错误: {errors}"
+        
+        first_instance = instances[0]
+        for inst in instances:
+            assert inst is first_instance, "多线程环境下应该返回同一个实例"
+        
+        assert len(set(id(inst) for inst in instances)) == 1, "所有实例应该是同一个对象"
+
+    def test_thread_safe_singleton_with_slow_initialization(self, temp_config_file):
+        instances = []
+        init_count = [0]
+        
+        original_new = TqConnector.__new__
+        
+        def slow_new(cls, config_path=None):
+            init_count[0] += 1
+            time.sleep(0.01)
+            return original_new(cls, config_path)
+        
+        TqConnector.__new__ = classmethod(slow_new).__func__
+        
+        try:
+            def create_connector():
+                connector = TqConnector(config_path=temp_config_file)
+                instances.append(connector)
+            
+            threads = []
+            for _ in range(20):
+                t = threading.Thread(target=create_connector)
+                threads.append(t)
+            
+            for t in threads:
+                t.start()
+            
+            for t in threads:
+                t.join()
+            
+            first_instance = instances[0]
+            for inst in instances:
+                assert inst is first_instance, "多线程环境下应该返回同一个实例"
+            
+            assert all(inst._initialized for inst in instances), "所有实例都应该已初始化"
+        finally:
+            TqConnector.__new__ = original_new
+
+    def test_reset_instance_thread_safe(self, temp_config_file):
+        results = []
+        
+        def create_and_reset():
+            try:
+                connector = TqConnector(config_path=temp_config_file)
+                TqConnector.reset_instance()
+                results.append(True)
+            except Exception as e:
+                results.append(e)
+        
+        threads = []
+        for _ in range(15):
+            t = threading.Thread(target=create_and_reset)
+            threads.append(t)
+        
+        for t in threads:
+            t.start()
+        
+        for t in threads:
+            t.join()
+        
+        for result in results:
+            if isinstance(result, Exception):
+                pytest.fail(f"线程安全测试失败: {result}")
+
+    def test_lock_exists(self):
+        assert hasattr(TqConnector, '_lock')
+        lock = TqConnector._lock
+        assert hasattr(lock, 'acquire')
+        assert hasattr(lock, 'release')
