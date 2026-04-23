@@ -161,38 +161,94 @@ class TqConnector:
         delay = self._initial_retry_delay * (2 ** (attempt - 1))
         return min(delay, self._max_retry_delay)
 
+    def _has_valid_credentials(self) -> bool:
+        tq_config = self.config.get('tq_sdk', {})
+        account = tq_config.get('account', '')
+        password = tq_config.get('password', '')
+        
+        if not account or not password:
+            return False
+        
+        if account == 'your_account' or password == 'your_password':
+            return False
+        
+        return True
+
     def connect(self) -> TqApi:
         if self.api and not self.api.is_closed():
             self.logger.info("API 已连接，无需重新连接")
             return self.api
         
         tq_config = self.config.get('tq_sdk', {})
-        account = tq_config.get('account')
-        password = tq_config.get('password')
+        account = tq_config.get('account', '')
+        password = tq_config.get('password', '')
         
-        if not account or not password:
-            self.logger.error("缺少天勤账号或密码配置")
-            raise ValueError("缺少天勤账号或密码配置")
+        has_valid_credentials = self._has_valid_credentials()
         
-        if account == 'your_account' or password == 'your_password':
-            self.logger.warning("检测到使用默认占位符凭证，请设置环境变量 TQ_ACCOUNT 和 TQ_PASSWORD")
+        if self._env_mode == 'sim' and not has_valid_credentials:
+            self.logger.warning("=" * 60)
+            self.logger.warning("检测到 sim 模式但未配置有效的天勤账户凭证")
+            self.logger.warning("")
+            self.logger.warning("TqSdk 需要有效的天勤账户才能运行，即使在 sim 模式下")
+            self.logger.warning("天勤账户用于获取实时行情数据")
+            self.logger.warning("")
+            self.logger.warning("请按以下步骤操作：")
+            self.logger.warning("1. 访问 https://account.shinnytech.com/ 注册天勤账户")
+            self.logger.warning("2. 设置环境变量：")
+            self.logger.warning("   set TQ_ACCOUNT=你的天勤账号")
+            self.logger.warning("   set TQ_PASSWORD=你的天勤密码")
+            self.logger.warning("   或者在 Linux/macOS 上：")
+            self.logger.warning("   export TQ_ACCOUNT=你的天勤账号")
+            self.logger.warning("   export TQ_PASSWORD=你的天勤密码")
+            self.logger.warning("=" * 60)
+            
+            raise ValueError(
+                "sim 模式需要有效的天勤账户凭证。"
+                "请注册天勤账户 (https://account.shinnytech.com/) "
+                "并设置 TQ_ACCOUNT 和 TQ_PASSWORD 环境变量。"
+            )
         
         last_exception = None
         
         for attempt in range(1, self._retry_times + 1):
             try:
-                self.logger.info(f"[{attempt}/{self._retry_times}] 正在连接天勤 API，账号: {account}，环境模式: {self._env_mode}")
-                
-                auth = TqAuth(account, password)
                 trading_account = self._create_account()
                 
-                self.api = TqApi(account=trading_account, auth=auth)
-                self.logger.info(f"[{attempt}/{self._retry_times}] 天勤 API 连接成功！环境: {self._env_mode}")
-                return self.api
+                if self._env_mode == 'sim':
+                    self.logger.info(f"[{attempt}/{self._retry_times}] 正在连接天勤 API，环境模式: {self._env_mode} (模拟模式)")
+                    
+                    auth = TqAuth(account, password)
+                    self.api = TqApi(account=trading_account, auth=auth)
+                    
+                    self.logger.info(f"[{attempt}/{self._retry_times}] 天勤 API 连接成功！环境: {self._env_mode} (模拟模式)")
+                    return self.api
+                    
+                else:
+                    if not account or not password:
+                        self.logger.error("缺少天勤账号或密码配置")
+                        raise ValueError("缺少天勤账号或密码配置")
+                    
+                    if account == 'your_account' or password == 'your_password':
+                        self.logger.warning("检测到使用默认占位符凭证，请设置环境变量 TQ_ACCOUNT 和 TQ_PASSWORD")
+                    
+                    self.logger.info(f"[{attempt}/{self._retry_times}] 正在连接天勤 API，账号: {account}，环境模式: {self._env_mode}")
+                    
+                    auth = TqAuth(account, password)
+                    
+                    self.api = TqApi(account=trading_account, auth=auth)
+                    self.logger.info(f"[{attempt}/{self._retry_times}] 天勤 API 连接成功！环境: {self._env_mode}")
+                    return self.api
                 
             except Exception as e:
                 last_exception = e
-                self.logger.error(f"[{attempt}/{self._retry_times}] 连接失败: {str(e)}", exc_info=True)
+                error_msg = str(e)
+                
+                if "403" in error_msg or "权限" in error_msg or "auth" in error_msg.lower():
+                    self.logger.error(f"[{attempt}/{self._retry_times}] 权限验证失败: {error_msg}")
+                    self.logger.error("请检查 TQ_ACCOUNT 和 TQ_PASSWORD 环境变量是否正确")
+                    self.logger.error("如果没有天勤账户，请访问 https://account.shinnytech.com/ 注册")
+                else:
+                    self.logger.error(f"[{attempt}/{self._retry_times}] 连接失败: {error_msg}", exc_info=True)
                 
                 if attempt < self._retry_times:
                     delay = self._calculate_exponential_backoff(attempt)

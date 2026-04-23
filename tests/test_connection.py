@@ -111,7 +111,7 @@ class TestTqConnector:
     @patch('core.connection.TqAuth')
     @patch('core.connection.TqSim')
     @patch('core.connection.TqApi')
-    def test_connect_success_mock_sim_mode(self, mock_tqapi, mock_tqsim, mock_tqauth, temp_config_file):
+    def test_connect_success_mock_sim_mode_with_valid_credentials(self, mock_tqapi, mock_tqsim, mock_tqauth, temp_config_file):
         mock_api = Mock()
         mock_api.is_closed.return_value = False
         mock_tqapi.return_value = mock_api
@@ -122,7 +122,7 @@ class TestTqConnector:
         connector = TqConnector(config_path=temp_config_file)
         api = connector.connect()
         
-        assert mock_tqauth.called
+        assert mock_tqauth.called, "sim 模式下有有效凭证时应该调用 TqAuth"
         mock_tqauth.assert_called_once_with('test_account', 'test_password')
         
         assert mock_tqsim.called
@@ -133,6 +133,114 @@ class TestTqConnector:
         
         assert connector.is_connected() is True
         assert api == mock_api
+    
+    @pytest.mark.skipif(USE_REAL_CONNECTION, reason="Mock测试被跳过，使用真实连接")
+    def test_connect_sim_mode_without_tq_sdk_config(self):
+        config_data = {
+            "env": {
+                "mode": "sim",
+                "sim": {"init_balance": 1000000.0, "account_type": "tqsim"}
+            },
+            "trading": {"default_contract": "SHFE.rb2410", "contracts": []},
+            "connection": {"retry_times": 3, "initial_retry_delay": 2, "max_retry_delay": 30},
+            "logging": {"level": "DEBUG", "file": "logs/test.log"}
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False, encoding='utf-8') as f:
+            yaml.dump(config_data, f)
+            temp_path = f.name
+        
+        try:
+            connector = TqConnector(config_path=temp_path)
+            
+            with pytest.raises(ValueError) as exc_info:
+                connector.connect()
+            
+            assert "sim 模式需要有效的天勤账户凭证" in str(exc_info.value)
+            assert "TQ_ACCOUNT" in str(exc_info.value)
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+    
+    @pytest.mark.skipif(USE_REAL_CONNECTION, reason="Mock测试被跳过，使用真实连接")
+    def test_connect_sim_mode_with_default_placeholder_credentials(self):
+        config_data = {
+            "tq_sdk": {
+                "account": "your_account",
+                "password": "your_password"
+            },
+            "env": {
+                "mode": "sim",
+                "sim": {"init_balance": 1000000.0, "account_type": "tqsim"}
+            },
+            "trading": {"default_contract": "SHFE.rb2410", "contracts": []},
+            "connection": {"retry_times": 3, "initial_retry_delay": 2, "max_retry_delay": 30},
+            "logging": {"level": "DEBUG", "file": "logs/test.log"}
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False, encoding='utf-8') as f:
+            yaml.dump(config_data, f)
+            temp_path = f.name
+        
+        try:
+            connector = TqConnector(config_path=temp_path)
+            
+            with pytest.raises(ValueError) as exc_info:
+                connector.connect()
+            
+            assert "sim 模式需要有效的天勤账户凭证" in str(exc_info.value)
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+    
+    @pytest.mark.skipif(USE_REAL_CONNECTION, reason="Mock测试被跳过，使用真实连接")
+    @patch('core.connection.TqAuth')
+    @patch('core.connection.TqSim')
+    @patch('core.connection.TqApi')
+    def test_connect_sim_mode_with_valid_credentials_success(self, mock_tqapi, mock_tqsim, mock_tqauth):
+        config_data = {
+            "tq_sdk": {
+                "account": "valid_account",
+                "password": "valid_password"
+            },
+            "env": {
+                "mode": "sim",
+                "sim": {"init_balance": 1000000.0, "account_type": "tqsim"}
+            },
+            "trading": {"default_contract": "SHFE.rb2410", "contracts": []},
+            "connection": {"retry_times": 3, "initial_retry_delay": 2, "max_retry_delay": 30},
+            "logging": {"level": "DEBUG", "file": "logs/test.log"}
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False, encoding='utf-8') as f:
+            yaml.dump(config_data, f)
+            temp_path = f.name
+        
+        try:
+            mock_api = Mock()
+            mock_api.is_closed.return_value = False
+            mock_tqapi.return_value = mock_api
+            
+            mock_sim = Mock()
+            mock_tqsim.return_value = mock_sim
+            
+            connector = TqConnector(config_path=temp_path)
+            api = connector.connect()
+            
+            assert mock_tqauth.called
+            mock_tqauth.assert_called_once_with('valid_account', 'valid_password')
+            
+            assert mock_tqsim.called
+            mock_tqsim.assert_called_once_with(init_balance=1000000.0)
+            
+            assert mock_tqapi.called
+            mock_tqapi.assert_called_once_with(account=mock_sim, auth=mock_tqauth.return_value)
+            
+            assert connector.is_connected() is True
+            assert api == mock_api
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
 
     @pytest.mark.skipif(USE_REAL_CONNECTION, reason="Mock测试被跳过，使用真实连接")
     @patch('core.connection.TqAuth')
@@ -325,7 +433,7 @@ class TestTqConnector:
         assert connector1 is not connector3
 
     @pytest.mark.skipif(USE_REAL_CONNECTION, reason="Mock测试被跳过，使用真实连接")
-    def test_connect_with_missing_credentials_mock(self):
+    def test_connect_sim_mode_with_empty_credentials(self):
         config_data = {
             "tq_sdk": {
                 "account": "",
@@ -343,8 +451,46 @@ class TestTqConnector:
         
         try:
             connector = TqConnector(config_path=temp_path)
-            with pytest.raises(ValueError, match="缺少天勤账号或密码配置"):
+            
+            with pytest.raises(ValueError) as exc_info:
                 connector.connect()
+            
+            assert "sim 模式需要有效的天勤账户凭证" in str(exc_info.value)
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+    
+    @pytest.mark.skipif(USE_REAL_CONNECTION, reason="Mock测试被跳过，使用真实连接")
+    def test_connect_real_mode_with_missing_credentials(self):
+        config_data = {
+            "tq_sdk": {
+                "account": "",
+                "password": ""
+            },
+            "env": {
+                "mode": "real",
+                "sim": {"init_balance": 1000000.0},
+                "real": {
+                    "broker_id": "test_broker",
+                    "futures_account": "test_account",
+                    "futures_password": "test_password"
+                }
+            },
+            "trading": {"default_contract": "SHFE.rb2410", "contracts": []},
+            "connection": {"retry_times": 1, "initial_retry_delay": 0, "max_retry_delay": 0},
+            "logging": {"level": "DEBUG", "file": "logs/test.log"}
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False, encoding='utf-8') as f:
+            yaml.dump(config_data, f)
+            temp_path = f.name
+        
+        try:
+            connector = TqConnector(config_path=temp_path)
+            with pytest.raises(ConnectionError) as exc_info:
+                connector.connect()
+            
+            assert "缺少天勤账号或密码配置" in str(exc_info.value)
         finally:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
