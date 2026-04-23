@@ -73,6 +73,22 @@ backtest:
   tq_account: ${TQ_ACCOUNT:}
   tq_password: ${TQ_PASSWORD:}
   
+  costs:
+    default_commission_per_lot: 5.0
+    default_slippage_points: 1.0
+    
+    contracts:
+      "SHFE.rb2410":
+        commission_per_lot: 5.0
+        slippage_points: 1.0
+      "SHFE.rb2405":
+        commission_per_lot: 5.0
+        slippage_points: 1.0
+  
+  performance:
+    risk_free_rate: 0.03
+    trading_days_per_year: 252
+  
   optimization:
     param_ranges:
       - name: "short_period"
@@ -84,3 +100,4 @@ backtest:
         max: 60
         step: 5
     optimize_by: "total_return_percent"
+    max_workers: 4

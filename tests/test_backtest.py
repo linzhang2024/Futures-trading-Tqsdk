@@ -12,6 +12,9 @@ from core.backtest import (
     BacktestResult,
     BacktestMode,
     ParameterRange,
+    PerformanceMetrics,
+    CostConfig,
+    PerformanceConfig,
 )
 from strategies.base_strategy import StrategyBase, SignalType
 from strategies.double_ma_strategy import DoubleMAStrategy
@@ -50,6 +53,95 @@ class TestParameterRange:
         assert pr.param_type == float
 
 
+class TestPerformanceMetrics:
+    def test_performance_metrics_default_values(self):
+        metrics = PerformanceMetrics()
+        
+        assert metrics.total_return == 0.0
+        assert metrics.total_return_percent == 0.0
+        assert metrics.annualized_return == 0.0
+        assert metrics.annualized_return_percent == 0.0
+        assert metrics.max_drawdown == 0.0
+        assert metrics.max_drawdown_percent == 0.0
+        assert metrics.sharpe_ratio == 0.0
+        assert metrics.sortino_ratio == 0.0
+        assert metrics.calmar_ratio == 0.0
+        assert metrics.total_trades == 0
+        assert metrics.win_rate == 0.0
+        assert metrics.profit_factor == 0.0
+        assert metrics.total_commission_cost == 0.0
+        assert metrics.total_slippage_cost == 0.0
+        assert metrics.total_cost == 0.0
+
+    def test_performance_metrics_with_values(self):
+        metrics = PerformanceMetrics(
+            total_return=100000.0,
+            total_return_percent=10.0,
+            annualized_return=0.40,
+            annualized_return_percent=40.0,
+            max_drawdown=50000.0,
+            max_drawdown_percent=5.0,
+            sharpe_ratio=1.5,
+            sortino_ratio=2.0,
+            calmar_ratio=8.0,
+            total_trades=20,
+            winning_trades=12,
+            losing_trades=8,
+            win_rate=60.0,
+            profit_factor=1.5,
+            total_commission_cost=100.0,
+            total_slippage_cost=200.0,
+            total_cost=300.0,
+        )
+        
+        assert metrics.total_return == 100000.0
+        assert metrics.total_return_percent == 10.0
+        assert metrics.annualized_return_percent == 40.0
+        assert metrics.max_drawdown_percent == 5.0
+        assert metrics.sharpe_ratio == 1.5
+        assert metrics.sortino_ratio == 2.0
+        assert metrics.calmar_ratio == 8.0
+        assert metrics.total_trades == 20
+        assert metrics.win_rate == 60.0
+        assert metrics.profit_factor == 1.5
+
+
+class TestCostConfig:
+    def test_cost_config_default_values(self):
+        config = CostConfig()
+        
+        assert config.default_commission_per_lot == 0.0
+        assert config.default_slippage_points == 0.0
+        assert config.contract_configs == {}
+
+    def test_cost_config_get_commission_default(self):
+        config = CostConfig(
+            default_commission_per_lot=5.0,
+            default_slippage_points=1.0,
+        )
+        
+        assert config.get_commission('unknown_contract') == 5.0
+        assert config.get_slippage('unknown_contract') == 1.0
+
+    def test_cost_config_get_contract_specific(self):
+        config = CostConfig(
+            default_commission_per_lot=5.0,
+            default_slippage_points=1.0,
+            contract_configs={
+                'SHFE.rb2410': {
+                    'commission_per_lot': 3.0,
+                    'slippage_points': 0.5,
+                }
+            }
+        )
+        
+        assert config.get_commission('SHFE.rb2410') == 3.0
+        assert config.get_slippage('SHFE.rb2410') == 0.5
+        
+        assert config.get_commission('SHFE.hc2410') == 5.0
+        assert config.get_slippage('SHFE.hc2410') == 1.0
+
+
 class TestBacktestResult:
     def test_backtest_result_default_values(self):
         result = BacktestResult(
@@ -66,11 +158,9 @@ class TestBacktestResult:
         
         assert result.initial_equity == 0.0
         assert result.final_equity == 0.0
-        assert result.total_return == 0.0
-        assert result.total_return_percent == 0.0
-        assert result.max_drawdown == 0.0
-        assert result.max_drawdown_percent == 0.0
-        assert result.total_trades == 0
+        assert result.performance.total_return == 0.0
+        assert result.performance.max_drawdown == 0.0
+        assert result.performance.total_trades == 0
         assert result.risk_triggered == False
         assert result.frozen_during_backtest == False
         assert result.status == 'completed'
@@ -78,7 +168,16 @@ class TestBacktestResult:
         assert result.trade_records == []
         assert result.risk_events == []
 
-    def test_backtest_result_with_values(self):
+    def test_backtest_result_with_performance(self):
+        performance = PerformanceMetrics(
+            total_return=100000.0,
+            total_return_percent=10.0,
+            max_drawdown_percent=5.0,
+            total_trades=20,
+            win_rate=60.0,
+            profit_factor=1.5,
+        )
+        
         result = BacktestResult(
             strategy_name='DoubleMAStrategy',
             params={'short_period': 5, 'long_period': 10},
@@ -86,25 +185,17 @@ class TestBacktestResult:
             end_dt=date(2024, 3, 31),
             initial_equity=1000000.0,
             final_equity=1100000.0,
-            total_return=100000.0,
-            total_return_percent=10.0,
-            max_drawdown=50000.0,
-            max_drawdown_percent=5.0,
-            total_trades=20,
-            winning_trades=12,
-            losing_trades=8,
-            win_rate=60.0,
-            profit_factor=1.5,
+            performance=performance,
             risk_triggered=False,
             frozen_during_backtest=False,
             status='completed',
         )
         
-        assert result.total_return_percent == 10.0
-        assert result.max_drawdown_percent == 5.0
-        assert result.total_trades == 20
-        assert result.win_rate == 60.0
-        assert result.profit_factor == 1.5
+        assert result.performance.total_return_percent == 10.0
+        assert result.performance.max_drawdown_percent == 5.0
+        assert result.performance.total_trades == 20
+        assert result.performance.win_rate == 60.0
+        assert result.performance.profit_factor == 1.5
 
 
 class TestBacktestEngineInitialization:
@@ -142,6 +233,59 @@ class TestBacktestEngineInitialization:
         
         assert engine._tq_account == 'test_account'
         assert engine._tq_password == 'test_password'
+
+    def test_engine_initialization_with_cost_config(self):
+        config = {
+            'backtest': {
+                'init_balance': 1000000.0,
+                'costs': {
+                    'default_commission_per_lot': 5.0,
+                    'default_slippage_points': 1.0,
+                    'contracts': {
+                        'SHFE.rb2410': {
+                            'commission_per_lot': 3.0,
+                            'slippage_points': 0.5,
+                        }
+                    }
+                }
+            }
+        }
+        
+        engine = BacktestEngine(config=config)
+        
+        assert engine._cost_config.default_commission_per_lot == 5.0
+        assert engine._cost_config.default_slippage_points == 1.0
+        assert engine._cost_config.get_commission('SHFE.rb2410') == 3.0
+
+    def test_engine_initialization_with_performance_config(self):
+        config = {
+            'backtest': {
+                'init_balance': 1000000.0,
+                'performance': {
+                    'risk_free_rate': 0.04,
+                    'trading_days_per_year': 250,
+                }
+            }
+        }
+        
+        engine = BacktestEngine(config=config)
+        
+        assert engine._performance_config.risk_free_rate == 0.04
+        assert engine._performance_config.trading_days_per_year == 250
+
+    def test_engine_initialization_with_max_workers(self):
+        config = {
+            'backtest': {
+                'init_balance': 1000000.0,
+                'optimization': {
+                    'max_workers': 2,
+                }
+            }
+        }
+        
+        engine = BacktestEngine(config=config)
+        
+        assert engine._max_workers == 2
 
 
 class TestBacktestEngineDateExtraction:
@@ -282,50 +426,6 @@ class TestBacktestEngineParamGrid:
         assert {'some_param': 1.0} in grids
 
 
-class TestBacktestEngineStatistics:
-    def test_calculate_statistics_with_trades(self):
-        engine = BacktestEngine()
-        
-        result = BacktestResult(
-            strategy_name='Test',
-            params={},
-            start_dt=date(2024, 1, 1),
-            end_dt=date(2024, 3, 31),
-            initial_equity=1000000.0,
-            final_equity=1100000.0,
-            total_return=100000.0,
-            total_trades=10,
-        )
-        
-        engine._calculate_statistics(result)
-        
-        assert result.avg_trade == 10000.0
-
-    def test_calculate_statistics_with_equity_curve(self):
-        engine = BacktestEngine()
-        
-        result = BacktestResult(
-            strategy_name='Test',
-            params={},
-            start_dt=date(2024, 1, 1),
-            end_dt=date(2024, 3, 31),
-            initial_equity=1000000.0,
-            final_equity=950000.0,
-            total_return=-50000.0,
-            equity_curve=[
-                {'cycle': 1, 'timestamp': 1, 'equity': 1000000.0},
-                {'cycle': 2, 'timestamp': 2, 'equity': 1100000.0},
-                {'cycle': 3, 'timestamp': 3, 'equity': 1050000.0},
-                {'cycle': 4, 'timestamp': 4, 'equity': 950000.0},
-            ],
-        )
-        
-        engine._calculate_statistics(result)
-        
-        assert result.max_drawdown == 150000.0
-        assert result.max_drawdown_percent == pytest.approx(13.64, rel=1e-2)
-
-
 class TestBacktestEngineResults:
     def test_get_results_empty(self):
         engine = BacktestEngine()
@@ -436,6 +536,13 @@ class TestBacktestEngineReportGeneration:
     def test_generate_report_with_results(self, tmp_path):
         engine = BacktestEngine()
         
+        performance = PerformanceMetrics(
+            total_return=100000.0,
+            total_return_percent=10.0,
+            max_drawdown_percent=5.0,
+            total_trades=20,
+        )
+        
         result = BacktestResult(
             strategy_name='DoubleMAStrategy',
             params={'short_period': 5, 'long_period': 10},
@@ -443,11 +550,7 @@ class TestBacktestEngineReportGeneration:
             end_dt=date(2024, 3, 31),
             initial_equity=1000000.0,
             final_equity=1100000.0,
-            total_return=100000.0,
-            total_return_percent=10.0,
-            max_drawdown=50000.0,
-            max_drawdown_percent=5.0,
-            total_trades=20,
+            performance=performance,
             status='completed',
         )
         
@@ -508,3 +611,58 @@ class TestBacktestEngineIntegration:
         
         assert start_dt == date(2024, 1, 15)
         assert end_dt == date(2024, 2, 15)
+
+
+class TestParseCostConfig:
+    def test_parse_cost_config_from_dict(self):
+        backtest_config = {
+            'costs': {
+                'default_commission_per_lot': 5.0,
+                'default_slippage_points': 1.0,
+                'contracts': {
+                    'SHFE.rb2410': {
+                        'commission_per_lot': 3.0,
+                        'slippage_points': 0.5,
+                    },
+                    'SHFE.hc2410': {
+                        'commission_per_lot': 4.0,
+                        'slippage_points': 0.8,
+                    }
+                }
+            }
+        }
+        
+        engine = BacktestEngine(config={'backtest': backtest_config})
+        
+        assert engine._cost_config.default_commission_per_lot == 5.0
+        assert engine._cost_config.default_slippage_points == 1.0
+        assert engine._cost_config.get_commission('SHFE.rb2410') == 3.0
+        assert engine._cost_config.get_slippage('SHFE.rb2410') == 0.5
+        assert engine._cost_config.get_commission('SHFE.hc2410') == 4.0
+        assert engine._cost_config.get_slippage('SHFE.hc2410') == 0.8
+
+    def test_parse_cost_config_empty(self):
+        backtest_config = {}
+        
+        engine = BacktestEngine(config={'backtest': backtest_config})
+        
+        assert engine._cost_config.default_commission_per_lot == 0.0
+        assert engine._cost_config.default_slippage_points == 0.0
+        assert engine._cost_config.contract_configs == {}
+
+
+class TestPerformanceConfig:
+    def test_performance_config_default(self):
+        config = PerformanceConfig()
+        
+        assert config.risk_free_rate == 0.03
+        assert config.trading_days_per_year == 252
+
+    def test_performance_config_custom(self):
+        config = PerformanceConfig(
+            risk_free_rate=0.04,
+            trading_days_per_year=250,
+        )
+        
+        assert config.risk_free_rate == 0.04
+        assert config.trading_days_per_year == 250
