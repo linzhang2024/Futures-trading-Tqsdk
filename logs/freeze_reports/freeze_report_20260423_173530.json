@@ -1,0 +1,66 @@
+{
+  "report_type": "FROZEN_REPORT",
+  "version": "1.0",
+  "generated_at": "2026-04-23T17:35:30.673395",
+  "freeze_reason": "净值回撤超过 3.0%",
+  "freeze_timestamp": 1776936930.6733954,
+  "freeze_datetime": "2026-04-23T17:35:30.673395",
+  "thresholds": {
+    "max_drawdown_percent": 3.0,
+    "max_strategy_margin_percent": 30.0,
+    "max_total_margin_percent": 80.0,
+    "price_gap_threshold_percent": 5.0
+  },
+  "current_state": {
+    "peak_equity": 1000000.0,
+    "current_drawdown_percent": 4.0,
+    "total_strategies": 0,
+    "total_positions": 0,
+    "api_timeouts": 0
+  },
+  "account_snapshots": [],
+  "positions_snapshot": {},
+  "strategies_snapshot": {},
+  "equity_curve": [],
+  "risk_events": [
+    {
+      "event_type": "DRAWDOWN_EXCEEDED",
+      "timestamp": 1776936930.6723955,
+      "datetime": "2026-04-23T17:35:30.672395",
+      "level": "WARNING",
+      "message": "净值回撤接近阈值: 当前回撤 2.00%",
+      "details": {
+        "peak_equity": 1000000.0,
+        "current_equity": 980000.0,
+        "drawdown_percent": 2.0,
+        "warning_threshold": 1.7999999999999998
+      }
+    },
+    {
+      "event_type": "DRAWDOWN_EXCEEDED",
+      "timestamp": 1776936930.6733954,
+      "datetime": "2026-04-23T17:35:30.673395",
+      "level": "WARNING",
+      "message": "净值回撤接近阈值: 当前回撤 2.50%",
+      "details": {
+        "peak_equity": 1000000.0,
+        "current_equity": 975000.0,
+        "drawdown_percent": 2.5,
+        "warning_threshold": 1.7999999999999998
+      }
+    },
+    {
+      "event_type": "DRAWDOWN_EXCEEDED",
+      "timestamp": 1776936930.6733954,
+      "datetime": "2026-04-23T17:35:30.673395",
+      "level": "CRITICAL",
+      "message": "净值回撤超过阈值: 当前回撤 4.00% > 阈值 3.0%",
+      "details": {
+        "peak_equity": 1000000.0,
+        "current_equity": 960000.0,
+        "drawdown_percent": 4.0,
+        "threshold_percent": 3.0
+      }
+    }
+  ]
+}
