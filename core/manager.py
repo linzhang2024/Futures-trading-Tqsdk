@@ -2,12 +2,20 @@ import logging
 import time
 import json
 import os
-from typing import Dict, Any, List, Optional, Type
+from typing import Dict, Any, List, Optional, Type, Callable
 from collections import defaultdict
 from datetime import datetime, timedelta
 from enum import Enum
 
 from strategies.base_strategy import StrategyBase, SignalType
+from core.risk_manager import (
+    RiskManager,
+    RiskLevel,
+    RiskEvent,
+    RiskEventType,
+    PositionInfo,
+    AccountSnapshot,
+)
 
 
 class StrategyHealthStatus(Enum):
@@ -76,7 +84,14 @@ class StrategyHealth:
 class StrategyManager:
     _strategy_classes: Dict[str, Type[StrategyBase]] = {}
     
-    def __init__(self, connector: Any = None, state_dir: str = None):
+    def __init__(
+        self,
+        connector: Any = None,
+        state_dir: str = None,
+        risk_manager: RiskManager = None,
+        on_risk_event: Callable[[RiskEvent], None] = None,
+        on_risk_frozen: Callable[[], None] = None,
+    ):
         self.connector = connector
         self.api = None
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -102,7 +117,104 @@ class StrategyManager:
         self._cycle_count = 0
         self._start_time = 0.0
         
+        self._risk_manager = risk_manager
+        self._on_risk_event = on_risk_event
+        self._on_risk_frozen = on_risk_frozen
+        self._risk_check_interval = 1
+        self._last_risk_check_time = 0.0
+        
         self._register_default_strategies()
+    
+    def _init_risk_manager(self) -> None:
+        if self._risk_manager is not None:
+            return
+        
+        self._risk_manager = RiskManager(
+            connector=self.connector,
+            on_risk_event=self._on_risk_event,
+            on_frozen=self._on_risk_frozen,
+        )
+        self.logger.info("RiskManager 已初始化")
+    
+    def get_risk_manager(self) -> Optional[RiskManager]:
+        return self._risk_manager
+    
+    def set_risk_manager(self, risk_manager: RiskManager) -> None:
+        self._risk_manager = risk_manager
+        self.logger.info("RiskManager 已设置")
+    
+    def configure_risk_from_dict(self, config: Dict[str, Any]) -> None:
+        if not config:
+            return
+        
+        risk_config = config.get('risk', {})
+        
+        if self._risk_manager is None:
+            self._init_risk_manager()
+        
+        max_drawdown = risk_config.get('max_drawdown_percent')
+        if max_drawdown is not None:
+            self._risk_manager.max_drawdown_percent = float(max_drawdown)
+            self.logger.info(f"最大回撤阈值已设置为: {max_drawdown}%")
+        
+        max_strategy_margin = risk_config.get('max_strategy_margin_percent')
+        if max_strategy_margin is not None:
+            self._risk_manager.max_strategy_margin_percent = float(max_strategy_margin)
+            self.logger.info(f"单策略最大保证金比例已设置为: {max_strategy_margin}%")
+        
+        max_total_margin = risk_config.get('max_total_margin_percent')
+        if max_total_margin is not None:
+            self._risk_manager.max_total_margin_percent = float(max_total_margin)
+            self.logger.info(f"总最大保证金比例已设置为: {max_total_margin}%")
+        
+        risk_check_interval = risk_config.get('risk_check_interval')
+        if risk_check_interval is not None and risk_check_interval > 0:
+            self._risk_check_interval = risk_check_interval
+            self.logger.info(f"风控检查间隔已设置为: {self._risk_check_interval} 秒")
+    
+    def _should_run_risk_check(self) -> bool:
+        if self._risk_manager is None:
+            return False
+        
+        if self._risk_check_interval <= 0:
+            return True
+        
+        current_time = time.time()
+        if current_time - self._last_risk_check_time >= self._risk_check_interval:
+            self._last_risk_check_time = current_time
+            return True
+        
+        return False
+    
+    def run_risk_checks(self) -> Dict[str, RiskLevel]:
+        if self._risk_manager is None:
+            return {}
+        
+        return self._risk_manager.run_risk_checks()
+    
+    def is_risk_frozen(self) -> bool:
+        if self._risk_manager is None:
+            return False
+        return self._risk_manager.is_frozen()
+    
+    def get_risk_info(self) -> Dict[str, Any]:
+        if self._risk_manager is None:
+            return {'risk_enabled': False}
+        
+        info = self._risk_manager.get_total_risk_info()
+        info['risk_enabled'] = True
+        return info
+    
+    def emergency_stop(self, reason: str) -> Dict[str, Any]:
+        if self._risk_manager is None:
+            self.logger.warning("RiskManager 未初始化，无法执行紧急停止")
+            return {'status': 'error', 'message': 'RiskManager 未初始化'}
+        
+        result = self._risk_manager.emergency_stop(reason)
+        
+        self._running = False
+        
+        return result
     
     def configure_from_dict(self, config: Dict[str, Any]) -> None:
         if not config:
@@ -126,6 +238,8 @@ class StrategyManager:
             self.logger.info(f"状态存储目录已设置为: {self._state_dir}")
         
         self._auto_save_states = manager_config.get('auto_save_states', True)
+        
+        self.configure_risk_from_dict(config)
     
     @classmethod
     def _register_default_strategies(cls):
@@ -600,6 +714,9 @@ class StrategyManager:
         if self.api is None:
             raise RuntimeError("API 未初始化")
         
+        if self._risk_manager is not None and not self._risk_manager._initialized:
+            self._risk_manager.initialize()
+        
         self.logger.info("开始运行策略管理器主循环...")
         self._running = True
         self._start_time = time.time()
@@ -609,8 +726,22 @@ class StrategyManager:
         
         while self._running:
             try:
+                if self.is_risk_frozen():
+                    self.logger.critical("系统已被风控冻结，停止运行")
+                    self._running = False
+                    break
+                
                 self.api.wait_update()
                 self._cycle_count += 1
+                
+                if self._should_run_risk_check():
+                    risk_results = self.run_risk_checks()
+                    
+                    if self.is_risk_frozen():
+                        frozen_reason = self._risk_manager.get_frozen_reason() if self._risk_manager else "未知原因"
+                        self.logger.critical(f"风控检查触发冻结: {frozen_reason}")
+                        self._running = False
+                        break
                 
                 for name, strategy in self._strategies.items():
                     health = self._strategy_health.get(name)
@@ -620,6 +751,9 @@ class StrategyManager:
                     
                     if not health.can_run():
                         continue
+                    
+                    if self.is_risk_frozen():
+                        break
                     
                     try:
                         if hasattr(strategy, '_on_update'):
@@ -635,6 +769,15 @@ class StrategyManager:
                 
                 if self._should_report_status():
                     self.logger.info(self._format_status_report())
+                    
+                    if self._risk_manager is not None:
+                        risk_info = self.get_risk_info()
+                        drawdown_info = risk_info.get('drawdown_info', {})
+                        self.logger.info(
+                            f"[风控状态] 权益: {risk_info.get('equity', 0):.2f}, "
+                            f"回撤: {drawdown_info.get('current_drawdown_percent', 0):.2f}%, "
+                            f"冻结: {risk_info.get('is_frozen', False)}"
+                        )
                     
                     self.logger.info("自动保存所有策略状态...")
                     saved_count = self.save_all_states()
