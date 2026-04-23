@@ -15,6 +15,22 @@ from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import Manager
 
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    NUMPY_AVAILABLE = False
+    np = None
+
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    MATPLOTLIB_AVAILABLE = True
+except ImportError:
+    MATPLOTLIB_AVAILABLE = False
+    plt = None
+
 from tqsdk import TqApi, TqSim, TqAuth, TqBacktest
 from tqsdk.exceptions import BacktestFinished
 
@@ -175,11 +191,31 @@ class BacktestEngine:
                     account.set_commission(symbol, commission)
                     self.logger.debug(f"设置合约 {symbol} 手续费: {commission}元/手")
         
+        api = None
+        
         if self._tq_account and self._tq_password:
-            auth = TqAuth(self._tq_account, self._tq_password)
-            api = TqApi(account=account, backtest=backtest, auth=auth)
-        else:
-            api = TqApi(account=account, backtest=backtest)
+            try:
+                self.logger.info("尝试使用认证账号连接...")
+                auth = TqAuth(self._tq_account, self._tq_password)
+                api = TqApi(account=account, backtest=backtest, auth=auth)
+                self.logger.info("认证连接成功")
+            except Exception as e:
+                self.logger.warning(f"认证连接失败，将切换至匿名模式: {e}")
+                try:
+                    if api and not api.is_closed():
+                        api.close()
+                except Exception:
+                    pass
+                api = None
+        
+        if api is None:
+            self.logger.info("使用匿名模式创建回测 API")
+            try:
+                api = TqApi(account=account, backtest=backtest)
+                self.logger.info("匿名连接成功")
+            except Exception as e:
+                self.logger.error(f"匿名连接也失败: {e}")
+                raise
         
         return api, account
 
@@ -406,11 +442,26 @@ class BacktestEngine:
                     if commission > 0:
                         account.set_commission(symbol, commission)
             
+            api = None
             if tq_account and tq_password:
-                auth = TqAuth(tq_account, tq_password)
-                api = TqApi(account=account, backtest=backtest, auth=auth)
-            else:
-                api = TqApi(account=account, backtest=backtest)
+                try:
+                    auth = TqAuth(tq_account, tq_password)
+                    api = TqApi(account=account, backtest=backtest, auth=auth)
+                except Exception as e:
+                    logging.getLogger(__name__).warning(f"子进程认证连接失败，切换至匿名模式: {e}")
+                    try:
+                        if api and not api.is_closed():
+                            api.close()
+                    except Exception:
+                        pass
+                    api = None
+            
+            if api is None:
+                try:
+                    api = TqApi(account=account, backtest=backtest)
+                except Exception as e:
+                    logging.getLogger(__name__).error(f"子进程匿名连接失败: {e}")
+                    raise
             
             from strategies.base_strategy import StrategyBase
             from core.manager import StrategyManager
@@ -1261,13 +1312,8 @@ class BacktestEngine:
             self.logger.warning("需要至少2个回测结果才能生成可视化图表")
             return None
         
-        try:
-            import matplotlib
-            matplotlib.use('Agg')
-            import matplotlib.pyplot as plt
-            import numpy as np
-        except ImportError:
-            self.logger.error("matplotlib 未安装，请运行: pip install matplotlib numpy")
+        if not MATPLOTLIB_AVAILABLE or not NUMPY_AVAILABLE:
+            self.logger.error("matplotlib 或 numpy 未安装，请运行: pip install matplotlib numpy")
             return None
         
         if output_path is None:
@@ -1290,10 +1336,10 @@ class BacktestEngine:
                     if len(x_values) > 1 and len(y_values) > 1:
                         return self._generate_heatmap(
                             output_path, x_param, y_param, x_values, y_values,
-                            self._results, plt, np
+                            self._results
                         )
             
-            return self._generate_equity_curves(output_path, self._results, self._best_result, plt)
+            return self._generate_equity_curves(output_path, self._results, self._best_result)
             
         except Exception as e:
             self.logger.error(f"生成图表失败: {e}", exc_info=True)
@@ -1307,8 +1353,6 @@ class BacktestEngine:
         x_values: List[Any],
         y_values: List[Any],
         results: List[BacktestResult],
-        plt,
-        np,
     ) -> str:
         x_to_idx = {v: i for i, v in enumerate(x_values)}
         y_to_idx = {v: i for i, v in enumerate(y_values)}
@@ -1407,7 +1451,6 @@ class BacktestEngine:
         output_path: str,
         results: List[BacktestResult],
         best_result: Optional[BacktestResult],
-        plt,
     ) -> str:
         fig, axes = plt.subplots(2, 2, figsize=(16, 12))
         fig.suptitle('回测结果综合分析', fontsize=16, fontweight='bold')
