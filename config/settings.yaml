@@ -39,6 +39,14 @@ manager:
   state_dir: "data/states"
   auto_save_states: true
 
+risk:
+  max_drawdown_percent: 5.0
+  max_strategy_margin_percent: 30.0
+  max_total_margin_percent: 80.0
+  price_gap_threshold_percent: 5.0
+  api_timeout_seconds: 3.0
+  risk_check_interval: 1
+
 strategies:
   - name: "ShortTerm_MA"
     class: "DoubleMAStrategy"
