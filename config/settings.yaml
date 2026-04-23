@@ -33,6 +33,12 @@ logging:
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   datefmt: "%Y-%m-%d %H:%M:%S"
 
+manager:
+  status_report_interval: 30
+  load_saved_states: true
+  state_dir: "data/states"
+  auto_save_states: true
+
 strategies:
   - name: "ShortTerm_MA"
     class: "DoubleMAStrategy"
