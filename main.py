@@ -5,7 +5,8 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from core.connection import TqConnector
-from strategies.double_ma_strategy import DoubleMAStrategy, SignalType
+from core.manager import StrategyManager
+from strategies.base_strategy import SignalType
 
 
 def setup_logging():
@@ -23,11 +24,11 @@ def main():
     logger = logging.getLogger(__name__)
     
     logger.info("=" * 60)
-    logger.info("启动量化交易框架...")
+    logger.info("启动量化交易框架 (多策略模式)...")
     logger.info("=" * 60)
     
     connector = None
-    strategy = None
+    manager = None
     
     try:
         with TqConnector() as connector:
@@ -46,70 +47,53 @@ def main():
             else:
                 logger.info("凭据来源: 无 (使用匿名模式)")
             
-            strategy = DoubleMAStrategy(
-                connector=connector,
-                short_period=5,
-                long_period=10,
-                contract=default_contract or "SHFE.rb2410",
-                kline_duration=60,
-                use_ema=False,
-            )
+            config = connector.get_config()
             
-            logger.info("正在初始化策略...")
-            strategy.initialize()
+            logger.info("正在创建策略管理器...")
+            manager = StrategyManager(connector=connector)
             
-            if strategy.klines is None:
-                raise RuntimeError(f"合约 {strategy.contract} 订阅失败，klines 为 None")
+            logger.info("正在从配置加载策略...")
+            manager.load_strategies_from_config(config)
             
-            logger.info("合约订阅成功！")
-            logger.info(f"订阅合约: {strategy.contract}")
-            logger.info(f"K线周期: {strategy.kline_duration} 秒")
+            strategies = manager.get_all_strategies()
+            if not strategies:
+                logger.warning("未加载到任何策略，程序退出")
+                return
             
-            logger.info("双均线策略初始化完成")
-            logger.info(f"短期均线周期: {strategy.short_period}")
-            logger.info(f"长期均线周期: {strategy.long_period}")
-            logger.info(f"均线类型: {'EMA' if strategy.use_ema else 'SMA'}")
+            logger.info(f"已加载 {len(strategies)} 个策略:")
+            for name, strategy in strategies.items():
+                logger.info(f"  - {name}: {strategy.__class__.__name__}")
+                if hasattr(strategy, 'contract'):
+                    logger.info(f"    合约: {strategy.contract}")
+                if hasattr(strategy, 'short_period') and hasattr(strategy, 'long_period'):
+                    logger.info(f"    参数: 短期周期={strategy.short_period}, 长期周期={strategy.long_period}")
             
-            logger.info("开始运行策略，等待行情数据...")
-            logger.info("提示: 需要收集至少 {} 个 K 线数据才能计算均线".format(strategy.long_period))
+            logger.info("正在初始化所有策略...")
+            manager.initialize()
             
-            signal_count = 0
-            bar_count = 0
+            all_states = manager.get_all_states()
+            logger.info("策略初始化完成，状态如下:")
+            for name, state in all_states.items():
+                logger.info(f"  - {name}:")
+                logger.info(f"    合约: {state.get('contract', 'N/A')}")
+                logger.info(f"    信号: {state.get('signal', SignalType.HOLD).value}")
+                logger.info(f"    就绪: {state.get('is_ready', False)}")
             
-            while True:
-                api = strategy.get_api()
-                if api is None:
-                    logger.error("API 为 None，退出循环")
-                    break
-                
-                api.wait_update()
-                strategy._on_update()
-                
-                bar_count += 1
-                
-                if strategy.is_ready():
-                    ma_values = strategy.get_ma_values()
-                    current_signal = strategy.get_signal()
-                    
-                    if current_signal != SignalType.HOLD and current_signal != strategy.prev_signal:
-                        signal_count += 1
-                        logger.info(f"=" * 50)
-                        logger.info(f"信号 #{signal_count}: {current_signal.value}")
-                        logger.info(f"  MA{strategy.short_period}: {ma_values[f'ma_{strategy.short_period}']:.2f}")
-                        logger.info(f"  MA{strategy.long_period}: {ma_values[f'ma_{strategy.long_period}']:.2f}")
-                        logger.info(f"=" * 50)
-                else:
-                    if bar_count % 10 == 0:
-                        logger.debug(f"已收集 {len(strategy._all_prices)} 个价格数据，等待足够数据计算均线...")
+            logger.info("=" * 60)
+            logger.info("开始运行策略管理器...")
+            logger.info("提示: 按 Ctrl+C 停止所有策略")
+            logger.info("=" * 60)
+            
+            manager.run_all()
                 
     except KeyboardInterrupt:
-        logger.info("用户中断，停止策略")
+        logger.info("用户中断，停止策略管理器")
     except Exception as e:
-        logger.error(f"策略运行出错: {str(e)}", exc_info=True)
+        logger.error(f"策略管理器运行出错: {str(e)}", exc_info=True)
         sys.exit(1)
     finally:
-        if strategy is not None:
-            strategy.stop()
+        if manager is not None:
+            manager.stop_all()
         logger.info("程序退出")
 
 

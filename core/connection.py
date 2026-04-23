@@ -359,6 +359,9 @@ class TqConnector:
             'max_retry_delay': self._max_retry_delay
         }
 
+    def get_config(self) -> Dict[str, Any]:
+        return self.config.copy()
+
     def __enter__(self):
         self.connect()
         return self
