@@ -1038,6 +1038,13 @@ class BacktestEngine:
             self._write_equity_curve_csv(equity_file, self._best_result.equity_curve)
             self.logger.info(f"权益曲线 CSV 已保存: {equity_file}")
         
+        if len(self._results) > 1:
+            chart_path = os.path.join(output_dir, f'optimization_result_{timestamp}.png')
+            generated_chart = self.generate_optimization_chart(output_path=chart_path)
+            if generated_chart:
+                report['chart_path'] = generated_chart
+                self.logger.info(f"可视化图表已保存: {generated_chart}")
+        
         return report
 
     def _write_csv_report(self, csv_file: str) -> None:
@@ -1122,6 +1129,366 @@ class BacktestEngine:
         self._results = []
         self._best_result = None
         self.logger.info("回测结果已清空")
+
+    def sync_optimal_params_to_config(
+        self,
+        config_path: str = None,
+        strategy_name: str = None,
+        param_mapping: Dict[str, str] = None,
+    ) -> bool:
+        """
+        将最优参数同步更新到配置文件的 strategies 段。
+        
+        Args:
+            config_path: 配置文件路径，默认使用项目根目录下的 config/settings.yaml
+            strategy_name: 目标策略名称，如果为 None 则尝试匹配第一个同类型策略
+            param_mapping: 参数名映射字典，例如 {'short_period': 'fast', 'long_period': 'slow'}
+        
+        Returns:
+            bool: 是否同步成功
+        """
+        if not self._best_result:
+            self.logger.error("没有找到最优参数结果，请先运行参数寻优")
+            return False
+        
+        if config_path is None:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            config_path = os.path.join(base_dir, 'config', 'settings.yaml')
+        
+        if not os.path.exists(config_path):
+            self.logger.error(f"配置文件不存在: {config_path}")
+            return False
+        
+        default_mapping = {
+            'short_period': 'fast',
+            'long_period': 'slow',
+        }
+        param_mapping = param_mapping or default_mapping
+        
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+            
+            strategies = config.get('strategies', [])
+            if not strategies:
+                self.logger.error("配置文件中没有 strategies 配置")
+                return False
+            
+            target_strategy_idx = None
+            best_params = self._best_result.params
+            best_strategy_name = self._best_result.strategy_name
+            
+            if strategy_name:
+                for i, s in enumerate(strategies):
+                    if s.get('name') == strategy_name:
+                        target_strategy_idx = i
+                        break
+                if target_strategy_idx is None:
+                    self.logger.error(f"未找到名为 '{strategy_name}' 的策略配置")
+                    return False
+            else:
+                for i, s in enumerate(strategies):
+                    if s.get('class') in best_strategy_name or best_strategy_name in s.get('class', ''):
+                        target_strategy_idx = i
+                        break
+                if target_strategy_idx is None:
+                    self.logger.warning(f"未找到匹配的策略，将使用第一个策略")
+                    target_strategy_idx = 0
+            
+            target_strategy = strategies[target_strategy_idx]
+            current_params = target_strategy.get('params', {})
+            
+            self.logger.info(f"当前策略参数: {current_params}")
+            self.logger.info(f"最优参数: {best_params}")
+            
+            updated = False
+            for source_param, target_param in param_mapping.items():
+                if source_param in best_params and target_param in current_params:
+                    old_value = current_params[target_param]
+                    new_value = best_params[source_param]
+                    if old_value != new_value:
+                        current_params[target_param] = new_value
+                        self.logger.info(f"更新参数: {target_param}: {old_value} -> {new_value}")
+                        updated = True
+            
+            for param_name, param_value in best_params.items():
+                if param_name not in param_mapping and param_name in current_params:
+                    old_value = current_params[param_name]
+                    if old_value != param_value:
+                        current_params[param_name] = param_value
+                        self.logger.info(f"更新参数: {param_name}: {old_value} -> {param_value}")
+                        updated = True
+            
+            if updated:
+                target_strategy['params'] = current_params
+                strategies[target_strategy_idx] = target_strategy
+                config['strategies'] = strategies
+                
+                with open(config_path, 'w', encoding='utf-8') as f:
+                    yaml.dump(config, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
+                
+                self.logger.info(f"✓ 最优参数已同步到配置文件: {config_path}")
+                print(f"\n{'='*80}")
+                print("                    参数同步完成")
+                print("="*80)
+                print(f"目标策略: {target_strategy.get('name', 'Unknown')}")
+                print(f"更新后的参数: {current_params}")
+            else:
+                self.logger.info("配置文件参数已是最新，无需更新")
+            
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"参数同步失败: {e}", exc_info=True)
+            return False
+
+    def generate_optimization_chart(
+        self,
+        output_path: str = None,
+        chart_type: str = 'heatmap',
+    ) -> Optional[str]:
+        """
+        生成参数寻优结果的可视化图表。
+        
+        Args:
+            output_path: 输出文件路径，默认保存到 logs/backtest_reports/optimization_result.png
+            chart_type: 图表类型，'heatmap' (热力图) 或 'equity' (资金曲线)
+        
+        Returns:
+            Optional[str]: 生成的图表文件路径，失败则返回 None
+        """
+        if not self._results or len(self._results) < 2:
+            self.logger.warning("需要至少2个回测结果才能生成可视化图表")
+            return None
+        
+        try:
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
+            import numpy as np
+        except ImportError:
+            self.logger.error("matplotlib 未安装，请运行: pip install matplotlib numpy")
+            return None
+        
+        if output_path is None:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            output_dir = os.path.join(base_dir, 'logs', 'backtest_reports')
+            os.makedirs(output_dir, exist_ok=True)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            output_path = os.path.join(output_dir, f'optimization_result_{timestamp}.png')
+        
+        try:
+            if chart_type == 'heatmap' and self._best_result:
+                param_names = list(self._best_result.params.keys())
+                if len(param_names) >= 2:
+                    x_param = param_names[0]
+                    y_param = param_names[1]
+                    
+                    x_values = sorted(set(r.params.get(x_param) for r in self._results if x_param in r.params))
+                    y_values = sorted(set(r.params.get(y_param) for r in self._results if y_param in r.params))
+                    
+                    if len(x_values) > 1 and len(y_values) > 1:
+                        return self._generate_heatmap(
+                            output_path, x_param, y_param, x_values, y_values,
+                            self._results, plt, np
+                        )
+            
+            return self._generate_equity_curves(output_path, self._results, self._best_result, plt)
+            
+        except Exception as e:
+            self.logger.error(f"生成图表失败: {e}", exc_info=True)
+            return None
+
+    def _generate_heatmap(
+        self,
+        output_path: str,
+        x_param: str,
+        y_param: str,
+        x_values: List[Any],
+        y_values: List[Any],
+        results: List[BacktestResult],
+        plt,
+        np,
+    ) -> str:
+        x_to_idx = {v: i for i, v in enumerate(x_values)}
+        y_to_idx = {v: i for i, v in enumerate(y_values)}
+        
+        heatmap_data = np.full((len(y_values), len(x_values)), np.nan)
+        
+        for r in results:
+            x_val = r.params.get(x_param)
+            y_val = r.params.get(y_param)
+            if x_val in x_to_idx and y_val in y_to_idx:
+                heatmap_data[y_to_idx[y_val], x_to_idx[x_val]] = r.performance.total_return_percent
+        
+        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        fig.suptitle('参数寻优结果分析', fontsize=16, fontweight='bold')
+        
+        ax1 = axes[0, 0]
+        im1 = ax1.imshow(heatmap_data, cmap='RdYlGn', aspect='auto', origin='lower')
+        ax1.set_xticks(range(len(x_values)))
+        ax1.set_xticklabels(x_values)
+        ax1.set_yticks(range(len(y_values)))
+        ax1.set_yticklabels(y_values)
+        ax1.set_xlabel(x_param)
+        ax1.set_ylabel(y_param)
+        ax1.set_title('总收益率热力图 (%)')
+        plt.colorbar(im1, ax=ax1)
+        
+        for i in range(len(y_values)):
+            for j in range(len(x_values)):
+                if not np.isnan(heatmap_data[i, j]):
+                    ax1.text(j, i, f'{heatmap_data[i, j]:.1f}%', 
+                            ha='center', va='center', fontsize=8,
+                            color='black' if abs(heatmap_data[i, j]) < 10 else 'white')
+        
+        ax2 = axes[0, 1]
+        drawdown_data = np.full((len(y_values), len(x_values)), np.nan)
+        for r in results:
+            x_val = r.params.get(x_param)
+            y_val = r.params.get(y_param)
+            if x_val in x_to_idx and y_val in y_to_idx:
+                drawdown_data[y_to_idx[y_val], x_to_idx[x_val]] = r.performance.max_drawdown_percent
+        
+        im2 = ax2.imshow(drawdown_data, cmap='YlOrRd_r', aspect='auto', origin='lower')
+        ax2.set_xticks(range(len(x_values)))
+        ax2.set_xticklabels(x_values)
+        ax2.set_yticks(range(len(y_values)))
+        ax2.set_yticklabels(y_values)
+        ax2.set_xlabel(x_param)
+        ax2.set_ylabel(y_param)
+        ax2.set_title('最大回撤率热力图 (%)')
+        plt.colorbar(im2, ax=ax2)
+        
+        returns = [r.performance.total_return_percent for r in results]
+        sharpe_ratios = [r.performance.sharpe_ratio for r in results]
+        max_drawdowns = [r.performance.max_drawdown_percent for r in results]
+        
+        ax3 = axes[1, 0]
+        ax3.scatter(returns, sharpe_ratios, c=max_drawdowns, cmap='YlOrRd', alpha=0.7, s=50)
+        ax3.set_xlabel('总收益率 (%)')
+        ax3.set_ylabel('夏普比率')
+        ax3.set_title('收益-风险散点图')
+        ax3.axhline(y=1, color='gray', linestyle='--', alpha=0.5)
+        ax3.axvline(x=0, color='gray', linestyle='--', alpha=0.5)
+        plt.colorbar(ax3.collections[0], ax=ax3, label='最大回撤率 (%)')
+        
+        if self._best_result:
+            best_return = self._best_result.performance.total_return_percent
+            best_sharpe = self._best_result.performance.sharpe_ratio
+            ax3.scatter([best_return], [best_sharpe], c='green', s=200, marker='*', label='最优组合')
+            ax3.legend()
+        
+        ax4 = axes[1, 1]
+        sorted_results = sorted(results, key=lambda r: r.performance.total_return_percent, reverse=True)
+        top_n = min(20, len(sorted_results))
+        top_returns = [r.performance.total_return_percent for r in sorted_results[:top_n]]
+        param_labels = [f"{list(r.params.values())[:2]}" for r in sorted_results[:top_n]]
+        
+        colors = ['green' if r >= 0 else 'red' for r in top_returns]
+        y_pos = range(top_n)
+        ax4.barh(y_pos, top_returns, color=colors, alpha=0.7)
+        ax4.set_yticks(y_pos)
+        ax4.set_yticklabels(param_labels, fontsize=8)
+        ax4.set_xlabel('总收益率 (%)')
+        ax4.set_title(f'Top {top_n} 参数组合收益率排名')
+        ax4.invert_yaxis()
+        ax4.axvline(x=0, color='black', linewidth=0.5)
+        
+        plt.tight_layout()
+        plt.savefig(output_path, dpi=150, bbox_inches='tight')
+        plt.close()
+        
+        self.logger.info(f"✓ 热力图已生成: {output_path}")
+        return output_path
+
+    def _generate_equity_curves(
+        self,
+        output_path: str,
+        results: List[BacktestResult],
+        best_result: Optional[BacktestResult],
+        plt,
+    ) -> str:
+        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        fig.suptitle('回测结果综合分析', fontsize=16, fontweight='bold')
+        
+        ax1 = axes[0, 0]
+        if best_result and best_result.equity_curve:
+            initial_equity = best_result.initial_equity
+            timestamps = [p.get('timestamp', i) for i, p in enumerate(best_result.equity_curve)]
+            equities = [p.get('equity', initial_equity) for p in best_result.equity_curve]
+            equities = [initial_equity] + equities
+            
+            ax1.plot(range(len(equities)), equities, 'b-', linewidth=1.5, label='权益曲线')
+            ax1.fill_between(range(len(equities)), equities, alpha=0.3)
+            ax1.set_xlabel('时间周期')
+            ax1.set_ylabel('账户权益')
+            ax1.set_title('最优参数组合 - 权益曲线')
+            ax1.legend()
+            ax1.grid(True, alpha=0.3)
+        
+        ax2 = axes[0, 1]
+        returns = [r.performance.total_return_percent for r in results]
+        max_drawdowns = [r.performance.max_drawdown_percent for r in results]
+        sharpe_ratios = [r.performance.sharpe_ratio for r in results]
+        
+        scatter = ax2.scatter(returns, max_drawdowns, c=sharpe_ratios, cmap='viridis', alpha=0.7, s=60)
+        ax2.set_xlabel('总收益率 (%)')
+        ax2.set_ylabel('最大回撤率 (%)')
+        ax2.set_title('收益-回撤关系图')
+        ax2.grid(True, alpha=0.3)
+        ax2.axvline(x=0, color='gray', linestyle='--', alpha=0.5)
+        plt.colorbar(scatter, ax=ax2, label='夏普比率')
+        
+        if best_result:
+            best_return = best_result.performance.total_return_percent
+            best_dd = best_result.performance.max_drawdown_percent
+            ax2.scatter([best_return], [best_dd], c='red', s=200, marker='*', label='最优组合')
+            ax2.legend()
+        
+        ax3 = axes[1, 0]
+        valid_sharpe = [s for s in sharpe_ratios if s != 0]
+        if valid_sharpe:
+            ax3.hist(valid_sharpe, bins=15, edgecolor='black', alpha=0.7, color='steelblue')
+            ax3.axvline(x=1, color='red', linestyle='--', linewidth=2, label='夏普比率=1')
+            ax3.axvline(x=np.mean(valid_sharpe) if valid_sharpe else 0, color='green', linestyle='-', linewidth=2, label='均值')
+            ax3.set_xlabel('夏普比率')
+            ax3.set_ylabel('频次')
+            ax3.set_title('夏普比率分布')
+            ax3.legend()
+            ax3.grid(True, alpha=0.3)
+        
+        ax4 = axes[1, 1]
+        sorted_results = sorted(results, key=lambda r: r.performance.total_return_percent, reverse=True)
+        top_n = min(15, len(sorted_results))
+        metrics = {
+            '收益率': [r.performance.total_return_percent for r in sorted_results[:top_n]],
+            '最大回撤': [-r.performance.max_drawdown_percent for r in sorted_results[:top_n]],
+            '夏普比率': [r.performance.sharpe_ratio * 10 for r in sorted_results[:top_n]],
+        }
+        
+        x = np.arange(top_n)
+        width = 0.25
+        
+        ax4.bar(x - width, metrics['收益率'], width, label='收益率(%)', alpha=0.8)
+        ax4.bar(x, metrics['最大回撤'], width, label='-最大回撤(%)', alpha=0.8)
+        ax4.bar(x + width, metrics['夏普比率'], width, label='夏普比率×10', alpha=0.8)
+        
+        ax4.set_xlabel('参数组合排名')
+        ax4.set_ylabel('数值')
+        ax4.set_title(f'Top {top_n} 组合多指标对比')
+        ax4.set_xticks(x)
+        ax4.set_xticklabels([str(i+1) for i in range(top_n)])
+        ax4.legend()
+        ax4.grid(True, alpha=0.3)
+        ax4.axhline(y=0, color='black', linewidth=0.5)
+        
+        plt.tight_layout()
+        plt.savefig(output_path, dpi=150, bbox_inches='tight')
+        plt.close()
+        
+        self.logger.info(f"✓ 分析图表已生成: {output_path}")
+        return output_path
 
 
 def _worker_run_backtest(
