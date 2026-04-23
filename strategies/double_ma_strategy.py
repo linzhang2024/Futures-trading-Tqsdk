@@ -259,3 +259,98 @@ class DoubleMAStrategy(StrategyBase):
         except Exception as e:
             self.logger.error(f"策略运行出错: {str(e)}", exc_info=True)
             raise
+    
+    def save_state(self) -> Dict[str, Any]:
+        state = {
+            'short_period': self.short_period,
+            'long_period': self.long_period,
+            'contract': self.contract,
+            'kline_duration': self.kline_duration,
+            'use_ema': self.use_ema,
+            'short_ma': self.short_ma,
+            'long_ma': self.long_ma,
+            'prev_short_ma': self.prev_short_ma,
+            'prev_long_ma': self.prev_long_ma,
+            'signal': self.signal.value if hasattr(self.signal, 'value') else str(self.signal),
+            'prev_signal': self.prev_signal.value if hasattr(self.prev_signal, 'value') else str(self.prev_signal),
+            '_all_prices': list(self._all_prices) if self._all_prices else [],
+            'short_prices': list(self.short_prices) if self.short_prices else [],
+            'long_prices': list(self.long_prices) if self.long_prices else [],
+        }
+        
+        self.logger.info(f"保存策略状态: 已收集 {len(self._all_prices)} 条价格记录")
+        return state
+    
+    def load_state(self, state: Dict[str, Any]) -> None:
+        if not state:
+            self.logger.warning("状态为空，跳过加载")
+            return
+        
+        if 'short_period' in state:
+            if state['short_period'] != self.short_period:
+                self.logger.warning(f"保存的短期均线周期 ({state['short_period']}) 与当前配置 ({self.short_period}) 不一致")
+        
+        if 'long_period' in state:
+            if state['long_period'] != self.long_period:
+                self.logger.warning(f"保存的长期均线周期 ({state['long_period']}) 与当前配置 ({self.long_period}) 不一致")
+        
+        if 'contract' in state:
+            if state['contract'] != self.contract:
+                self.logger.warning(f"保存的合约 ({state['contract']}) 与当前配置 ({self.contract}) 不一致")
+        
+        if '_all_prices' in state:
+            from collections import deque
+            prices = state['_all_prices']
+            if prices:
+                self._all_prices = [float(p) for p in prices]
+                self.logger.info(f"恢复价格历史: {len(self._all_prices)} 条记录")
+        
+        if 'short_prices' in state:
+            from collections import deque
+            prices = state['short_prices']
+            if prices:
+                maxlen = self.short_prices.maxlen if hasattr(self.short_prices, 'maxlen') else None
+                self.short_prices = deque([float(p) for p in prices], maxlen=maxlen)
+        
+        if 'long_prices' in state:
+            from collections import deque
+            prices = state['long_prices']
+            if prices:
+                maxlen = self.long_prices.maxlen if hasattr(self.long_prices, 'maxlen') else None
+                self.long_prices = deque([float(p) for p in prices], maxlen=maxlen)
+        
+        if 'short_ma' in state and state['short_ma'] is not None:
+            self.short_ma = float(state['short_ma'])
+        
+        if 'long_ma' in state and state['long_ma'] is not None:
+            self.long_ma = float(state['long_ma'])
+        
+        if 'prev_short_ma' in state and state['prev_short_ma'] is not None:
+            self.prev_short_ma = float(state['prev_short_ma'])
+        
+        if 'prev_long_ma' in state and state['prev_long_ma'] is not None:
+            self.prev_long_ma = float(state['prev_long_ma'])
+        
+        if 'signal' in state:
+            try:
+                signal_value = state['signal']
+                if isinstance(signal_value, str):
+                    for sig_type in SignalType:
+                        if sig_type.value == signal_value:
+                            self.signal = sig_type
+                            break
+            except Exception as e:
+                self.logger.warning(f"恢复信号状态失败: {e}")
+        
+        if 'prev_signal' in state:
+            try:
+                signal_value = state['prev_signal']
+                if isinstance(signal_value, str):
+                    for sig_type in SignalType:
+                        if sig_type.value == signal_value:
+                            self.prev_signal = sig_type
+                            break
+            except Exception as e:
+                self.logger.warning(f"恢复历史信号状态失败: {e}")
+        
+        self.logger.info(f"策略状态已恢复: 短期均线={self.short_ma}, 长期均线={self.long_ma}, 信号={self.signal.value}")
