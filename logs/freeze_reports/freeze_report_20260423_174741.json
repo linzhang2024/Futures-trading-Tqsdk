@@ -1,0 +1,552 @@
+{
+  "report_type": "FROZEN_REPORT",
+  "version": "1.0",
+  "generated_at": "2026-04-23T17:47:41.621567",
+  "freeze_reason": "净值回撤超过 0.1%",
+  "freeze_timestamp": 1776937661.6215665,
+  "freeze_datetime": "2026-04-23T17:47:41.621567",
+  "thresholds": {
+    "max_drawdown_percent": 0.1,
+    "max_strategy_margin_percent": 30.0,
+    "max_total_margin_percent": 80.0,
+    "price_gap_threshold_percent": 5.0
+  },
+  "current_state": {
+    "peak_equity": 10000000.0,
+    "current_drawdown_percent": 0.1,
+    "total_strategies": 54,
+    "total_positions": 3,
+    "api_timeouts": 0
+  },
+  "account_snapshots": [
+    {
+      "timestamp": 1776937660.4145153,
+      "datetime": "2026-04-23T17:47:40.414515",
+      "balance": 10000000.0,
+      "equity": 10000000.0,
+      "total_asset": 10000000.0,
+      "margin_used": 0.0,
+      "available": 10000000.0,
+      "float_profit": 0.0
+    },
+    {
+      "timestamp": 1776937660.7197218,
+      "datetime": "2026-04-23T17:47:40.719722",
+      "balance": 10000000.0,
+      "equity": 10000000.0,
+      "total_asset": 10000000.0,
+      "margin_used": 2500000.0,
+      "available": 7500000.0,
+      "float_profit": 0.0
+    },
+    {
+      "timestamp": 1776937661.0206275,
+      "datetime": "2026-04-23T17:47:41.020627",
+      "balance": 9995000.0,
+      "equity": 9995000.0,
+      "total_asset": 9995000.0,
+      "margin_used": 2500000.0,
+      "available": 7495000.0,
+      "float_profit": -5000.0
+    },
+    {
+      "timestamp": 1776937661.3210843,
+      "datetime": "2026-04-23T17:47:41.321084",
+      "balance": 9992000.0,
+      "equity": 9992000.0,
+      "total_asset": 9992000.0,
+      "margin_used": 2500000.0,
+      "available": 7492000.0,
+      "float_profit": -8000.0
+    },
+    {
+      "timestamp": 1776937661.6215665,
+      "datetime": "2026-04-23T17:47:41.621567",
+      "balance": 9990000.0,
+      "equity": 9990000.0,
+      "total_asset": 9990000.0,
+      "margin_used": 2500000.0,
+      "available": 7490000.0,
+      "float_profit": -10000.0
+    }
+  ],
+  "positions_snapshot": {
+    "SHFE.rb2410": {
+      "contract": "SHFE.rb2410",
+      "long_volume": 50,
+      "short_volume": 0,
+      "long_margin": 1750000.0,
+      "short_margin": 0.0,
+      "long_open_price": 3500.0,
+      "short_open_price": 0.0,
+      "current_price": 3650.0,
+      "float_profit": 750000.0,
+      "total_volume": 50,
+      "total_margin": 1750000.0,
+      "net_position": 50
+    },
+    "DCE.i2409": {
+      "contract": "DCE.i2409",
+      "long_volume": 0,
+      "short_volume": 30,
+      "long_margin": 0.0,
+      "short_margin": 240000.0,
+      "long_open_price": 0.0,
+      "short_open_price": 1000.0,
+      "current_price": 980.0,
+      "float_profit": 120000.0,
+      "total_volume": 30,
+      "total_margin": 240000.0,
+      "net_position": -30
+    },
+    "SHFE.hc2410": {
+      "contract": "SHFE.hc2410",
+      "long_volume": 20,
+      "short_volume": 0,
+      "long_margin": 720000.0,
+      "short_margin": 0.0,
+      "long_open_price": 3600.0,
+      "short_open_price": 0.0,
+      "current_price": 3550.0,
+      "float_profit": -50000.0,
+      "total_volume": 20,
+      "total_margin": 720000.0,
+      "net_position": 20
+    }
+  },
+  "strategies_snapshot": {
+    "Strategy_MA5_10": {
+      "strategy_name": "Strategy_MA5_10",
+      "margin_used": 1500000.0,
+      "position_value": 4500000.0,
+      "float_profit": 250000.0,
+      "positions": {}
+    },
+    "Strategy_MA10_20": {
+      "strategy_name": "Strategy_MA10_20",
+      "margin_used": 800000.0,
+      "position_value": 2400000.0,
+      "float_profit": -50000.0,
+      "positions": {}
+    },
+    "Strategy_RSI": {
+      "strategy_name": "Strategy_RSI",
+      "margin_used": 500000.0,
+      "position_value": 1500000.0,
+      "float_profit": 80000.0,
+      "positions": {}
+    },
+    "Strategy_Bollinger": {
+      "strategy_name": "Strategy_Bollinger",
+      "margin_used": 600000.0,
+      "position_value": 1800000.0,
+      "float_profit": 120000.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_1": {
+      "strategy_name": "Benchmark_Strategy_1",
+      "margin_used": 50000.0,
+      "position_value": 150000.0,
+      "float_profit": 5000.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_2": {
+      "strategy_name": "Benchmark_Strategy_2",
+      "margin_used": 51000.0,
+      "position_value": 153000.0,
+      "float_profit": 5100.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_3": {
+      "strategy_name": "Benchmark_Strategy_3",
+      "margin_used": 52000.0,
+      "position_value": 156000.0,
+      "float_profit": 5200.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_4": {
+      "strategy_name": "Benchmark_Strategy_4",
+      "margin_used": 53000.0,
+      "position_value": 159000.0,
+      "float_profit": 5300.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_5": {
+      "strategy_name": "Benchmark_Strategy_5",
+      "margin_used": 54000.0,
+      "position_value": 162000.0,
+      "float_profit": 5400.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_6": {
+      "strategy_name": "Benchmark_Strategy_6",
+      "margin_used": 55000.0,
+      "position_value": 165000.0,
+      "float_profit": 5500.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_7": {
+      "strategy_name": "Benchmark_Strategy_7",
+      "margin_used": 56000.0,
+      "position_value": 168000.0,
+      "float_profit": 5600.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_8": {
+      "strategy_name": "Benchmark_Strategy_8",
+      "margin_used": 57000.0,
+      "position_value": 171000.0,
+      "float_profit": 5700.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_9": {
+      "strategy_name": "Benchmark_Strategy_9",
+      "margin_used": 58000.0,
+      "position_value": 174000.0,
+      "float_profit": 5800.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_10": {
+      "strategy_name": "Benchmark_Strategy_10",
+      "margin_used": 59000.0,
+      "position_value": 177000.0,
+      "float_profit": 5900.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_11": {
+      "strategy_name": "Benchmark_Strategy_11",
+      "margin_used": 60000.0,
+      "position_value": 180000.0,
+      "float_profit": 6000.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_12": {
+      "strategy_name": "Benchmark_Strategy_12",
+      "margin_used": 61000.0,
+      "position_value": 183000.0,
+      "float_profit": 6100.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_13": {
+      "strategy_name": "Benchmark_Strategy_13",
+      "margin_used": 62000.0,
+      "position_value": 186000.0,
+      "float_profit": 6200.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_14": {
+      "strategy_name": "Benchmark_Strategy_14",
+      "margin_used": 63000.0,
+      "position_value": 189000.0,
+      "float_profit": 6300.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_15": {
+      "strategy_name": "Benchmark_Strategy_15",
+      "margin_used": 64000.0,
+      "position_value": 192000.0,
+      "float_profit": 6400.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_16": {
+      "strategy_name": "Benchmark_Strategy_16",
+      "margin_used": 65000.0,
+      "position_value": 195000.0,
+      "float_profit": 6500.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_17": {
+      "strategy_name": "Benchmark_Strategy_17",
+      "margin_used": 66000.0,
+      "position_value": 198000.0,
+      "float_profit": 6600.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_18": {
+      "strategy_name": "Benchmark_Strategy_18",
+      "margin_used": 67000.0,
+      "position_value": 201000.0,
+      "float_profit": 6700.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_19": {
+      "strategy_name": "Benchmark_Strategy_19",
+      "margin_used": 68000.0,
+      "position_value": 204000.0,
+      "float_profit": 6800.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_20": {
+      "strategy_name": "Benchmark_Strategy_20",
+      "margin_used": 69000.0,
+      "position_value": 207000.0,
+      "float_profit": 6900.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_21": {
+      "strategy_name": "Benchmark_Strategy_21",
+      "margin_used": 70000.0,
+      "position_value": 210000.0,
+      "float_profit": 7000.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_22": {
+      "strategy_name": "Benchmark_Strategy_22",
+      "margin_used": 71000.0,
+      "position_value": 213000.0,
+      "float_profit": 7100.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_23": {
+      "strategy_name": "Benchmark_Strategy_23",
+      "margin_used": 72000.0,
+      "position_value": 216000.0,
+      "float_profit": 7200.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_24": {
+      "strategy_name": "Benchmark_Strategy_24",
+      "margin_used": 73000.0,
+      "position_value": 219000.0,
+      "float_profit": 7300.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_25": {
+      "strategy_name": "Benchmark_Strategy_25",
+      "margin_used": 74000.0,
+      "position_value": 222000.0,
+      "float_profit": 7400.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_26": {
+      "strategy_name": "Benchmark_Strategy_26",
+      "margin_used": 75000.0,
+      "position_value": 225000.0,
+      "float_profit": 7500.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_27": {
+      "strategy_name": "Benchmark_Strategy_27",
+      "margin_used": 76000.0,
+      "position_value": 228000.0,
+      "float_profit": 7600.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_28": {
+      "strategy_name": "Benchmark_Strategy_28",
+      "margin_used": 77000.0,
+      "position_value": 231000.0,
+      "float_profit": 7700.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_29": {
+      "strategy_name": "Benchmark_Strategy_29",
+      "margin_used": 78000.0,
+      "position_value": 234000.0,
+      "float_profit": 7800.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_30": {
+      "strategy_name": "Benchmark_Strategy_30",
+      "margin_used": 79000.0,
+      "position_value": 237000.0,
+      "float_profit": 7900.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_31": {
+      "strategy_name": "Benchmark_Strategy_31",
+      "margin_used": 80000.0,
+      "position_value": 240000.0,
+      "float_profit": 8000.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_32": {
+      "strategy_name": "Benchmark_Strategy_32",
+      "margin_used": 81000.0,
+      "position_value": 243000.0,
+      "float_profit": 8100.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_33": {
+      "strategy_name": "Benchmark_Strategy_33",
+      "margin_used": 82000.0,
+      "position_value": 246000.0,
+      "float_profit": 8200.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_34": {
+      "strategy_name": "Benchmark_Strategy_34",
+      "margin_used": 83000.0,
+      "position_value": 249000.0,
+      "float_profit": 8300.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_35": {
+      "strategy_name": "Benchmark_Strategy_35",
+      "margin_used": 84000.0,
+      "position_value": 252000.0,
+      "float_profit": 8400.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_36": {
+      "strategy_name": "Benchmark_Strategy_36",
+      "margin_used": 85000.0,
+      "position_value": 255000.0,
+      "float_profit": 8500.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_37": {
+      "strategy_name": "Benchmark_Strategy_37",
+      "margin_used": 86000.0,
+      "position_value": 258000.0,
+      "float_profit": 8600.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_38": {
+      "strategy_name": "Benchmark_Strategy_38",
+      "margin_used": 87000.0,
+      "position_value": 261000.0,
+      "float_profit": 8700.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_39": {
+      "strategy_name": "Benchmark_Strategy_39",
+      "margin_used": 88000.0,
+      "position_value": 264000.0,
+      "float_profit": 8800.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_40": {
+      "strategy_name": "Benchmark_Strategy_40",
+      "margin_used": 89000.0,
+      "position_value": 267000.0,
+      "float_profit": 8900.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_41": {
+      "strategy_name": "Benchmark_Strategy_41",
+      "margin_used": 90000.0,
+      "position_value": 270000.0,
+      "float_profit": 9000.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_42": {
+      "strategy_name": "Benchmark_Strategy_42",
+      "margin_used": 91000.0,
+      "position_value": 273000.0,
+      "float_profit": 9100.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_43": {
+      "strategy_name": "Benchmark_Strategy_43",
+      "margin_used": 92000.0,
+      "position_value": 276000.0,
+      "float_profit": 9200.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_44": {
+      "strategy_name": "Benchmark_Strategy_44",
+      "margin_used": 93000.0,
+      "position_value": 279000.0,
+      "float_profit": 9300.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_45": {
+      "strategy_name": "Benchmark_Strategy_45",
+      "margin_used": 94000.0,
+      "position_value": 282000.0,
+      "float_profit": 9400.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_46": {
+      "strategy_name": "Benchmark_Strategy_46",
+      "margin_used": 95000.0,
+      "position_value": 285000.0,
+      "float_profit": 9500.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_47": {
+      "strategy_name": "Benchmark_Strategy_47",
+      "margin_used": 96000.0,
+      "position_value": 288000.0,
+      "float_profit": 9600.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_48": {
+      "strategy_name": "Benchmark_Strategy_48",
+      "margin_used": 97000.0,
+      "position_value": 291000.0,
+      "float_profit": 9700.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_49": {
+      "strategy_name": "Benchmark_Strategy_49",
+      "margin_used": 98000.0,
+      "position_value": 294000.0,
+      "float_profit": 9800.0,
+      "positions": {}
+    },
+    "Benchmark_Strategy_50": {
+      "strategy_name": "Benchmark_Strategy_50",
+      "margin_used": 99000.0,
+      "position_value": 297000.0,
+      "float_profit": 9900.0,
+      "positions": {}
+    }
+  },
+  "equity_curve": [
+    {
+      "timestamp": 1776937660.4145153,
+      "equity": 10000000.0,
+      "drawdown": 0.0
+    },
+    {
+      "timestamp": 1776937660.7197218,
+      "equity": 10000000.0,
+      "drawdown": 0.0
+    },
+    {
+      "timestamp": 1776937661.0206275,
+      "equity": 9995000.0,
+      "drawdown": 0.05
+    },
+    {
+      "timestamp": 1776937661.3210843,
+      "equity": 9992000.0,
+      "drawdown": 0.08
+    },
+    {
+      "timestamp": 1776937661.6215665,
+      "equity": 9990000.0,
+      "drawdown": 0.1
+    }
+  ],
+  "risk_events": [
+    {
+      "event_type": "DRAWDOWN_EXCEEDED",
+      "timestamp": 1776937661.3210843,
+      "datetime": "2026-04-23T17:47:41.321084",
+      "level": "WARNING",
+      "message": "净值回撤接近阈值: 当前回撤 0.08%",
+      "details": {
+        "peak_equity": 10000000.0,
+        "current_equity": 9992000.0,
+        "drawdown_percent": 0.08,
+        "warning_threshold": 0.06
+      }
+    },
+    {
+      "event_type": "DRAWDOWN_EXCEEDED",
+      "timestamp": 1776937661.6215665,
+      "datetime": "2026-04-23T17:47:41.621567",
+      "level": "CRITICAL",
+      "message": "净值回撤超过阈值: 当前回撤 0.10% > 阈值 0.1%",
+      "details": {
+        "peak_equity": 10000000.0,
+        "current_equity": 9990000.0,
+        "drawdown_percent": 0.1,
+        "threshold_percent": 0.1
+      }
+    }
+  ]
+}

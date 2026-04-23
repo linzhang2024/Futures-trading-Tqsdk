@@ -65,3 +65,22 @@ strategies:
       contract: "SHFE.rb2410"
       kline_duration: 60
       use_ema: false
+
+backtest:
+  start_dt: "2024-01-01"
+  end_dt: "2024-03-31"
+  init_balance: 1000000.0
+  tq_account: ${TQ_ACCOUNT:}
+  tq_password: ${TQ_PASSWORD:}
+  
+  optimization:
+    param_ranges:
+      - name: "short_period"
+        min: 5
+        max: 20
+        step: 1
+      - name: "long_period"
+        min: 20
+        max: 60
+        step: 5
+    optimize_by: "total_return_percent"
