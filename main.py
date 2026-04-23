@@ -22,7 +22,9 @@ def main():
     setup_logging()
     logger = logging.getLogger(__name__)
     
+    logger.info("=" * 60)
     logger.info("启动量化交易框架...")
+    logger.info("=" * 60)
     
     connector = None
     strategy = None
@@ -31,9 +33,18 @@ def main():
         with TqConnector() as connector:
             default_contract = connector.get_default_contract()
             env_mode = connector.get_env_mode()
+            credentials_source = connector.get_credentials_source()
+            local_credentials_path = connector.get_local_credentials_path()
             
             logger.info(f"环境模式: {env_mode}")
             logger.info(f"默认交易合约: {default_contract}")
+            
+            if credentials_source == "local_file":
+                logger.info(f"凭据来源: 本地配置文件 ({local_credentials_path})")
+            elif credentials_source == "environment":
+                logger.info("凭据来源: 系统环境变量 (TQ_ACCOUNT / TQ_PASSWORD)")
+            else:
+                logger.info("凭据来源: 无 (使用匿名模式)")
             
             strategy = DoubleMAStrategy(
                 connector=connector,

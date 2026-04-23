@@ -116,3 +116,7 @@ Exception: 请输入 auth （快期账户）参数，快期账户是使用 tqsdk
 2026-04-23 09:42:01 - TqConnector - WARNING -    export TQ_ACCOUNT=你的天勤账号
 2026-04-23 09:42:01 - TqConnector - WARNING -    export TQ_PASSWORD=你的天勤密码
 2026-04-23 09:42:01 - TqConnector - WARNING - ============================================================
+2026-04-23 10:16:38 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 10000000.0
+2026-04-23 10:16:38 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-23 10:16:38 - TqConnector - INFO - 凭证来源: local_file
+2026-04-23 10:16:46 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)

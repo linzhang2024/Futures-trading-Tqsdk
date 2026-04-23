@@ -43,11 +43,40 @@ class TqConnector:
             self._initial_retry_delay: int = 2
             self._max_retry_delay: int = 30
             self._env_mode: str = "sim"
+            self._credentials_source: str = "none"
+            self._local_credentials_path: str = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "config",
+                "local_credentials.yaml"
+            )
             
             self._load_config()
             self._setup_logging()
             self._initialized = True
     
+    def _load_local_credentials(self) -> Dict[str, str]:
+        if os.path.exists(self._local_credentials_path):
+            try:
+                with open(self._local_credentials_path, 'r', encoding='utf-8') as f:
+                    credentials = yaml.safe_load(f)
+                if credentials and isinstance(credentials, dict):
+                    account = credentials.get('tq_account', '').strip()
+                    password = credentials.get('tq_password', '').strip()
+                    if account and password:
+                        self._credentials_source = "local_file"
+                        return {'account': account, 'password': password}
+            except Exception as e:
+                pass
+        
+        account = os.environ.get('TQ_ACCOUNT', '').strip()
+        password = os.environ.get('TQ_PASSWORD', '').strip()
+        if account and password:
+            self._credentials_source = "environment"
+            return {'account': account, 'password': password}
+        
+        self._credentials_source = "none"
+        return {'account': '', 'password': ''}
+
     def _load_config(self) -> None:
         if not os.path.exists(self.config_path):
             raise FileNotFoundError(f"配置文件不存在: {self.config_path}")
@@ -56,6 +85,13 @@ class TqConnector:
             raw_config = yaml.safe_load(f)
         
         self.config = self._resolve_env_vars(raw_config)
+        
+        credentials = self._load_local_credentials()
+        if credentials['account'] and credentials['password']:
+            if 'tq_sdk' not in self.config:
+                self.config['tq_sdk'] = {}
+            self.config['tq_sdk']['account'] = credentials['account']
+            self.config['tq_sdk']['password'] = credentials['password']
         
         conn_config = self.config.get('connection', {})
         self._retry_times = conn_config.get('retry_times', 3)
@@ -118,6 +154,12 @@ class TqConnector:
         else:
             return config
 
+    def _get_account_type(self) -> str:
+        if self._env_mode == 'sim':
+            sim_config = self.config.get('env', {}).get('sim', {})
+            return sim_config.get('account_type', 'tqsim').lower()
+        return 'real'
+
     def _create_account(self) -> Any:
         env_config = self.config.get('env', {})
         
@@ -157,6 +199,12 @@ class TqConnector:
         else:
             raise ValueError(f"不支持的环境模式: {self._env_mode}，请使用 'sim' 或 'real'")
 
+    def get_credentials_source(self) -> str:
+        return self._credentials_source
+
+    def get_local_credentials_path(self) -> str:
+        return self._local_credentials_path
+
     def _calculate_exponential_backoff(self, attempt: int) -> float:
         delay = self._initial_retry_delay * (2 ** (attempt - 1))
         return min(delay, self._max_retry_delay)
@@ -184,29 +232,44 @@ class TqConnector:
         password = tq_config.get('password', '')
         
         has_valid_credentials = self._has_valid_credentials()
+        account_type = self._get_account_type()
         
-        if self._env_mode == 'sim' and not has_valid_credentials:
+        if self._env_mode == 'sim' and account_type == 'tqkq' and not has_valid_credentials:
             self.logger.warning("=" * 60)
-            self.logger.warning("检测到 sim 模式但未配置有效的天勤账户凭证")
+            self.logger.warning("检测到 TqKq (快期模拟) 模式但未配置有效的天勤账户凭证")
             self.logger.warning("")
-            self.logger.warning("TqSdk 需要有效的天勤账户才能运行，即使在 sim 模式下")
-            self.logger.warning("天勤账户用于获取实时行情数据")
+            self.logger.warning("TqKq 模式需要有效的天勤账户才能连接快期服务器")
+            self.logger.warning("如果希望使用本地匿名模拟，请将 account_type 改为 'tqsim'")
             self.logger.warning("")
             self.logger.warning("请按以下步骤操作：")
             self.logger.warning("1. 访问 https://account.shinnytech.com/ 注册天勤账户")
-            self.logger.warning("2. 设置环境变量：")
+            self.logger.warning("2. 创建配置文件 config/local_credentials.yaml:")
+            self.logger.warning("   tq_account: 你的天勤账号")
+            self.logger.warning("   tq_password: 你的天勤密码")
+            self.logger.warning("   或设置环境变量：")
             self.logger.warning("   set TQ_ACCOUNT=你的天勤账号")
             self.logger.warning("   set TQ_PASSWORD=你的天勤密码")
-            self.logger.warning("   或者在 Linux/macOS 上：")
-            self.logger.warning("   export TQ_ACCOUNT=你的天勤账号")
-            self.logger.warning("   export TQ_PASSWORD=你的天勤密码")
             self.logger.warning("=" * 60)
             
             raise ValueError(
-                "sim 模式需要有效的天勤账户凭证。"
+                "TqKq (快期模拟) 模式需要有效的天勤账户凭证。"
                 "请注册天勤账户 (https://account.shinnytech.com/) "
-                "并设置 TQ_ACCOUNT 和 TQ_PASSWORD 环境变量。"
+                "或使用 TqSim 本地匿名模拟模式。"
             )
+        
+        if self._env_mode == 'sim' and account_type == 'tqsim' and not has_valid_credentials:
+            self.logger.warning("=" * 60)
+            self.logger.warning("未配置天勤账户凭证，将使用 TqSim 本地匿名模式启动")
+            self.logger.warning("")
+            self.logger.warning("提示: 匿名模式下只能使用本地模拟交易，")
+            self.logger.warning("      无法获取实时行情数据（可能需要手动构造测试数据）")
+            self.logger.warning("")
+            self.logger.warning("如需获取实时行情，请：")
+            self.logger.warning("1. 访问 https://account.shinnytech.com/ 注册天勤账户")
+            self.logger.warning("2. 创建配置文件 config/local_credentials.yaml:")
+            self.logger.warning("   tq_account: 你的天勤账号")
+            self.logger.warning("   tq_password: 你的天勤密码")
+            self.logger.warning("=" * 60)
         
         last_exception = None
         
@@ -217,8 +280,13 @@ class TqConnector:
                 if self._env_mode == 'sim':
                     self.logger.info(f"[{attempt}/{self._retry_times}] 正在连接天勤 API，环境模式: {self._env_mode} (模拟模式)")
                     
-                    auth = TqAuth(account, password)
-                    self.api = TqApi(account=trading_account, auth=auth)
+                    if has_valid_credentials:
+                        self.logger.info(f"凭证来源: {self._credentials_source}")
+                        auth = TqAuth(account, password)
+                        self.api = TqApi(account=trading_account, auth=auth)
+                    else:
+                        self.logger.info("使用匿名模式 (无 auth) 连接 TqSim")
+                        self.api = TqApi(account=trading_account)
                     
                     self.logger.info(f"[{attempt}/{self._retry_times}] 天勤 API 连接成功！环境: {self._env_mode} (模拟模式)")
                     return self.api
@@ -232,6 +300,7 @@ class TqConnector:
                         self.logger.warning("检测到使用默认占位符凭证，请设置环境变量 TQ_ACCOUNT 和 TQ_PASSWORD")
                     
                     self.logger.info(f"[{attempt}/{self._retry_times}] 正在连接天勤 API，账号: {account}，环境模式: {self._env_mode}")
+                    self.logger.info(f"凭证来源: {self._credentials_source}")
                     
                     auth = TqAuth(account, password)
                     
