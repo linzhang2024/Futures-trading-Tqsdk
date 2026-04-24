@@ -1,0 +1,26 @@
+{
+  "report_type": "FROZEN_REPORT",
+  "version": "1.0",
+  "generated_at": "2026-04-24T13:57:50.993759",
+  "freeze_reason": "测试冻结原因",
+  "freeze_timestamp": 1777010270.9937587,
+  "freeze_datetime": "2026-04-24T13:57:50.993759",
+  "thresholds": {
+    "max_drawdown_percent": 5.0,
+    "max_strategy_margin_percent": 30.0,
+    "max_total_margin_percent": 80.0,
+    "price_gap_threshold_percent": 5.0
+  },
+  "current_state": {
+    "peak_equity": 0.0,
+    "current_drawdown_percent": 0.0,
+    "total_strategies": 0,
+    "total_positions": 0,
+    "api_timeouts": 0
+  },
+  "account_snapshots": [],
+  "positions_snapshot": {},
+  "strategies_snapshot": {},
+  "equity_curve": [],
+  "risk_events": []
+}

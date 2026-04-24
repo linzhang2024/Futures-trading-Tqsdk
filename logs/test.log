@@ -4476,3 +4476,348 @@ Exception: Network failure
 2026-04-23 20:12:56 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)
 2026-04-23 20:12:56 - TqConnector - INFO - 正在断开天勤 API 连接...
 2026-04-23 20:12:56 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:29 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:29 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:29 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:29 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:29 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:29 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:29 - TqConnector - WARNING - ============================================================
+2026-04-24 13:57:29 - TqConnector - WARNING - 未配置天勤账户凭证，将使用 TqSim 本地匿名模式启动
+2026-04-24 13:57:29 - TqConnector - WARNING - 
+2026-04-24 13:57:29 - TqConnector - WARNING - 提示: 匿名模式下只能使用本地模拟交易，
+2026-04-24 13:57:29 - TqConnector - WARNING -       无法获取实时行情数据（可能需要手动构造测试数据）
+2026-04-24 13:57:29 - TqConnector - WARNING - 
+2026-04-24 13:57:29 - TqConnector - WARNING - 如需获取实时行情，请：
+2026-04-24 13:57:29 - TqConnector - WARNING - 1. 访问 https://account.shinnytech.com/ 注册天勤账户
+2026-04-24 13:57:29 - TqConnector - WARNING - 2. 创建配置文件 config/local_credentials.yaml:
+2026-04-24 13:57:29 - TqConnector - WARNING -    tq_account: 你的天勤账号
+2026-04-24 13:57:29 - TqConnector - WARNING -    tq_password: 你的天勤密码
+2026-04-24 13:57:29 - TqConnector - WARNING - ============================================================
+2026-04-24 13:57:29 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:29 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:29 - TqConnector - INFO - 使用匿名模式 (无 auth) 连接 TqSim
+2026-04-24 13:57:29 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:29 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:29 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:29 - TqConnector - WARNING - ============================================================
+2026-04-24 13:57:29 - TqConnector - WARNING - 未配置天勤账户凭证，将使用 TqSim 本地匿名模式启动
+2026-04-24 13:57:29 - TqConnector - WARNING - 
+2026-04-24 13:57:29 - TqConnector - WARNING - 提示: 匿名模式下只能使用本地模拟交易，
+2026-04-24 13:57:29 - TqConnector - WARNING -       无法获取实时行情数据（可能需要手动构造测试数据）
+2026-04-24 13:57:29 - TqConnector - WARNING - 
+2026-04-24 13:57:29 - TqConnector - WARNING - 如需获取实时行情，请：
+2026-04-24 13:57:29 - TqConnector - WARNING - 1. 访问 https://account.shinnytech.com/ 注册天勤账户
+2026-04-24 13:57:29 - TqConnector - WARNING - 2. 创建配置文件 config/local_credentials.yaml:
+2026-04-24 13:57:29 - TqConnector - WARNING -    tq_account: 你的天勤账号
+2026-04-24 13:57:29 - TqConnector - WARNING -    tq_password: 你的天勤密码
+2026-04-24 13:57:29 - TqConnector - WARNING - ============================================================
+2026-04-24 13:57:29 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:29 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:29 - TqConnector - INFO - 使用匿名模式 (无 auth) 连接 TqSim
+2026-04-24 13:57:29 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:29 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:29 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:29 - TqConnector - WARNING - ============================================================
+2026-04-24 13:57:29 - TqConnector - WARNING - 检测到 TqKq (快期模拟) 模式但未配置有效的天勤账户凭证
+2026-04-24 13:57:29 - TqConnector - WARNING - 
+2026-04-24 13:57:29 - TqConnector - WARNING - TqKq 模式需要有效的天勤账户才能连接快期服务器
+2026-04-24 13:57:29 - TqConnector - WARNING - 如果希望使用本地匿名模拟，请将 account_type 改为 'tqsim'
+2026-04-24 13:57:29 - TqConnector - WARNING - 
+2026-04-24 13:57:29 - TqConnector - WARNING - 请按以下步骤操作：
+2026-04-24 13:57:29 - TqConnector - WARNING - 1. 访问 https://account.shinnytech.com/ 注册天勤账户
+2026-04-24 13:57:29 - TqConnector - WARNING - 2. 创建配置文件 config/local_credentials.yaml:
+2026-04-24 13:57:29 - TqConnector - WARNING -    tq_account: 你的天勤账号
+2026-04-24 13:57:29 - TqConnector - WARNING -    tq_password: 你的天勤密码
+2026-04-24 13:57:29 - TqConnector - WARNING -    或设置环境变量：
+2026-04-24 13:57:29 - TqConnector - WARNING -    set TQ_ACCOUNT=你的天勤账号
+2026-04-24 13:57:29 - TqConnector - WARNING -    set TQ_PASSWORD=你的天勤密码
+2026-04-24 13:57:29 - TqConnector - WARNING - ============================================================
+2026-04-24 13:57:29 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:29 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:29 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:29 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:29 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:29 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:29 - TqConnector - INFO - 使用快期模拟账户模式 (TqKq)
+2026-04-24 13:57:29 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:29 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:29 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:30 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:30 - TqConnector - INFO - 使用实盘模式 (TqAccount)，期货公司: H海通期货
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 正在连接天勤 API，账号: test，环境模式: real
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: real
+2026-04-24 13:57:30 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:30 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - API 已连接，无需重新连接
+2026-04-24 13:57:30 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:30 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:30 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:30 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:30 - TqConnector - WARNING - ============================================================
+2026-04-24 13:57:30 - TqConnector - WARNING - 未配置天勤账户凭证，将使用 TqSim 本地匿名模式启动
+2026-04-24 13:57:30 - TqConnector - WARNING - 
+2026-04-24 13:57:30 - TqConnector - WARNING - 提示: 匿名模式下只能使用本地模拟交易，
+2026-04-24 13:57:30 - TqConnector - WARNING -       无法获取实时行情数据（可能需要手动构造测试数据）
+2026-04-24 13:57:30 - TqConnector - WARNING - 
+2026-04-24 13:57:30 - TqConnector - WARNING - 如需获取实时行情，请：
+2026-04-24 13:57:30 - TqConnector - WARNING - 1. 访问 https://account.shinnytech.com/ 注册天勤账户
+2026-04-24 13:57:30 - TqConnector - WARNING - 2. 创建配置文件 config/local_credentials.yaml:
+2026-04-24 13:57:30 - TqConnector - WARNING -    tq_account: 你的天勤账号
+2026-04-24 13:57:30 - TqConnector - WARNING -    tq_password: 你的天勤密码
+2026-04-24 13:57:30 - TqConnector - WARNING - ============================================================
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 使用匿名模式 (无 auth) 连接 TqSim
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:30 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:30 - TqConnector - INFO - 使用实盘模式 (TqAccount)，期货公司: test_broker
+2026-04-24 13:57:30 - TqConnector - ERROR - 缺少天勤账号或密码配置
+2026-04-24 13:57:30 - TqConnector - ERROR - [1/1] 连接失败: 缺少天勤账号或密码配置
+Traceback (most recent call last):
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 297, in connect
+    raise ValueError("缺少天勤账号或密码配置")
+ValueError: 缺少天勤账号或密码配置
+2026-04-24 13:57:30 - TqConnector - FATAL - 连接失败，已尝试 1 次，最后错误: 缺少天勤账号或密码配置
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - ERROR - [1/3] 连接失败: Network error 1
+Traceback (most recent call last):
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1197, in _execute_mock_call
+    raise result
+Exception: Network error 1
+2026-04-24 13:57:30 - TqConnector - INFO - 指数退避等待 2 秒后进行第 2 次重试...
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [2/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - ERROR - [2/3] 连接失败: Network error 2
+Traceback (most recent call last):
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1197, in _execute_mock_call
+    raise result
+Exception: Network error 2
+2026-04-24 13:57:30 - TqConnector - INFO - 指数退避等待 4 秒后进行第 3 次重试...
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [3/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - INFO - [3/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:30 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - ERROR - [1/3] 连接失败: Network error 1
+Traceback (most recent call last):
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1197, in _execute_mock_call
+    raise result
+Exception: Network error 1
+2026-04-24 13:57:30 - TqConnector - INFO - 指数退避等待 2 秒后进行第 2 次重试...
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [2/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - ERROR - [2/3] 连接失败: Network error 2
+Traceback (most recent call last):
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1197, in _execute_mock_call
+    raise result
+Exception: Network error 2
+2026-04-24 13:57:30 - TqConnector - INFO - 指数退避等待 4 秒后进行第 3 次重试...
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [3/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - ERROR - [3/3] 连接失败: Network error 3
+Traceback (most recent call last):
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1197, in _execute_mock_call
+    raise result
+Exception: Network error 3
+2026-04-24 13:57:30 - TqConnector - FATAL - 连接失败，已尝试 3 次，最后错误: Network error 3
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - ERROR - [1/3] 连接失败: Network error
+Traceback (most recent call last):
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1197, in _execute_mock_call
+    raise result
+Exception: Network error
+2026-04-24 13:57:30 - TqConnector - INFO - 指数退避等待 2 秒后进行第 2 次重试...
+2026-04-24 13:57:30 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:30 - TqConnector - INFO - [2/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:30 - TqConnector - INFO - [2/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:30 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:30 - TqConnector - INFO - 天勤 API 已断开连接
+2026-04-24 13:57:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:31 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:31 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:31 - TqConnector - ERROR - [1/3] 连接失败: Network failure
+Traceback (most recent call last):
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1193, in _execute_mock_call
+    raise effect
+Exception: Network failure
+2026-04-24 13:57:31 - TqConnector - INFO - 指数退避等待 2 秒后进行第 2 次重试...
+2026-04-24 13:57:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:31 - TqConnector - INFO - [2/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:31 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:31 - TqConnector - ERROR - [2/3] 连接失败: Network failure
+Traceback (most recent call last):
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1193, in _execute_mock_call
+    raise effect
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1193, in _execute_mock_call
+    raise effect
+Exception: Network failure
+2026-04-24 13:57:31 - TqConnector - INFO - 指数退避等待 4 秒后进行第 3 次重试...
+2026-04-24 13:57:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:31 - TqConnector - INFO - [3/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:31 - TqConnector - INFO - 凭证来源: none
+2026-04-24 13:57:31 - TqConnector - ERROR - [3/3] 连接失败: Network failure
+Traceback (most recent call last):
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1193, in _execute_mock_call
+    raise effect
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1193, in _execute_mock_call
+    raise effect
+  File "D:\workspace\Trae\Futures-trading-Tqsdk\core\connection.py", line 286, in connect
+    self.api = TqApi(account=trading_account, auth=auth)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1134, in __call__
+    return self._mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1138, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\install\tools\Conda\Lib\unittest\mock.py", line 1193, in _execute_mock_call
+    raise effect
+Exception: Network failure
+2026-04-24 13:57:31 - TqConnector - FATAL - 连接失败，已尝试 3 次，最后错误: Network failure
+2026-04-24 13:57:31 - TqConnector - WARNING - ============================================================
+2026-04-24 13:57:31 - TqConnector - WARNING - 未配置天勤账户凭证，将使用 TqSim 本地匿名模式启动
+2026-04-24 13:57:31 - TqConnector - WARNING - 
+2026-04-24 13:57:31 - TqConnector - WARNING - 提示: 匿名模式下只能使用本地模拟交易，
+2026-04-24 13:57:31 - TqConnector - WARNING -       无法获取实时行情数据（可能需要手动构造测试数据）
+2026-04-24 13:57:31 - TqConnector - WARNING - 
+2026-04-24 13:57:31 - TqConnector - WARNING - 如需获取实时行情，请：
+2026-04-24 13:57:31 - TqConnector - WARNING - 1. 访问 https://account.shinnytech.com/ 注册天勤账户
+2026-04-24 13:57:31 - TqConnector - WARNING - 2. 创建配置文件 config/local_credentials.yaml:
+2026-04-24 13:57:31 - TqConnector - WARNING -    tq_account: 你的天勤账号
+2026-04-24 13:57:31 - TqConnector - WARNING -    tq_password: 你的天勤密码
+2026-04-24 13:57:31 - TqConnector - WARNING - ============================================================
+2026-04-24 13:57:31 - TqConnector - INFO - 使用本地模拟账户模式 (TqSim)，初始资金: 1000000.0
+2026-04-24 13:57:31 - TqConnector - INFO - [1/3] 正在连接天勤 API，环境模式: sim (模拟模式)
+2026-04-24 13:57:31 - TqConnector - INFO - 使用匿名模式 (无 auth) 连接 TqSim
+2026-04-24 13:57:31 - TqConnector - INFO - [1/3] 天勤 API 连接成功！环境: sim (模拟模式)
+2026-04-24 13:57:31 - TqConnector - INFO - 正在断开天勤 API 连接...
+2026-04-24 13:57:31 - TqConnector - INFO - 天勤 API 已断开连接
