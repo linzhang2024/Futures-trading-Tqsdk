@@ -29,15 +29,15 @@ def load_config(config_path: str = None) -> dict:
     return config
 
 
-def run_optimization_demo():
-    print("\n" + "=" * 80)
-    print("                    参数寻优演示")
-    print("=" * 80)
+def run_multi_contract_optimization():
+    print("\n" + "=" * 120)
+    print("                    多维参数矩阵寻优与多合约交叉验证")
+    print("=" * 120)
     print(f"\n功能说明:")
-    print(f"  - 使用参数网格寻优找到最优参数组合")
-    print(f"  - 自动生成可视化分析图表")
-    print(f"  - 展示最优参数组合及性能指标")
-    print(f"  - 提供一键同步参数到配置文件的选项")
+    print(f"  - 多维参数网格寻优（均线、RSI、止盈止损）")
+    print(f"  - 多合约交叉验证（螺纹钢、热卷）")
+    print(f"  - 稳定性评分（收益率/最大回撤）")
+    print(f"  - 自动输出 Top 3 组合并提供同步选项")
     
     config = load_config()
     
@@ -72,150 +72,266 @@ def run_optimization_demo():
         ),
     }
     
+    tp_sl_options = [
+        {'take_profit_ratio': None, 'stop_loss_ratio': None},
+        {'take_profit_ratio': 0.01, 'stop_loss_ratio': 0.01},
+        {'take_profit_ratio': 0.02, 'stop_loss_ratio': 0.02},
+        {'take_profit_ratio': 0.03, 'stop_loss_ratio': 0.03},
+    ]
+    
+    contracts = ['SHFE.rb2410', 'SHFE.hc2410']
+    
+    total_short = int((optimization_config['short_period'].max_val - optimization_config['short_period'].min_val) / optimization_config['short_period'].step) + 1
+    total_long = int((optimization_config['long_period'].max_val - optimization_config['long_period'].min_val) / optimization_config['long_period'].step) + 1
+    total_rsi_period = int((optimization_config['rsi_period'].max_val - optimization_config['rsi_period'].min_val) / optimization_config['rsi_period'].step) + 1
+    total_rsi_threshold = int((optimization_config['rsi_threshold'].max_val - optimization_config['rsi_threshold'].min_val) / optimization_config['rsi_threshold'].step) + 1
+    total_tp_sl = len(tp_sl_options)
+    total_contracts = len(contracts)
+    
+    total_combinations = total_short * total_long * total_rsi_period * total_rsi_threshold * total_tp_sl * total_contracts
+    
     print(f"\n【寻优参数范围】")
-    print(f"  短期均线 (short_period): 2, 3, 4, 5")
-    print(f"  长期均线 (long_period): 8, 10, 12, 14")
-    print(f"  RSI 周期 (rsi_period): 7, 14, 21")
-    print(f"  RSI 阈值 (rsi_threshold): 45, 50, 55")
-    print(f"  合约: SHFE.rb2410")
+    print(f"  短期均线 (short_period): {[optimization_config['short_period'].min_val + i * optimization_config['short_period'].step for i in range(total_short)]}")
+    print(f"  长期均线 (long_period): {[optimization_config['long_period'].min_val + i * optimization_config['long_period'].step for i in range(total_long)]}")
+    print(f"  RSI 周期 (rsi_period): {[optimization_config['rsi_period'].min_val + i * optimization_config['rsi_period'].step for i in range(total_rsi_period)]}")
+    print(f"  RSI 阈值 (rsi_threshold): {[optimization_config['rsi_threshold'].min_val + i * optimization_config['rsi_threshold'].step for i in range(total_rsi_threshold)]}")
+    print(f"  止盈止损组合数: {total_tp_sl} 种")
+    print(f"  合约: {contracts}")
     print(f"  回测区间: 2024-01-02 至 2024-02-01 (30天)")
+    print(f"\n  总测试组合数: {total_combinations}")
     
-    base_params = {
-        'contract': 'SHFE.rb2410',
-        'kline_duration': 60,
-        'use_ema': False,
-        'use_rsi_filter': True,
-    }
+    all_results = []
     
-    engine = BacktestEngine(config=config)
-    
-    print(f"\n{'='*80}")
-    print("开始参数寻优...")
-    print("=" * 80)
-    
-    try:
-        results = engine.run_optimization(
-            strategy_class=DoubleMAStrategy,
-            param_ranges=optimization_config,
-            base_params=base_params,
-            start_dt=date(2024, 1, 2),
-            end_dt=date(2024, 2, 1),
-            optimize_by='total_return_percent',
-        )
+    for contract in contracts:
+        print(f"\n{'='*120}")
+        print(f"                    开始回测合约: {contract}")
+        print("=" * 120)
         
-        print(f"\n{'='*80}")
-        print("                    寻优结果汇总")
-        print("=" * 80)
-        
-        print(f"\n【测试统计】")
-        print(f"  总测试组合数: {len(results)}")
-        print(f"  成功完成数: {len([r for r in results if r.status == 'completed'])}")
-        
-        best_result = engine.get_best_result()
-        
-        if best_result:
-            print(f"\n{'='*80}")
-            print("                    最优参数组合")
-            print("=" * 80)
+        for tp_sl_config in tp_sl_options:
+            tp_ratio = tp_sl_config['take_profit_ratio']
+            sl_ratio = tp_sl_config['stop_loss_ratio']
             
-            print(f"\n【参数配置】")
-            for param_name, param_value in best_result.params.items():
-                print(f"  {param_name}: {param_value}")
+            if tp_ratio is None and sl_ratio is None:
+                tp_sl_desc = "无止盈止损"
+            else:
+                tp_sl_desc = f"止盈={tp_ratio*100:.0f}%, 止损={sl_ratio*100:.0f}%"
             
-            p = best_result.performance
-            print(f"\n【核心性能指标】")
-            print(f"  总收益率: {p.total_return_percent:.2f}%")
-            print(f"  夏普比率: {p.sharpe_ratio:.2f}")
-            print(f"  最大回撤率: {p.max_drawdown_percent:.2f}%")
+            print(f"\n  止盈止损配置: {tp_sl_desc}")
             
-            print(f"\n【详细收益指标】")
-            print(f"  初始权益: {best_result.initial_equity:,.2f}")
-            print(f"  最终权益: {best_result.final_equity:,.2f}")
-            print(f"  总收益: {p.total_return:,.2f}")
-            print(f"  年化收益率: {p.annualized_return_percent:.2f}%")
+            base_params = {
+                'contract': contract,
+                'kline_duration': 60,
+                'use_ema': False,
+                'use_rsi_filter': True,
+                'take_profit_ratio': tp_ratio,
+                'stop_loss_ratio': sl_ratio,
+            }
             
-            print(f"\n【风险调整指标】")
-            print(f"  索提诺比率: {p.sortino_ratio:.2f}")
-            print(f"  卡尔玛比率: {p.calmar_ratio:.2f}")
-            print(f"  最大回撤金额: {p.max_drawdown:,.2f}")
-            
-            print(f"\n【交易统计】")
-            print(f"  总交易次数: {p.total_trades}")
-            print(f"  胜率: {p.win_rate:.2f}%")
-            print(f"  盈亏比: {p.profit_factor:.2f}")
-            print(f"  平均每笔收益: {p.avg_trade_return:,.2f}")
-            
-            print(f"\n【成本统计】")
-            print(f"  总手续费: {p.total_commission_cost:,.2f}")
-            print(f"  总滑点成本: {p.total_slippage_cost:,.2f}")
-            print(f"  总成本: {p.total_cost:,.2f}")
-            
-            print(f"\n{'='*80}")
-            print("                    风控拦截统计")
-            print("=" * 80)
-            
-            print_risk_events(best_result)
-            
-            print(f"\n{'='*80}")
-            print("                    报告生成")
-            print("=" * 80)
-            
-            report = engine.generate_report()
-            
-            if 'chart_path' in report:
-                print(f"\n✅ 可视化图表已生成:")
-                print(f"   路径: {report['chart_path']}")
-                print(f"   图表包含:")
-                print(f"   - 收益率热力图")
-                print(f"   - 最大回撤热力图")
-                print(f"   - 收益-风险散点图")
-                print(f"   - Top参数组合排名")
-            
-            print(f"\n{'='*80}")
-            print("                    参数同步选项")
-            print("=" * 80)
-            
-            print(f"\n当前配置文件中的策略参数:")
-            strategies = config.get('strategies', [])
-            for i, s in enumerate(strategies):
-                print(f"\n  策略 [{i+1}]: {s.get('name', 'Unknown')}")
-                print(f"    类名: {s.get('class', 'Unknown')}")
-                params = s.get('params', {})
-                for pn, pv in params.items():
-                    print(f"    {pn}: {pv}")
-            
-            print(f"\n是否要将最优参数同步到配置文件?")
-            print(f"  - 这将更新 config/settings.yaml 中的 strategies 段")
-            print(f"  - 参数映射: short_period -> fast, long_period -> slow")
-            print(f"  - RSI 参数: rsi_period, rsi_threshold, use_rsi_filter")
+            engine = BacktestEngine(config=config)
             
             try:
-                user_input = input("\n请输入 'yes' 确认同步，或其他键跳过: ").strip().lower()
+                results = engine.run_optimization(
+                    strategy_class=DoubleMAStrategy,
+                    param_ranges=optimization_config,
+                    base_params=base_params,
+                    start_dt=date(2024, 1, 2),
+                    end_dt=date(2024, 2, 1),
+                    optimize_by='total_return_percent',
+                )
                 
-                if user_input == 'yes':
-                    print(f"\n正在同步参数...")
-                    success = engine.sync_optimal_params_to_config(
-                        param_mapping={
-                            'short_period': 'fast',
-                            'long_period': 'slow',
-                        }
-                    )
-                    if success:
-                        print(f"\n✅ 参数同步成功!")
-                    else:
-                        print(f"\n❌ 参数同步失败，请查看日志")
-                else:
-                    print(f"\n跳过参数同步")
-            except EOFError:
-                print(f"\n跳过参数同步 (非交互式环境)")
+                for r in results:
+                    r.contract = contract
+                    r.take_profit_ratio = tp_ratio
+                    r.stop_loss_ratio = sl_ratio
+                    all_results.append(r)
+                
+                print(f"    完成: {len(results)} 个参数组合")
+                
+            except Exception as e:
+                print(f"    ❌ 回测出错: {e}")
+                import traceback
+                traceback.print_exc()
+    
+    print(f"\n{'='*120}")
+    print("                    多合约寻优结果汇总")
+    print("=" * 120)
+    
+    completed_results = [r for r in all_results if r.status == 'completed']
+    print(f"\n【测试统计】")
+    print(f"  总测试组合数: {len(all_results)}")
+    print(f"  成功完成数: {len(completed_results)}")
+    
+    if not completed_results:
+        print("\n❌ 没有成功完成的回测结果")
+        return
+    
+    def calculate_stability_score(result):
+        p = result.performance
+        return_pct = p.total_return_percent
+        max_dd_pct = p.max_drawdown_percent
         
-        else:
-            print("\n⚠️  未找到有效的最优结果")
+        if max_dd_pct == 0:
+            if return_pct > 0:
+                return 100.0
+            else:
+                return 0.0
+        
+        stability_score = return_pct / abs(max_dd_pct)
+        return stability_score
+    
+    for r in completed_results:
+        r.stability_score = calculate_stability_score(r)
+    
+    sorted_by_stability = sorted(completed_results, key=lambda x: x.stability_score, reverse=True)
+    sorted_by_trades = sorted([r for r in completed_results if r.performance.total_trades >= 3], 
+                               key=lambda x: x.stability_score, reverse=True)
+    
+    print(f"\n{'='*120}")
+    print("                    按稳定性评分排序 Top 10")
+    print("  稳定性评分 = 总收益率(%) / 最大回撤率(%)")
+    print("=" * 120)
+    
+    print(f"\n{'排名':<4} {'合约':<15} {'短期均线':<10} {'长期均线':<10} {'RSI周期':<10} {'RSI阈值':<10} {'止盈止损':<15} {'交易次数':<10} {'稳定性评分':<12} {'收益率(%)':<12} {'最大回撤(%)':<12}")
+    print("-" * 120)
+    
+    for i, r in enumerate(sorted_by_stability[:10], 1):
+        p = r.performance
+        tp_sl_str = f"TP={r.take_profit_ratio*100:.0f}%,SL={r.stop_loss_ratio*100:.0f}%" if r.take_profit_ratio else "无TP/SL"
+        print(f"{i:<4} {r.contract:<15} {r.params.get('short_period', '-'):<10} {r.params.get('long_period', '-'):<10} {r.params.get('rsi_period', '-'):<10} {r.params.get('rsi_threshold', '-'):<10} {tp_sl_str:<15} {p.total_trades:<10} {r.stability_score:<12.2f} {p.total_return_percent:<12.2f} {p.max_drawdown_percent:<12.2f}")
+    
+    print(f"\n{'='*120}")
+    print("                    交易次数 >=3 的组合按稳定性评分排序 Top 3")
+    print("=" * 120)
+    
+    if sorted_by_trades:
+        print(f"\n{'排名':<4} {'合约':<15} {'短期均线':<10} {'长期均线':<10} {'RSI周期':<10} {'RSI阈值':<10} {'止盈止损':<15} {'交易次数':<10} {'稳定性评分':<12} {'收益率(%)':<12} {'最大回撤(%)':<12}")
+        print("-" * 120)
+        
+        for i, r in enumerate(sorted_by_trades[:3], 1):
+            p = r.performance
+            tp_sl_str = f"TP={r.take_profit_ratio*100:.0f}%,SL={r.stop_loss_ratio*100:.0f}%" if r.take_profit_ratio else "无TP/SL"
+            print(f"{i:<4} {r.contract:<15} {r.params.get('short_period', '-'):<10} {r.params.get('long_period', '-'):<10} {r.params.get('rsi_period', '-'):<10} {r.params.get('rsi_threshold', '-'):<10} {tp_sl_str:<15} {p.total_trades:<10} {r.stability_score:<12.2f} {p.total_return_percent:<12.2f} {p.max_drawdown_percent:<12.2f}")
+    else:
+        print("\n  ❌ 没有找到交易次数 >=3 的参数组合")
+    
+    print(f"\n{'='*120}")
+    print("                    按合约汇总统计")
+    print("=" * 120)
+    
+    for contract in contracts:
+        contract_results = [r for r in completed_results if r.contract == contract]
+        contract_with_trades = [r for r in contract_results if r.performance.total_trades >= 3]
+        
+        print(f"\n【{contract}】")
+        print(f"  总测试组合数: {len(contract_results)}")
+        print(f"  交易次数 >=3 的组合数: {len(contract_with_trades)}")
+        
+        if contract_with_trades:
+            best_for_contract = sorted(contract_with_trades, key=lambda x: x.stability_score, reverse=True)[0]
+            p = best_for_contract.performance
+            print(f"  最优稳定性评分: {best_for_contract.stability_score:.2f}")
+            print(f"  最优参数: 短期={best_for_contract.params.get('short_period')}, 长期={best_for_contract.params.get('long_period')}, RSI周期={best_for_contract.params.get('rsi_period')}, RSI阈值={best_for_contract.params.get('rsi_threshold')}")
+            print(f"  止盈止损: TP={best_for_contract.take_profit_ratio*100:.0f}%, SL={best_for_contract.stop_loss_ratio*100:.0f}%" if best_for_contract.take_profit_ratio else "无止盈止损")
+            print(f"  交易次数: {p.total_trades}")
+            print(f"  收益率: {p.total_return_percent:.2f}%")
+            print(f"  最大回撤: {p.max_drawdown_percent:.2f}%")
+    
+    print(f"\n{'='*120}")
+    print("                    参数同步选项")
+    print("=" * 120)
+    
+    top_candidates = sorted_by_trades[:3] if sorted_by_trades else sorted_by_stability[:3]
+    
+    if top_candidates:
+        print(f"\n【Top 3 候选参数组合】")
+        for i, r in enumerate(top_candidates, 1):
+            p = r.performance
+            tp_sl_str = f"止盈={r.take_profit_ratio*100:.0f}%, 止损={r.stop_loss_ratio*100:.0f}%" if r.take_profit_ratio else "无止盈止损"
+            print(f"\n  候选 {i}:")
+            print(f"    合约: {r.contract}")
+            print(f"    短期均线: {r.params.get('short_period')}")
+            print(f"    长期均线: {r.params.get('long_period')}")
+            print(f"    RSI周期: {r.params.get('rsi_period')}")
+            print(f"    RSI阈值: {r.params.get('rsi_threshold')}")
+            print(f"    止盈止损: {tp_sl_str}")
+            print(f"    交易次数: {p.total_trades}")
+            print(f"    稳定性评分: {r.stability_score:.2f}")
+            print(f"    收益率: {p.total_return_percent:.2f}%")
+            print(f"    最大回撤: {p.max_drawdown_percent:.2f}%")
+            print(f"    夏普比率: {p.sharpe_ratio:.2f}")
+        
+        print(f"\n是否要将候选参数同步到配置文件?")
+        print(f"  请选择要同步的候选 (1-{len(top_candidates)})，或输入 'no' 跳过:")
+        
+        try:
+            user_input = input("\n请输入选择: ").strip().lower()
             
-    except Exception as e:
-        print(f"\n❌ 参数寻优执行出错: {e}")
-        import traceback
-        traceback.print_exc()
+            if user_input == 'no':
+                print("\n跳过参数同步")
+            else:
+                try:
+                    choice = int(user_input)
+                    if 1 <= choice <= len(top_candidates):
+                        selected = top_candidates[choice - 1]
+                        
+                        print(f"\n正在同步候选 {choice} 的参数...")
+                        
+                        config_path = os.path.join(
+                            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            'config', 'settings.yaml'
+                        )
+                        
+                        with open(config_path, 'r', encoding='utf-8') as f:
+                            current_config = yaml.safe_load(f)
+                        
+                        strategies = current_config.get('strategies', [])
+                        
+                        updated = False
+                        for s in strategies:
+                            if s.get('class') == 'DoubleMAStrategy':
+                                s['params']['fast'] = selected.params.get('short_period', 5)
+                                s['params']['slow'] = selected.params.get('long_period', 20)
+                                s['params']['rsi_period'] = selected.params.get('rsi_period', 14)
+                                s['params']['rsi_threshold'] = selected.params.get('rsi_threshold', 50.0)
+                                s['params']['use_rsi_filter'] = True
+                                if selected.take_profit_ratio:
+                                    s['params']['take_profit_ratio'] = selected.take_profit_ratio
+                                if selected.stop_loss_ratio:
+                                    s['params']['stop_loss_ratio'] = selected.stop_loss_ratio
+                                updated = True
+                                break
+                        
+                        if not updated and strategies:
+                            strategies[0]['params']['fast'] = selected.params.get('short_period', 5)
+                            strategies[0]['params']['slow'] = selected.params.get('long_period', 20)
+                            strategies[0]['params']['rsi_period'] = selected.params.get('rsi_period', 14)
+                            strategies[0]['params']['rsi_threshold'] = selected.params.get('rsi_threshold', 50.0)
+                            strategies[0]['params']['use_rsi_filter'] = True
+                        
+                        with open(config_path, 'w', encoding='utf-8') as f:
+                            yaml.dump(current_config, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+                        
+                        print(f"\n✅ 参数同步成功!")
+                        print(f"  同步的参数:")
+                        print(f"    短期均线 (fast): {selected.params.get('short_period')}")
+                        print(f"    长期均线 (slow): {selected.params.get('long_period')}")
+                        print(f"    RSI周期: {selected.params.get('rsi_period')}")
+                        print(f"    RSI阈值: {selected.params.get('rsi_threshold')}")
+                        tp_sl_str = f"止盈={selected.take_profit_ratio*100:.0f}%, 止损={selected.stop_loss_ratio*100:.0f}%" if selected.take_profit_ratio else "无"
+                        print(f"    止盈止损: {tp_sl_str}")
+                    else:
+                        print(f"\n无效选择: {choice}，跳过同步")
+                except ValueError:
+                    print(f"\n无效输入，跳过同步")
+                    
+        except EOFError:
+            print(f"\n跳过参数同步 (非交互式环境)")
+    else:
+        print("\n❌ 没有候选参数组合可同步")
+
+
+def run_optimization_demo():
+    run_multi_contract_optimization()
 
 
 def print_risk_events(result):

@@ -26,6 +26,8 @@ class DoubleMAStrategy(StrategyBase):
         rsi_period: int = 14,
         rsi_threshold: float = 50.0,
         use_rsi_filter: bool = False,
+        take_profit_ratio: Optional[float] = None,
+        stop_loss_ratio: Optional[float] = None,
     ):
         super().__init__(connector)
         
@@ -41,6 +43,12 @@ class DoubleMAStrategy(StrategyBase):
         if rsi_threshold < 0 or rsi_threshold > 100:
             raise ValueError("RSI 阈值必须在 0-100 之间")
         
+        if take_profit_ratio is not None and take_profit_ratio <= 0:
+            raise ValueError("止盈比例必须大于 0")
+        
+        if stop_loss_ratio is not None and stop_loss_ratio <= 0:
+            raise ValueError("止损比例必须大于 0")
+        
         self.short_period = short_period
         self.long_period = long_period
         self.contract = contract
@@ -49,6 +57,8 @@ class DoubleMAStrategy(StrategyBase):
         self.rsi_period = rsi_period
         self.rsi_threshold = rsi_threshold
         self.use_rsi_filter = use_rsi_filter
+        self.take_profit_ratio = take_profit_ratio
+        self.stop_loss_ratio = stop_loss_ratio
         
         self.short_prices: deque = deque(maxlen=long_period)
         self.long_prices: deque = deque(maxlen=long_period)
@@ -78,8 +88,17 @@ class DoubleMAStrategy(StrategyBase):
         
         self._rsi_filtered_signals = 0
         
+        self._tp_triggered = 0
+        self._sl_triggered = 0
+        
         rsi_info = f", RSI周期={rsi_period}, RSI阈值={rsi_threshold}, RSI过滤={'开启' if use_rsi_filter else '关闭'}"
-        self.logger.info(f"双均线策略初始化: 短期周期={short_period}, 长期周期={long_period}, 合约={contract}, K线周期={kline_duration}秒, 均线类型={'EMA' if use_ema else 'SMA'}{rsi_info}")
+        tp_sl_info = ""
+        if take_profit_ratio is not None:
+            tp_sl_info += f", 止盈比例={take_profit_ratio*100:.1f}%"
+        if stop_loss_ratio is not None:
+            tp_sl_info += f", 止损比例={stop_loss_ratio*100:.1f}%"
+        
+        self.logger.info(f"双均线策略初始化: 短期周期={short_period}, 长期周期={long_period}, 合约={contract}, K线周期={kline_duration}秒, 均线类型={'EMA' if use_ema else 'SMA'}{rsi_info}{tp_sl_info}")
 
     def subscribe(self):
         if self.api is None:
@@ -295,7 +314,13 @@ class DoubleMAStrategy(StrategyBase):
         
         self.rsi = self._calculate_rsi()
         
-        self._detect_signal()
+        if self._position != 0:
+            self._check_take_profit_stop_loss(close_price)
+        
+        if self._position == 0:
+            self._detect_signal()
+        else:
+            self.signal = SignalType.HOLD
 
     def update_from_kline(self, kline_data: Dict[str, Any]):
         if kline_data is None:
@@ -387,6 +412,77 @@ class DoubleMAStrategy(StrategyBase):
         if self.signal != SignalType.HOLD:
             self._execute_trade(self.signal)
 
+    def _check_take_profit_stop_loss(self, current_price: float):
+        """检查止盈止损"""
+        if self._position == 0 or self._entry_price is None:
+            return
+        
+        if self.take_profit_ratio is None and self.stop_loss_ratio is None:
+            return
+        
+        tp_triggered = False
+        sl_triggered = False
+        
+        if self._position > 0:
+            if self.take_profit_ratio is not None:
+                tp_price = self._entry_price * (1 + self.take_profit_ratio)
+                if current_price >= tp_price:
+                    tp_triggered = True
+                    self.logger.info(f"止盈触发: 多单入场价={self._entry_price:.2f}, 当前价={current_price:.2f}, 止盈价={tp_price:.2f}")
+            
+            if self.stop_loss_ratio is not None and not tp_triggered:
+                sl_price = self._entry_price * (1 - self.stop_loss_ratio)
+                if current_price <= sl_price:
+                    sl_triggered = True
+                    self.logger.info(f"止损触发: 多单入场价={self._entry_price:.2f}, 当前价={current_price:.2f}, 止损价={sl_price:.2f}")
+        
+        elif self._position < 0:
+            if self.take_profit_ratio is not None:
+                tp_price = self._entry_price * (1 - self.take_profit_ratio)
+                if current_price <= tp_price:
+                    tp_triggered = True
+                    self.logger.info(f"止盈触发: 空单入场价={self._entry_price:.2f}, 当前价={current_price:.2f}, 止盈价={tp_price:.2f}")
+            
+            if self.stop_loss_ratio is not None and not tp_triggered:
+                sl_price = self._entry_price * (1 + self.stop_loss_ratio)
+                if current_price >= sl_price:
+                    sl_triggered = True
+                    self.logger.info(f"止损触发: 空单入场价={self._entry_price:.2f}, 当前价={current_price:.2f}, 止损价={sl_price:.2f}")
+        
+        if tp_triggered or sl_triggered:
+            if tp_triggered:
+                self._tp_triggered += 1
+            if sl_triggered:
+                self._sl_triggered += 1
+            
+            self._close_position(current_price)
+
+    def _close_position(self, current_price: float):
+        """平仓（用于止盈止损）"""
+        if self._position == 0:
+            return
+        
+        if self.api is None:
+            self.logger.warning("API 未初始化，无法执行平仓")
+            self._position = 0
+            self._entry_price = None
+            return
+        
+        try:
+            quote = self.api.get_quote(self.contract)
+            
+            if self._position > 0:
+                self._place_order(quote, direction="SELL", offset="CLOSE", volume=self._position)
+                self.logger.info(f"止盈/止损平仓: 平多单 {self._position} 手, 当前价格={current_price:.2f}")
+            elif self._position < 0:
+                self._place_order(quote, direction="BUY", offset="CLOSE", volume=abs(self._position))
+                self.logger.info(f"止盈/止损平仓: 平空单 {abs(self._position)} 手, 当前价格={current_price:.2f}")
+            
+            self._position = 0
+            self._entry_price = None
+        except Exception as e:
+            self.logger.error(f"止盈/止损平仓失败: {e}")
+
     def _execute_trade(self, signal: SignalType):
         """执行交易下单"""
         if self.api is None:
@@ -396,23 +492,35 @@ class DoubleMAStrategy(StrategyBase):
         try:
             quote = self.api.get_quote(self.contract)
             
+            current_price = None
+            if hasattr(quote, 'last_price'):
+                current_price = quote.last_price
+            elif hasattr(quote, 'close'):
+                current_price = quote.close
+            
             if signal == SignalType.BUY:
                 if self._position < 0:
                     self._place_order(quote, direction="BUY", offset="CLOSE", volume=abs(self._position))
                     self._position = 0
+                    self._entry_price = None
                 
                 if self._position == 0:
                     self._place_order(quote, direction="BUY", offset="OPEN", volume=1)
                     self._position = 1
+                    if current_price is not None:
+                        self._entry_price = current_price
                     
             elif signal == SignalType.SELL:
                 if self._position > 0:
                     self._place_order(quote, direction="SELL", offset="CLOSE", volume=self._position)
                     self._position = 0
+                    self._entry_price = None
                 
                 if self._position == 0:
                     self._place_order(quote, direction="SELL", offset="OPEN", volume=1)
                     self._position = -1
+                    if current_price is not None:
+                        self._entry_price = current_price
                     
         except Exception as e:
             self.logger.error(f"执行交易失败: {e}")
@@ -449,6 +557,11 @@ class DoubleMAStrategy(StrategyBase):
             result['prev_rsi'] = self.prev_rsi
             result['rsi_threshold'] = self.rsi_threshold
         
+        if self.take_profit_ratio is not None:
+            result['take_profit_ratio'] = self.take_profit_ratio
+        if self.stop_loss_ratio is not None:
+            result['stop_loss_ratio'] = self.stop_loss_ratio
+        
         return result
 
     def get_rsi_value(self) -> Optional[float]:
@@ -460,6 +573,16 @@ class DoubleMAStrategy(StrategyBase):
             'rsi_threshold': self.rsi_threshold,
             'use_rsi_filter': self.use_rsi_filter,
             'filtered_signals': self._rsi_filtered_signals,
+        }
+
+    def get_tp_sl_stats(self) -> Dict[str, Any]:
+        return {
+            'take_profit_ratio': self.take_profit_ratio,
+            'stop_loss_ratio': self.stop_loss_ratio,
+            'tp_triggered': self._tp_triggered,
+            'sl_triggered': self._sl_triggered,
+            'entry_price': self._entry_price,
+            'position': self._position,
         }
 
     def is_ready(self) -> bool:
@@ -545,6 +668,17 @@ class DoubleMAStrategy(StrategyBase):
         if self.use_rsi_filter:
             self.logger.info(f"RSI 周期: {self.rsi_period}")
             self.logger.info(f"RSI 阈值: {self.rsi_threshold}")
+        
+        if self.take_profit_ratio is not None:
+            self.logger.info(f"止盈比例: {self.take_profit_ratio*100:.1f}%")
+        else:
+            self.logger.info("止盈比例: 未设置")
+        
+        if self.stop_loss_ratio is not None:
+            self.logger.info(f"止损比例: {self.stop_loss_ratio*100:.1f}%")
+        else:
+            self.logger.info("止损比例: 未设置")
+        
         self.logger.info(f"talib 可用: {TALIB_AVAILABLE}")
         
         try:
@@ -565,6 +699,8 @@ class DoubleMAStrategy(StrategyBase):
             'rsi_period': self.rsi_period,
             'rsi_threshold': self.rsi_threshold,
             'use_rsi_filter': self.use_rsi_filter,
+            'take_profit_ratio': self.take_profit_ratio,
+            'stop_loss_ratio': self.stop_loss_ratio,
             'short_ma': self.short_ma,
             'long_ma': self.long_ma,
             'prev_short_ma': self.prev_short_ma,
@@ -581,9 +717,13 @@ class DoubleMAStrategy(StrategyBase):
             '_gains': list(self._gains) if self._gains else [],
             '_losses': list(self._losses) if self._losses else [],
             '_rsi_filtered_signals': self._rsi_filtered_signals,
+            '_tp_triggered': self._tp_triggered,
+            '_sl_triggered': self._sl_triggered,
+            '_position': self._position,
+            '_entry_price': self._entry_price,
         }
         
-        self.logger.info(f"保存策略状态: 已收集 {len(self._all_prices)} 条价格记录, RSI过滤信号数={self._rsi_filtered_signals}")
+        self.logger.info(f"保存策略状态: 已收集 {len(self._all_prices)} 条价格记录, RSI过滤信号数={self._rsi_filtered_signals}, 止盈触发={self._tp_triggered}, 止损触发={self._sl_triggered}")
         return state
     
     def load_state(self, state: Dict[str, Any]) -> None:
@@ -606,6 +746,16 @@ class DoubleMAStrategy(StrategyBase):
         if 'rsi_threshold' in state:
             if state['rsi_threshold'] != self.rsi_threshold:
                 self.logger.warning(f"保存的 RSI 阈值 ({state['rsi_threshold']}) 与当前配置 ({self.rsi_threshold}) 不一致")
+        
+        if 'take_profit_ratio' in state:
+            saved_tp = state['take_profit_ratio']
+            if saved_tp != self.take_profit_ratio:
+                self.logger.warning(f"保存的止盈比例 ({saved_tp}) 与当前配置 ({self.take_profit_ratio}) 不一致")
+        
+        if 'stop_loss_ratio' in state:
+            saved_sl = state['stop_loss_ratio']
+            if saved_sl != self.stop_loss_ratio:
+                self.logger.warning(f"保存的止损比例 ({saved_sl}) 与当前配置 ({self.stop_loss_ratio}) 不一致")
         
         if 'contract' in state:
             if state['contract'] != self.contract:
@@ -672,6 +822,18 @@ class DoubleMAStrategy(StrategyBase):
         
         if '_rsi_filtered_signals' in state:
             self._rsi_filtered_signals = int(state['_rsi_filtered_signals'])
+        
+        if '_tp_triggered' in state:
+            self._tp_triggered = int(state['_tp_triggered'])
+        
+        if '_sl_triggered' in state:
+            self._sl_triggered = int(state['_sl_triggered'])
+        
+        if '_position' in state:
+            self._position = int(state['_position'])
+        
+        if '_entry_price' in state and state['_entry_price'] is not None:
+            self._entry_price = float(state['_entry_price'])
         
         if 'signal' in state:
             try:
