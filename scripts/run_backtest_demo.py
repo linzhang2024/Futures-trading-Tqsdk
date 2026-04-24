@@ -553,22 +553,28 @@ def run_rsi_filter_comparison():
         trades_no = p_no_rsi.total_trades
         trades_with = p_with_rsi.total_trades
         trades_reduction = ((trades_no - trades_with) / trades_no * 100) if trades_no > 0 else 0
-        print(f"  {'总交易次数':<20} {trades_no:<20} {trades_with:<20} {'-'+str(trades_reduction:.1f)+'%' if trades_reduction > 0 else '0%'}")
+        
+        if trades_reduction > 0:
+            trades_reduction_str = f"-{trades_reduction:.1f}%"
+        else:
+            trades_reduction_str = "0%"
+        
+        print(f"  总交易次数            {trades_no:<20} {trades_with:<20} {trades_reduction_str:<15}")
         
         win_rate_no = p_no_rsi.win_rate
         win_rate_with = p_with_rsi.win_rate
         win_rate_change = win_rate_with - win_rate_no
-        print(f"  {'胜率(%)':<20} {win_rate_no:.2f}%{'':<12} {win_rate_with:.2f}%{'':<12} {win_rate_change:+.2f}%")
+        print(f"  胜率(%)              {win_rate_no:.2f}%{'':<12} {win_rate_with:.2f}%{'':<12} {win_rate_change:+.2f}%")
         
         profit_factor_no = p_no_rsi.profit_factor
         profit_factor_with = p_with_rsi.profit_factor
         profit_factor_change = profit_factor_with - profit_factor_no
-        print(f"  {'盈亏比':<20} {profit_factor_no:.2f}{'':<15} {profit_factor_with:.2f}{'':<15} {profit_factor_change:+.2f}")
+        print(f"  盈亏比                {profit_factor_no:.2f}{'':<15} {profit_factor_with:.2f}{'':<15} {profit_factor_change:+.2f}")
         
         avg_trade_no = p_no_rsi.avg_trade_return
         avg_trade_with = p_with_rsi.avg_trade_return
         avg_trade_change = avg_trade_with - avg_trade_no if avg_trade_no is not None and avg_trade_with is not None else 0
-        print(f"  {'平均每笔收益':<20} {avg_trade_no:,.2f}{'':<10} {avg_trade_with:,.2f}{'':<10} {avg_trade_change:+.2f}")
+        print(f"  平均每笔收益          {avg_trade_no:,.2f}{'':<10} {avg_trade_with:,.2f}{'':<10} {avg_trade_change:+.2f}")
         
         print(f"\n{'='*80}")
         print("                    测试结论")
