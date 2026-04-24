@@ -72,6 +72,10 @@ backtest:
   init_balance: 1000000.0
   tq_account: ${TQ_ACCOUNT:}
   tq_password: ${TQ_PASSWORD:}
+  tq_token: ${TQ_TOKEN:}
+  
+  use_mock_data: true
+  mock_data_dir: "data/mock"
   
   costs:
     default_commission_per_lot: 5.0
