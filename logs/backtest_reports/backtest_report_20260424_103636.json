@@ -1,0 +1,3695 @@
+{
+  "generated_at": "2026-04-24T10:36:36.143135",
+  "total_backtests": 16,
+  "best_result": {
+    "strategy_name": "DoubleMAStrategy_Opt_1",
+    "params": {
+      "contract": "SHFE.rb2410",
+      "kline_duration": 60,
+      "use_ema": false,
+      "short_period": 2,
+      "long_period": 8
+    },
+    "start_dt": "2024-01-02",
+    "end_dt": "2024-02-01",
+    "initial_equity": 1000000.0,
+    "final_equity": 1000000.0,
+    "performance": {
+      "total_return": 0.0,
+      "total_return_percent": 0.0,
+      "annualized_return": 0.0,
+      "annualized_return_percent": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_percent": 0.0,
+      "sharpe_ratio": 0.0,
+      "sortino_ratio": 0.0,
+      "calmar_ratio": 0.0,
+      "total_trades": 17,
+      "winning_trades": 0,
+      "losing_trades": 0,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "avg_trade_return": 0.0,
+      "total_commission_cost": 85.0,
+      "total_slippage_cost": 0.0,
+      "total_cost": 85.0
+    },
+    "risk_triggered": false,
+    "frozen_during_backtest": false,
+    "frozen_reason": null,
+    "status": "completed",
+    "error_message": null,
+    "equity_curve": [
+      {
+        "cycle": 50,
+        "timestamp": 1776998195.7947607,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 100,
+        "timestamp": 1776998195.7957666,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 150,
+        "timestamp": 1776998195.7957666,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 200,
+        "timestamp": 1776998195.7967663,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 250,
+        "timestamp": 1776998195.7977662,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 300,
+        "timestamp": 1776998195.7977662,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 350,
+        "timestamp": 1776998195.798766,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 400,
+        "timestamp": 1776998195.7997665,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 450,
+        "timestamp": 1776998195.7997665,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 500,
+        "timestamp": 1776998195.801274,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 550,
+        "timestamp": 1776998195.8022804,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 600,
+        "timestamp": 1776998195.8022804,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 650,
+        "timestamp": 1776998195.8037844,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 700,
+        "timestamp": 1776998195.8043115,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 750,
+        "timestamp": 1776998195.8048246,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 800,
+        "timestamp": 1776998195.8058293,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 850,
+        "timestamp": 1776998195.8058293,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 900,
+        "timestamp": 1776998195.8068295,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 950,
+        "timestamp": 1776998195.80783,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 1000,
+        "timestamp": 1776998195.8088288,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 1050,
+        "timestamp": 1776998195.8088288,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 1100,
+        "timestamp": 1776998195.8098297,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 1150,
+        "timestamp": 1776998195.8108294,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 1200,
+        "timestamp": 1776998195.8113341,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 1250,
+        "timestamp": 1776998195.8123388,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 1300,
+        "timestamp": 1776998195.8123388,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 1350,
+        "timestamp": 1776998195.8138433,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 1400,
+        "timestamp": 1776998195.8138433,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      }
+    ],
+    "trade_records": [],
+    "risk_events": [],
+    "config_snapshot": {
+      "cost_config": {
+        "default_commission": 5.0,
+        "default_slippage": 1.0
+      }
+    }
+  },
+  "all_results": [
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_1",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 2,
+        "long_period": 8
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 17,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 85.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 85.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.7947607,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.7957666,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.7957666,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.7967663,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.7977662,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.7977662,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.798766,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.7997665,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.7997665,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.801274,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8022804,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8022804,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.8037844,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8043115,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.8048246,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8058293,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8058293,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.8068295,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.80783,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8088288,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8088288,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8098297,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8108294,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.8113341,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.8123388,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.8123388,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8138433,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8138433,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_2",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 2,
+        "long_period": 10
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 11,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 55.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 55.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.7957666,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.7967663,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.798766,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.7997665,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.7997665,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.801274,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8022804,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8022804,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8037844,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8048246,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8048246,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8058293,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.8068295,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.80783,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.80783,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8088288,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8098297,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.8108294,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.8113341,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8123388,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8123388,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8123388,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8138433,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.8138433,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.8163748,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.8173754,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8183744,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8203745,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_3",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 2,
+        "long_period": 12
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 11,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 55.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 55.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.7997665,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.7997665,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.801274,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.801274,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8022804,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8022804,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8043115,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8048246,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8048246,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8058293,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8068295,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.80783,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.80783,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8088288,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.8098297,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8108294,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8113341,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.8123388,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.8123388,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8123388,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8138433,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8138433,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8153691,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.8163748,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.8173754,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.8183744,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.819374,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8203745,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_4",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 2,
+        "long_period": 14
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 5,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 25.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 25.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.8113341,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.8113341,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.8123388,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8123388,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8138433,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8138433,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8153691,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8163748,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8173754,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8173754,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8183744,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.819374,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.8203745,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8213732,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.821876,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8228798,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8228798,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.824381,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.824899,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.824899,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8264036,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8264036,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8274064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.8284068,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.8294065,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.8294065,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8304064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8314064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_5",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 3,
+        "long_period": 8
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 13,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 65.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 65.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.819374,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.819374,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.8203745,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8213732,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.821876,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8228798,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8228798,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.824381,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.824899,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8259017,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8264036,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8274064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.8274064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8284068,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.8294065,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8294065,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8304064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.8314064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.8314064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8330338,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8330338,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8346827,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8346827,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.836202,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.836202,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.8377101,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8387136,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8387136,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_6",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 3,
+        "long_period": 10
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 7,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 35.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 35.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.824381,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.824899,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.8259017,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8264036,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8274064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8284068,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8284068,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8294065,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8304064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8304064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8314064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8341608,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.8346827,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.837207,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.8387136,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8397138,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8397138,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.8397138,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.8417308,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8417308,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8427343,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8437345,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8442373,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.8447402,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.8447402,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.8462574,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8472607,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8482618,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_7",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 3,
+        "long_period": 12
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 11,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 55.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 55.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.824899,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.824899,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.8264036,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8264036,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8274064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8284068,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8284068,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8294065,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8304064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8314064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8330338,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8346827,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.836202,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8377101,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.8387136,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8397138,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8417308,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.8437345,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.8447402,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8472607,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8472607,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8482618,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.849261,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.849261,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.8502607,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.851261,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8517632,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.852766,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_8",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 3,
+        "long_period": 14
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 5,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 25.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 25.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.8346827,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.836202,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.837207,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8377101,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8387136,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8412166,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8427343,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8442373,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8462574,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8472607,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8482618,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8482618,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.849261,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8502607,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.851261,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8517632,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.852766,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.852766,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.854268,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8547707,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8557737,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8557737,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.857276,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.8577778,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.8587806,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.8587806,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8597806,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8597806,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_9",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 4,
+        "long_period": 8
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 9,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 45.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 45.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.8427343,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.8427343,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.8442373,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8447402,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8447402,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8462574,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8462574,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8472607,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8482618,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.849261,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.849261,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8502607,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.851261,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8517632,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.852766,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.853766,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.854268,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.8547707,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.8557737,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.857276,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8587806,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8597806,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8622882,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.863792,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.8647964,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.8652992,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8652992,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8668015,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_10",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 4,
+        "long_period": 10
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 7,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 35.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 35.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.8517632,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.8517632,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.852766,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.853766,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.854268,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8547707,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8557737,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8567736,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.857276,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8577778,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8587806,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8587806,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.8597806,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8597806,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.8612828,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8622882,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8622882,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.863792,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.863792,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8652992,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8652992,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8668015,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8668015,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.8678055,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.868805,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.868805,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8698044,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8698044,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_11",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 4,
+        "long_period": 12
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 7,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 35.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 35.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.8567736,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.8577778,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.8597806,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8612828,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8622882,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8647964,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8652992,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8652992,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8668015,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8678055,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.868805,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.868805,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.8698044,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8698044,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.8713064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8723094,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8738132,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.8743286,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.8754854,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8760047,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8765194,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8775487,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8781095,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.8786309,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.8796346,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.8811374,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8821423,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8827639,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_12",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 4,
+        "long_period": 14
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 5,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 25.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 25.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.863792,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.8647964,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.8652992,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8652992,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8668015,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8678055,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.868805,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.868805,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8698044,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8698044,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8713064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8723094,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.8723094,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8738132,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.8748353,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8754854,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8765194,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.8770306,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.8781095,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8796346,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8811374,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8827639,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8837676,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.8852727,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.8867817,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.8872843,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8882878,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8892891,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_14",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 5,
+        "long_period": 10
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 11,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 55.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 55.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.8743286,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.8748353,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.8754854,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8765194,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8770306,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8781095,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8786309,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8796346,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8806345,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8811374,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8821423,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8827639,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.8837676,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8837676,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.8852727,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8862784,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8867817,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.8872843,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.8882878,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8892891,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8892891,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8902884,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8912876,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.8917902,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.892793,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.892793,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8943868,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8943868,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_13",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 5,
+        "long_period": 8
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 9,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 45.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 45.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.8698044,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.8713064,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.8723094,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8738132,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8743286,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8754854,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8760047,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8770306,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8775487,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.8786309,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8796346,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8811374,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.8827639,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8837676,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.8862784,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8872843,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.8872843,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.8882878,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.8892891,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.8902884,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.8902884,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.8912876,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.8917902,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.892793,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.893793,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.8943868,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.8943868,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.8953905,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_15",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 5,
+        "long_period": 12
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 7,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 35.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 35.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.8867817,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.8872843,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.8882878,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8882878,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8892891,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8902884,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8912876,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8917902,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.8917902,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.892793,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.8943868,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.8953905,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.8953905,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.8965945,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.8975976,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.8981001,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.899103,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.9001036,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.9001036,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.9016056,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.9016056,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.9026084,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.9036083,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.9036083,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.9046085,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.9056087,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.9061108,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.9071136,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    },
+    {
+      "strategy_name": "DoubleMAStrategy_Opt_16",
+      "params": {
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false,
+        "short_period": 5,
+        "long_period": 14
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-02-01",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 5,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 25.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 25.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1776998195.892793,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1776998195.892793,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1776998195.8943868,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1776998195.8953905,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1776998195.8965945,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1776998195.8965945,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1776998195.8981001,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 400,
+          "timestamp": 1776998195.8981001,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 450,
+          "timestamp": 1776998195.899103,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 500,
+          "timestamp": 1776998195.9001036,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 550,
+          "timestamp": 1776998195.9001036,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 600,
+          "timestamp": 1776998195.9016056,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 650,
+          "timestamp": 1776998195.9016056,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 700,
+          "timestamp": 1776998195.9026084,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 750,
+          "timestamp": 1776998195.9036083,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 800,
+          "timestamp": 1776998195.9046085,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 850,
+          "timestamp": 1776998195.9056087,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 900,
+          "timestamp": 1776998195.9061108,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 950,
+          "timestamp": 1776998195.9071136,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1000,
+          "timestamp": 1776998195.9071136,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1050,
+          "timestamp": 1776998195.9086154,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1100,
+          "timestamp": 1776998195.9086154,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1150,
+          "timestamp": 1776998195.9101512,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1200,
+          "timestamp": 1776998195.9101512,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1250,
+          "timestamp": 1776998195.911656,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1300,
+          "timestamp": 1776998195.911656,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1350,
+          "timestamp": 1776998195.9126585,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 1400,
+          "timestamp": 1776998195.9136584,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 5.0,
+          "default_slippage": 1.0
+        }
+      }
+    }
+  ]
+}

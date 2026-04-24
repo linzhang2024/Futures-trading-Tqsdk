@@ -44,25 +44,25 @@ def run_optimization_demo():
     optimization_config = {
         'short_period': ParameterRange(
             name='short_period',
-            min_val=3,
-            max_val=8,
-            step=2,
+            min_val=2,
+            max_val=5,
+            step=1,
             param_type=int
         ),
         'long_period': ParameterRange(
             name='long_period',
-            min_val=10,
-            max_val=25,
-            step=5,
+            min_val=8,
+            max_val=15,
+            step=2,
             param_type=int
         ),
     }
     
     print(f"\n【寻优参数范围】")
-    print(f"  短期均线 (short_period): 3, 5, 7")
-    print(f"  长期均线 (long_period): 10, 15, 20, 25")
+    print(f"  短期均线 (short_period): 2, 3, 4, 5")
+    print(f"  长期均线 (long_period): 8, 10, 12, 14")
     print(f"  合约: SHFE.rb2410")
-    print(f"  回测区间: 2024-01-02 至 2024-01-15")
+    print(f"  回测区间: 2024-01-02 至 2024-02-01 (30天)")
     
     base_params = {
         'contract': 'SHFE.rb2410',
@@ -82,7 +82,7 @@ def run_optimization_demo():
             param_ranges=optimization_config,
             base_params=base_params,
             start_dt=date(2024, 1, 2),
-            end_dt=date(2024, 1, 15),
+            end_dt=date(2024, 2, 1),
             optimize_by='total_return_percent',
         )
         

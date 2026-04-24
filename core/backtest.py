@@ -4,6 +4,7 @@ import sys
 import csv
 import json
 import copy
+import shutil
 import itertools
 import math
 import statistics
@@ -1256,6 +1257,9 @@ class BacktestEngine:
                 )
         
         def get_optimize_value(r: BacktestResult) -> float:
+            if r.performance.total_trades <= 0:
+                return float('-inf')
+            
             if optimize_by == 'total_return_percent':
                 return r.performance.total_return_percent
             elif optimize_by == 'annualized_return_percent':
@@ -1642,6 +1646,11 @@ class BacktestEngine:
                 strategies[target_strategy_idx] = target_strategy
                 config['strategies'] = strategies
                 
+                import shutil
+                backup_path = config_path + '.bak'
+                shutil.copy2(config_path, backup_path)
+                self.logger.info(f"✓ 配置文件已备份: {backup_path}")
+                
                 with open(config_path, 'w', encoding='utf-8') as f:
                     yaml.dump(config, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
                 
@@ -1649,6 +1658,7 @@ class BacktestEngine:
                 print(f"\n{'='*80}")
                 print("                    参数同步完成")
                 print("="*80)
+                print(f"原配置已备份: {backup_path}")
                 print(f"目标策略: {target_strategy.get('name', 'Unknown')}")
                 print(f"更新后的参数: {current_params}")
             else:
@@ -1693,6 +1703,8 @@ class BacktestEngine:
             output_path = os.path.join(output_dir, f'optimization_result_{timestamp}.png')
         
         try:
+            total_trades = sum(r.performance.total_trades for r in self._results)
+            
             if chart_type == 'heatmap' and self._best_result:
                 param_names = list(self._best_result.params.keys())
                 if len(param_names) >= 2:
@@ -1705,10 +1717,10 @@ class BacktestEngine:
                     if len(x_values) > 1 and len(y_values) > 1:
                         return self._generate_heatmap(
                             output_path, x_param, y_param, x_values, y_values,
-                            self._results
+                            self._results, total_trades
                         )
             
-            return self._generate_equity_curves(output_path, self._results, self._best_result)
+            return self._generate_equity_curves(output_path, self._results, self._best_result, total_trades)
             
         except Exception as e:
             self.logger.error(f"生成图表失败: {e}", exc_info=True)
@@ -1722,6 +1734,7 @@ class BacktestEngine:
         x_values: List[Any],
         y_values: List[Any],
         results: List[BacktestResult],
+        total_trades: int = 0,
     ) -> str:
         x_to_idx = {v: i for i, v in enumerate(x_values)}
         y_to_idx = {v: i for i, v in enumerate(y_values)}
@@ -1739,6 +1752,32 @@ class BacktestEngine:
             _get_label('参数寻优结果分析', 'Parameter Optimization Analysis'), 
             fontsize=16, fontweight='bold'
         )
+        
+        if total_trades <= 0:
+            for i in range(2):
+                for j in range(2):
+                    ax = axes[i, j]
+                    ax.text(0.5, 0.55, 
+                           _get_label('No Trades Executed', '无交易执行'),
+                           transform=ax.transAxes, ha='center', va='center',
+                           fontsize=18, fontweight='bold', color='red')
+                    ax.text(0.5, 0.4,
+                           _get_label('Please check signal logic or backtest period', 
+                                     '请检查信号逻辑或回测区间'),
+                           transform=ax.transAxes, ha='center', va='center',
+                           fontsize=12, color='darkred')
+                    ax.set_xticks([])
+                    ax.set_yticks([])
+                    ax.spines['top'].set_visible(False)
+                    ax.spines['right'].set_visible(False)
+                    ax.spines['left'].set_visible(False)
+                    ax.spines['bottom'].set_visible(False)
+            
+            plt.tight_layout()
+            plt.savefig(output_path, dpi=150, bbox_inches='tight')
+            plt.close()
+            self.logger.warning(f"图表已生成但显示无交易提示: {output_path}")
+            return output_path
         
         ax1 = axes[0, 0]
         im1 = ax1.imshow(heatmap_data, cmap='RdYlGn', aspect='auto', origin='lower')
@@ -1839,12 +1878,39 @@ class BacktestEngine:
         output_path: str,
         results: List[BacktestResult],
         best_result: Optional[BacktestResult],
+        total_trades: int = 0,
     ) -> str:
         fig, axes = plt.subplots(2, 2, figsize=(16, 12))
         fig.suptitle(
             _get_label('回测结果综合分析', 'Backtest Result Analysis'), 
             fontsize=16, fontweight='bold'
         )
+        
+        if total_trades <= 0:
+            for i in range(2):
+                for j in range(2):
+                    ax = axes[i, j]
+                    ax.text(0.5, 0.55, 
+                           _get_label('No Trades Executed', '无交易执行'),
+                           transform=ax.transAxes, ha='center', va='center',
+                           fontsize=18, fontweight='bold', color='red')
+                    ax.text(0.5, 0.4,
+                           _get_label('Please check signal logic or backtest period', 
+                                     '请检查信号逻辑或回测区间'),
+                           transform=ax.transAxes, ha='center', va='center',
+                           fontsize=12, color='darkred')
+                    ax.set_xticks([])
+                    ax.set_yticks([])
+                    ax.spines['top'].set_visible(False)
+                    ax.spines['right'].set_visible(False)
+                    ax.spines['left'].set_visible(False)
+                    ax.spines['bottom'].set_visible(False)
+            
+            plt.tight_layout()
+            plt.savefig(output_path, dpi=150, bbox_inches='tight')
+            plt.close()
+            self.logger.warning(f"图表已生成但显示无交易提示: {output_path}")
+            return output_path
         
         ax1 = axes[0, 0]
         if best_result and best_result.equity_curve:
@@ -2689,8 +2755,31 @@ class MockTqApi:
         
         return MockKlineData(klines)
     
-    def insert_order(self, symbol: str, direction: str, offset: str, volume: int, limit_price: float = 0):
-        """模拟下单"""
+    def insert_order(self, quote_or_symbol, direction: str, offset: str, volume: int, limit_price: float = 0):
+        """
+        模拟下单，兼容 TqSdk 的接口
+        支持传入 quote 对象（有 underlying_symbol 属性）或直接传入 symbol 字符串
+        """
+        if hasattr(quote_or_symbol, 'underlying_symbol'):
+            symbol = quote_or_symbol.underlying_symbol
+        elif hasattr(quote_or_symbol, 'last_price'):
+            if hasattr(quote_or_symbol, '__dict__') and 'contract' in quote_or_symbol.__dict__:
+                symbol = quote_or_symbol.contract
+            else:
+                symbol = None
+                for attr in dir(quote_or_symbol):
+                    if 'symbol' in attr.lower() or 'contract' in attr.lower():
+                        val = getattr(quote_or_symbol, attr, None)
+                        if isinstance(val, str) and len(val) > 0:
+                            symbol = val
+                            break
+                if symbol is None:
+                    symbol = "SHFE.rb2410"
+        elif isinstance(quote_or_symbol, str):
+            symbol = quote_or_symbol
+        else:
+            symbol = "SHFE.rb2410"
+        
         order_id = f"mock_order_{self._cycle}_{len(self._account._trades)}"
         
         base_price = self._get_base_price(symbol)
