@@ -97,7 +97,7 @@ def run_multi_contract_optimization():
     print(f"  RSI 阈值 (rsi_threshold): {[optimization_config['rsi_threshold'].min_val + i * optimization_config['rsi_threshold'].step for i in range(total_rsi_threshold)]}")
     print(f"  止盈止损组合数: {total_tp_sl} 种")
     print(f"  合约: {contracts}")
-    print(f"  回测区间: 2024-01-02 至 2024-02-01 (30天)")
+    print(f"  回测区间: 2024-01-02 至 2024-04-02 (90天)")
     print(f"\n  总测试组合数: {total_combinations}")
     
     all_results = []
@@ -135,7 +135,7 @@ def run_multi_contract_optimization():
                     param_ranges=optimization_config,
                     base_params=base_params,
                     start_dt=date(2024, 1, 2),
-                    end_dt=date(2024, 2, 1),
+                    end_dt=date(2024, 4, 2),
                     optimize_by='total_return_percent',
                 )
                 
@@ -182,9 +182,26 @@ def run_multi_contract_optimization():
     for r in completed_results:
         r.stability_score = calculate_stability_score(r)
     
+    def is_valid_result(result):
+        p = result.performance
+        has_trades = p.total_trades >= 1
+        has_non_zero_return = abs(p.total_return_percent) > 0.0001
+        return has_trades and has_non_zero_return
+    
+    def is_recommended_result(result):
+        p = result.performance
+        has_enough_trades = p.total_trades >= 3
+        has_non_zero_return = abs(p.total_return_percent) > 0.0001
+        return has_enough_trades and has_non_zero_return
+    
     sorted_by_stability = sorted(completed_results, key=lambda x: x.stability_score, reverse=True)
-    sorted_by_trades = sorted([r for r in completed_results if r.performance.total_trades >= 3], 
+    sorted_by_trades = sorted([r for r in completed_results if is_recommended_result(r)], 
                                key=lambda x: x.stability_score, reverse=True)
+    
+    valid_results = [r for r in completed_results if is_valid_result(r)]
+    print(f"\n【有效性统计】")
+    print(f"  有效结果数(有交易且非零收益): {len(valid_results)}")
+    print(f"  推荐结果数(交易>=3且非零收益): {len(sorted_by_trades)}")
     
     print(f"\n{'='*120}")
     print("                    按稳定性评分排序 Top 10")
@@ -240,7 +257,19 @@ def run_multi_contract_optimization():
     print("                    参数同步选项")
     print("=" * 120)
     
-    top_candidates = sorted_by_trades[:3] if sorted_by_trades else sorted_by_stability[:3]
+    if sorted_by_trades:
+        top_candidates = sorted_by_trades[:3]
+        print(f"\n  选择标准: 交易次数 >=3 且非零收益")
+    elif valid_results:
+        top_candidates = sorted(valid_results, key=lambda x: x.stability_score, reverse=True)[:3]
+        print(f"\n  选择标准: 有交易且非零收益（回退模式）")
+    else:
+        print("\n  ⚠️  没有找到有效的结果（无交易或零收益）")
+        print("  建议:")
+        print("    1. 延长回测时间")
+        print("    2. 调整策略参数（如 RSI 阈值、均线周期等）")
+        print("    3. 检查模拟数据是否有足够的波动")
+        return
     
     if top_candidates:
         print(f"\n【Top 3 候选参数组合】")
