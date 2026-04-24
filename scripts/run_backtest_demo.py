@@ -56,11 +56,27 @@ def run_optimization_demo():
             step=2,
             param_type=int
         ),
+        'rsi_period': ParameterRange(
+            name='rsi_period',
+            min_val=7,
+            max_val=21,
+            step=7,
+            param_type=int
+        ),
+        'rsi_threshold': ParameterRange(
+            name='rsi_threshold',
+            min_val=45,
+            max_val=55,
+            step=5,
+            param_type=float
+        ),
     }
     
     print(f"\n【寻优参数范围】")
     print(f"  短期均线 (short_period): 2, 3, 4, 5")
     print(f"  长期均线 (long_period): 8, 10, 12, 14")
+    print(f"  RSI 周期 (rsi_period): 7, 14, 21")
+    print(f"  RSI 阈值 (rsi_threshold): 45, 50, 55")
     print(f"  合约: SHFE.rb2410")
     print(f"  回测区间: 2024-01-02 至 2024-02-01 (30天)")
     
@@ -68,6 +84,7 @@ def run_optimization_demo():
         'contract': 'SHFE.rb2410',
         'kline_duration': 60,
         'use_ema': False,
+        'use_rsi_filter': True,
     }
     
     engine = BacktestEngine(config=config)
@@ -170,6 +187,7 @@ def run_optimization_demo():
             print(f"\n是否要将最优参数同步到配置文件?")
             print(f"  - 这将更新 config/settings.yaml 中的 strategies 段")
             print(f"  - 参数映射: short_period -> fast, long_period -> slow")
+            print(f"  - RSI 参数: rsi_period, rsi_threshold, use_rsi_filter")
             
             try:
                 user_input = input("\n请输入 'yes' 确认同步，或其他键跳过: ").strip().lower()
@@ -419,13 +437,183 @@ def run_normal_backtest_comparison():
         traceback.print_exc()
 
 
+def run_rsi_filter_comparison():
+    print("\n" + "=" * 80)
+    print("           RSI 过滤效果对比测试")
+    print("=" * 80)
+    
+    print(f"\n测试目的:")
+    print(f"  - 对比 RSI 过滤开启前后的策略表现")
+    print(f"  - 验证 RSI 过滤是否能有效减少交易次数并提升胜率")
+    print(f"  - 对比夏普比率和最终权益的变化")
+    
+    config = load_config()
+    
+    test_config = dict(config)
+    test_config['risk']['max_drawdown_percent'] = 10.0
+    test_config['backtest']['costs'] = {
+        'default_commission_per_lot': 5.0,
+        'default_slippage_points': 1.0,
+    }
+    
+    print(f"\n【测试配置】")
+    print(f"  最大回撤限制: {test_config['risk']['max_drawdown_percent']}%")
+    print(f"  手续费: 5元/手")
+    print(f"  滑点: 1点")
+    print(f"  合约: SHFE.rb2410")
+    print(f"  回测区间: 2024-01-02 至 2024-02-01 (30天)")
+    print(f"  RSI 周期: 14")
+    print(f"  RSI 阈值: 50")
+    print(f"  短期均线周期: 5")
+    print(f"  长期均线周期: 20")
+    
+    print(f"\n{'='*80}")
+    print("开始对比测试...")
+    print("=" * 80)
+    
+    results_no_rsi = None
+    results_with_rsi = None
+    
+    try:
+        engine_no_rsi = BacktestEngine(config=test_config)
+        
+        print(f"\n【测试 1: 无 RSI 过滤】")
+        result_no_rsi = engine_no_rsi.run_backtest(
+            strategy_class=DoubleMAStrategy,
+            strategy_params={
+                'short_period': 5,
+                'long_period': 20,
+                'contract': 'SHFE.rb2410',
+                'kline_duration': 60,
+                'use_ema': False,
+                'use_rsi_filter': False,
+            },
+            start_dt=date(2024, 1, 2),
+            end_dt=date(2024, 2, 1),
+        )
+        
+        engine_with_rsi = BacktestEngine(config=test_config)
+        
+        print(f"\n【测试 2: 有 RSI 过滤】")
+        result_with_rsi = engine_with_rsi.run_backtest(
+            strategy_class=DoubleMAStrategy,
+            strategy_params={
+                'short_period': 5,
+                'long_period': 20,
+                'contract': 'SHFE.rb2410',
+                'kline_duration': 60,
+                'use_ema': False,
+                'use_rsi_filter': True,
+                'rsi_period': 14,
+                'rsi_threshold': 50.0,
+            },
+            start_dt=date(2024, 1, 2),
+            end_dt=date(2024, 2, 1),
+        )
+        
+        p_no_rsi = result_no_rsi.performance
+        p_with_rsi = result_with_rsi.performance
+        
+        print(f"\n{'='*80}")
+        print("                    对比测试结果")
+        print("=" * 80)
+        
+        print(f"\n【收益对比】")
+        print(f"  {'指标':<20} {'无RSI过滤':<20} {'有RSI过滤':<20} {'变化':<15}")
+        print(f"  {'-'*75}")
+        
+        final_eq_no = result_no_rsi.final_equity
+        final_eq_with = result_with_rsi.final_equity
+        eq_change = ((final_eq_with - final_eq_no) / final_eq_no * 100) if final_eq_no > 0 else 0
+        
+        print(f"  {'最终权益':<20} {final_eq_no:,.2f}{'':<10} {final_eq_with:,.2f}{'':<10} {eq_change:+.2f}%")
+        
+        return_no = p_no_rsi.total_return_percent
+        return_with = p_with_rsi.total_return_percent
+        return_change = return_with - return_no
+        print(f"  {'总收益率(%)':<20} {return_no:.2f}%{'':<12} {return_with:.2f}%{'':<12} {return_change:+.2f}%")
+        
+        sharpe_no = p_no_rsi.sharpe_ratio
+        sharpe_with = p_with_rsi.sharpe_ratio
+        sharpe_change = sharpe_with - sharpe_no
+        print(f"  {'夏普比率':<20} {sharpe_no:.2f}{'':<15} {sharpe_with:.2f}{'':<15} {sharpe_change:+.2f}")
+        
+        print(f"\n【风险对比】")
+        max_dd_no = p_no_rsi.max_drawdown_percent
+        max_dd_with = p_with_rsi.max_drawdown_percent
+        max_dd_change = max_dd_with - max_dd_no
+        print(f"  {'最大回撤率(%)':<20} {max_dd_no:.2f}%{'':<12} {max_dd_with:.2f}%{'':<12} {max_dd_change:+.2f}%")
+        
+        sortino_no = p_no_rsi.sortino_ratio
+        sortino_with = p_with_rsi.sortino_ratio
+        sortino_change = sortino_with - sortino_no
+        print(f"  {'索提诺比率':<20} {sortino_no:.2f}{'':<15} {sortino_with:.2f}{'':<15} {sortino_change:+.2f}")
+        
+        print(f"\n【交易统计对比】")
+        trades_no = p_no_rsi.total_trades
+        trades_with = p_with_rsi.total_trades
+        trades_reduction = ((trades_no - trades_with) / trades_no * 100) if trades_no > 0 else 0
+        print(f"  {'总交易次数':<20} {trades_no:<20} {trades_with:<20} {'-'+str(trades_reduction:.1f)+'%' if trades_reduction > 0 else '0%'}")
+        
+        win_rate_no = p_no_rsi.win_rate
+        win_rate_with = p_with_rsi.win_rate
+        win_rate_change = win_rate_with - win_rate_no
+        print(f"  {'胜率(%)':<20} {win_rate_no:.2f}%{'':<12} {win_rate_with:.2f}%{'':<12} {win_rate_change:+.2f}%")
+        
+        profit_factor_no = p_no_rsi.profit_factor
+        profit_factor_with = p_with_rsi.profit_factor
+        profit_factor_change = profit_factor_with - profit_factor_no
+        print(f"  {'盈亏比':<20} {profit_factor_no:.2f}{'':<15} {profit_factor_with:.2f}{'':<15} {profit_factor_change:+.2f}")
+        
+        avg_trade_no = p_no_rsi.avg_trade_return
+        avg_trade_with = p_with_rsi.avg_trade_return
+        avg_trade_change = avg_trade_with - avg_trade_no if avg_trade_no is not None and avg_trade_with is not None else 0
+        print(f"  {'平均每笔收益':<20} {avg_trade_no:,.2f}{'':<10} {avg_trade_with:,.2f}{'':<10} {avg_trade_change:+.2f}")
+        
+        print(f"\n{'='*80}")
+        print("                    测试结论")
+        print("=" * 80)
+        
+        conclusions = []
+        
+        if trades_with < trades_no:
+            conclusions.append(f"✅ RSI 过滤成功减少交易次数: {trades_no} -> {trades_with} (减少 {trades_reduction:.1f}%)")
+        else:
+            conclusions.append(f"⚠️ RSI 过滤未减少交易次数")
+        
+        if sharpe_with > sharpe_no:
+            conclusions.append(f"✅ 夏普比率提升: {sharpe_no:.2f} -> {sharpe_with:.2f}")
+        elif sharpe_with < sharpe_no:
+            conclusions.append(f"⚠️ 夏普比率下降: {sharpe_no:.2f} -> {sharpe_with:.2f}")
+        
+        if final_eq_with > final_eq_no:
+            conclusions.append(f"✅ 最终权益提升: {final_eq_no:,.2f} -> {final_eq_with:,.2f}")
+        elif final_eq_with < final_eq_no:
+            conclusions.append(f"⚠️ 最终权益下降: {final_eq_no:,.2f} -> {final_eq_with:,.2f}")
+        
+        if win_rate_with > win_rate_no:
+            conclusions.append(f"✅ 胜率提升: {win_rate_no:.2f}% -> {win_rate_with:.2f}%")
+        
+        print("\n" + "\n".join(conclusions))
+        
+        print(f"\n【关键指标总结】")
+        print(f"  交易次数下降比例: {trades_reduction:.1f}%")
+        print(f"  夏普比率变化: {sharpe_change:+.2f}")
+        print(f"  最终权益变化: {eq_change:+.2f}%")
+        
+    except Exception as e:
+        print(f"\n❌ 对比测试执行出错: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 def print_menu():
     print("\n" + "=" * 80)
     print("                    回测模块演示菜单")
     print("=" * 80)
     print(f"\n请选择要运行的演示:")
     print(f"\n  1. 参数寻优演示 (推荐)")
-    print(f"     - 功能: 自动寻优最优参数组合")
+    print(f"     - 功能: 自动寻优最优参数组合 (含 RSI 参数)")
     print(f"     - 输出: 最优参数、夏普比率、最大回撤、风控统计")
     print(f"     - 可视化: 自动生成收益热力图和资金曲线图表")
     print(f"     - 同步: 提供一键同步参数到配置文件的选项")
@@ -435,7 +623,10 @@ def print_menu():
     print(f"\n  3. 正常成本对比测试")
     print(f"     - 功能: 正常成本环境下的回测对比")
     print(f"     - 输出: 收益指标、风险指标")
-    print(f"\n  4. 运行全部演示")
+    print(f"\n  4. RSI 过滤效果对比测试")
+    print(f"     - 功能: 对比 RSI 过滤开启前后的策略表现")
+    print(f"     - 输出: 交易次数变化、夏普比率变化、最终权益变化")
+    print(f"\n  5. 运行全部演示")
     print(f"     - 顺序执行所有演示")
     print(f"\n  0. 退出")
     print("\n" + "=" * 80)
@@ -446,7 +637,7 @@ def main():
         print_menu()
         
         try:
-            choice = input("\n请输入选项 (0-4): ").strip()
+            choice = input("\n请输入选项 (0-5): ").strip()
             
             if choice == '0':
                 print("\n感谢使用，再见！")
@@ -458,9 +649,12 @@ def main():
             elif choice == '3':
                 run_normal_backtest_comparison()
             elif choice == '4':
+                run_rsi_filter_comparison()
+            elif choice == '5':
                 run_optimization_demo()
                 run_high_slippage_backtest()
                 run_normal_backtest_comparison()
+                run_rsi_filter_comparison()
             else:
                 print(f"\n无效选项: {choice}，请重新输入")
                 continue
