@@ -8,6 +8,7 @@ import itertools
 import math
 import statistics
 import asyncio
+import warnings
 from datetime import date, datetime, timedelta
 from typing import Dict, Any, List, Optional, Tuple, Callable, Type, Union
 from dataclasses import dataclass, field, asdict
@@ -15,6 +16,13 @@ from enum import Enum
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import Manager
+
+try:
+    import yaml
+    YAML_AVAILABLE = True
+except ImportError:
+    YAML_AVAILABLE = False
+    yaml = None
 
 try:
     import numpy as np
@@ -46,7 +54,7 @@ FONT_CHECKED = False
 
 
 def _check_chinese_font_support() -> bool:
-    """检查当前环境是否支持中文字体"""
+    """检查当前环境是否支持中文字体，优先检测 SimHei 和 Microsoft YaHei"""
     global CHINESE_FONT_AVAILABLE, FONT_CHECKED
     
     if FONT_CHECKED:
@@ -58,28 +66,56 @@ def _check_chinese_font_support() -> bool:
         return False
     
     try:
-        chinese_fonts = [
-            'SimHei', 'Microsoft YaHei', 'STSong', 'STKaiti',
-            'SimSun', 'KaiTi', 'FangSong', 'NSimSun',
+        priority_fonts = ['SimHei', 'Microsoft YaHei']
+        fallback_fonts = [
+            'STSong', 'STKaiti', 'SimSun', 'KaiTi', 'FangSong', 'NSimSun',
             'PingFang SC', 'Hiragino Sans GB', 'Heiti SC',
             'WenQuanYi Micro Hei', 'WenQuanYi Zen Hei',
         ]
         
-        for font_name in chinese_fonts:
+        all_fonts = priority_fonts + fallback_fonts
+        found_font = None
+        
+        for font_name in all_fonts:
             try:
                 font_prop = FontProperties(family=[font_name])
                 font_path = findfont(font_prop)
                 if font_path and os.path.exists(font_path):
-                    plt.rcParams['font.sans-serif'] = [font_name] + plt.rcParams['font.sans-serif']
-                    plt.rcParams['axes.unicode_minus'] = False
-                    CHINESE_FONT_AVAILABLE = True
-                    logging.getLogger(__name__).info(f"找到中文字体: {font_name}")
-                    break
+                    from matplotlib import font_manager
+                    font_files = font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
+                    font_names_lower = [font_name.lower()]
+                    if font_name == 'Microsoft YaHei':
+                        font_names_lower.append('msyh')
+                        font_names_lower.append('microsoftyahei')
+                    
+                    font_found = False
+                    for f in font_files:
+                        f_lower = f.lower()
+                        for check_name in font_names_lower:
+                            if check_name.replace(' ', '') in f_lower or check_name in f_lower:
+                                font_found = True
+                                found_font = font_name
+                                break
+                        if font_found:
+                            break
+                    
+                    if not font_found and font_name in priority_fonts:
+                        font_prop2 = FontProperties(fname=font_path)
+                        if font_prop2.get_name():
+                            font_found = True
+                            found_font = font_name
+                    
+                    if font_found:
+                        plt.rcParams['font.sans-serif'] = [found_font] + plt.rcParams['font.sans-serif']
+                        plt.rcParams['axes.unicode_minus'] = False
+                        CHINESE_FONT_AVAILABLE = True
+                        logging.getLogger(__name__).info(f"找到中文字体: {found_font}")
+                        break
             except Exception:
                 continue
         
         if not CHINESE_FONT_AVAILABLE:
-            logging.getLogger(__name__).warning("未找到中文字体，图表将使用英文标签")
+            logging.getLogger(__name__).warning("未找到中文字体 (SimHei/Microsoft YaHei)，图表将强制使用英文标签")
         
     except Exception as e:
         logging.getLogger(__name__).warning(f"字体检测失败: {e}")
@@ -97,26 +133,102 @@ def _get_label(zh_label: str, en_label: str) -> str:
 
 
 def _safe_close_api(api: TqApi) -> None:
-    """安全关闭 TqApi，确保所有协程被清理"""
+    """安全关闭 TqApi，确保所有协程被清理，避免 coroutine was never awaited 警告"""
     if api is None:
         return
     
+    logger = logging.getLogger(__name__)
+    
     try:
-        if not api.is_closed():
+        if api.is_closed():
+            return
+        
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            
             try:
-                loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    loop.call_soon_threadsafe(api.close)
-                else:
-                    loop.run_until_complete(asyncio.sleep(0))
-                    api.close()
-            except Exception:
+                api.close()
+                logger.debug("TqApi 已成功关闭")
+            except Exception as e1:
+                logger.debug(f"直接关闭 API 失败，尝试备用方式: {e1}")
                 try:
-                    api.close()
-                except Exception:
-                    pass
+                    loop = None
+                    try:
+                        loop = asyncio.get_running_loop()
+                    except RuntimeError:
+                        pass
+                    
+                    if loop and loop.is_running():
+                        loop.call_soon_threadsafe(api.close)
+                    else:
+                        new_loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(new_loop)
+                        try:
+                            api.close()
+                        finally:
+                            new_loop.close()
+                            asyncio.set_event_loop(None)
+                except Exception as e2:
+                    logger.debug(f"备用关闭方式也失败 (可忽略): {e2}")
+    
     except Exception as e:
-        logging.getLogger(__name__).debug(f"API 关闭时出现异常 (可忽略): {e}")
+        logger.debug(f"API 关闭时出现异常 (可忽略): {e}")
+
+
+def _create_tq_api_with_auth_fallback(
+    account: TqSim,
+    backtest: TqBacktest,
+    tq_account: str = None,
+    tq_password: str = None,
+    logger: logging.Logger = None,
+) -> TqApi:
+    """
+    创建 TqApi，带认证失败回退逻辑。
+    优先使用账号密码认证，失败则自动切换到匿名模式。
+    """
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    
+    has_valid_creds = tq_account and tq_password
+    if has_valid_creds:
+        if (tq_account == 'your_account' or 
+            tq_password == 'your_password' or
+            tq_account == '' or 
+            tq_password == ''):
+            has_valid_creds = False
+    
+    api = None
+    
+    if has_valid_creds:
+        logger.info("尝试使用认证账号连接天勤...")
+        try:
+            auth = TqAuth(tq_account, tq_password)
+            api = TqApi(account=account, backtest=backtest, auth=auth)
+            logger.info("✓ 认证连接成功")
+            return api
+        except Exception as e:
+            error_str = str(e)
+            logger.warning(f"认证连接失败: {error_str}")
+            
+            if '403' in error_str or '权限' in error_str or 'auth' in error_str.lower():
+                logger.warning("检测到认证失败 (403/权限错误)，将切换至匿名模式")
+            else:
+                logger.warning(f"连接失败，将切换至匿名模式")
+            
+            _safe_close_api(api)
+            api = None
+    
+    logger.info("使用匿名模式创建回测 API...")
+    logger.info("提示: 匿名模式可能有限制，如需完整功能请配置有效天勤账户")
+    
+    try:
+        api = TqApi(account=account, backtest=backtest)
+        logger.info("✓ 匿名连接成功")
+        return api
+    except Exception as e:
+        logger.error(f"匿名连接也失败: {e}")
+        raise RuntimeError(f"无法创建回测 API: {e}")
 
 
 def _has_valid_tq_credentials(config: Dict[str, Any]) -> bool:
@@ -322,40 +434,19 @@ class BacktestEngine:
                     account.set_commission(symbol, commission)
                     self.logger.debug(f"设置合约 {symbol} 手续费: {commission}元/手")
         
-        has_valid_creds = self._tq_account and self._tq_password
-        if has_valid_creds:
-            if (self._tq_account == 'your_account' or 
-                self._tq_password == 'your_password' or
-                self._tq_account == '' or 
-                self._tq_password == ''):
-                has_valid_creds = False
-        
+        has_valid_creds = _has_valid_tq_credentials(self.config)
         if not has_valid_creds:
             self.logger.warning("=" * 60)
             self.logger.warning("未检测到有效的天勤账户凭证")
             _print_tq_credentials_guide()
         
-        api = None
-        
-        if has_valid_creds:
-            try:
-                self.logger.info("尝试使用认证账号连接...")
-                auth = TqAuth(self._tq_account, self._tq_password)
-                api = TqApi(account=account, backtest=backtest, auth=auth)
-                self.logger.info("认证连接成功")
-            except Exception as e:
-                self.logger.warning(f"认证连接失败，将切换至匿名模式: {e}")
-                _safe_close_api(api)
-                api = None
-        
-        if api is None:
-            self.logger.info("使用匿名模式创建回测 API")
-            try:
-                api = TqApi(account=account, backtest=backtest)
-                self.logger.info("匿名连接成功")
-            except Exception as e:
-                self.logger.error(f"匿名连接也失败: {e}")
-                raise
+        api = _create_tq_api_with_auth_fallback(
+            account=account,
+            backtest=backtest,
+            tq_account=self._tq_account,
+            tq_password=self._tq_password,
+            logger=self.logger,
+        )
         
         return api, account
 
@@ -576,36 +667,19 @@ class BacktestEngine:
             tq_account = config.get('backtest', {}).get('tq_account') if config else None
             tq_password = config.get('backtest', {}).get('tq_password') if config else None
             
-            has_valid_creds = tq_account and tq_password
-            if has_valid_creds:
-                if (tq_account == 'your_account' or 
-                    tq_password == 'your_password' or
-                    tq_account == '' or 
-                    tq_password == ''):
-                    has_valid_creds = False
-            
             if cost_config:
                 for symbol, cfg in cost_config.contract_configs.items():
                     commission = cfg.get('commission_per_lot', 0.0)
                     if commission > 0:
                         account.set_commission(symbol, commission)
             
-            api = None
-            if has_valid_creds:
-                try:
-                    auth = TqAuth(tq_account, tq_password)
-                    api = TqApi(account=account, backtest=backtest, auth=auth)
-                except Exception as e:
-                    logging.getLogger(__name__).warning(f"子进程认证连接失败，切换至匿名模式: {e}")
-                    _safe_close_api(api)
-                    api = None
-            
-            if api is None:
-                try:
-                    api = TqApi(account=account, backtest=backtest)
-                except Exception as e:
-                    logging.getLogger(__name__).error(f"子进程匿名连接失败: {e}")
-                    raise
+            api = _create_tq_api_with_auth_fallback(
+                account=account,
+                backtest=backtest,
+                tq_account=tq_account,
+                tq_password=tq_password,
+                logger=logging.getLogger(__name__),
+            )
             
             from strategies.base_strategy import StrategyBase
             from core.manager import StrategyManager
@@ -1749,3 +1823,467 @@ def _worker_run_backtest(
         cost_config=cost_config,
         performance_config=performance_config,
     )
+
+
+def _calculate_drawdown_series(equities: List[float], initial_equity: float) -> List[Tuple[int, float, float]]:
+    """
+    计算回撤时间序列
+    返回: [(周期索引, 回撤金额, 回撤百分比), ...]
+    """
+    if not equities:
+        return []
+    
+    peak = initial_equity
+    drawdown_series = []
+    
+    for i, eq in enumerate(equities):
+        if eq > peak:
+            peak = eq
+        dd = peak - eq
+        dd_percent = (dd / peak * 100) if peak > 0 else 0.0
+        drawdown_series.append((i, dd, dd_percent))
+    
+    return drawdown_series
+
+
+class BacktestCharts:
+    """独立的图表生成类，生成两张独立图表：资金净值走势图 + 最大回撤分布图"""
+    
+    @staticmethod
+    def generate_equity_curve_chart(
+        result: BacktestResult,
+        output_path: str = None,
+    ) -> Optional[str]:
+        """
+        生成资金净值走势图 (Equity Curve)
+        
+        Args:
+            result: 回测结果
+            output_path: 输出文件路径
+        
+        Returns:
+            生成的图表文件路径，失败则返回 None
+        """
+        if not MATPLOTLIB_AVAILABLE or not NUMPY_AVAILABLE:
+            logging.getLogger(__name__).error("matplotlib 或 numpy 未安装")
+            return None
+        
+        if not result or not result.equity_curve:
+            logging.getLogger(__name__).warning("没有权益曲线数据，无法生成图表")
+            return None
+        
+        _check_chinese_font_support()
+        
+        if output_path is None:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            output_dir = os.path.join(base_dir, 'logs', 'backtest_reports')
+            os.makedirs(output_dir, exist_ok=True)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            output_path = os.path.join(output_dir, f'equity_curve_{timestamp}.png')
+        
+        try:
+            initial_equity = result.initial_equity
+            equity_data = result.equity_curve
+            
+            timestamps = [p.get('cycle', i) for i, p in enumerate(equity_data)]
+            equities = [p.get('equity', initial_equity) for p in equity_data]
+            equities = [initial_equity] + equities
+            timestamps = [-1] + timestamps
+            
+            fig, ax = plt.subplots(figsize=(12, 6))
+            
+            ax.plot(range(len(equities)), equities, 'b-', linewidth=1.5, alpha=0.8)
+            ax.fill_between(range(len(equities)), equities, initial_equity, 
+                           where=np.array(equities) >= initial_equity,
+                           alpha=0.3, color='green', interpolate=True)
+            ax.fill_between(range(len(equities)), equities, initial_equity,
+                           where=np.array(equities) < initial_equity,
+                           alpha=0.3, color='red', interpolate=True)
+            
+            ax.axhline(y=initial_equity, color='gray', linestyle='--', alpha=0.5, 
+                      label=_get_label('初始资金', 'Initial Capital'))
+            
+            final_eq = equities[-1]
+            total_return = final_eq - initial_equity
+            return_pct = (total_return / initial_equity * 100) if initial_equity > 0 else 0
+            
+            ax.scatter([len(equities)-1], [final_eq], c='green' if return_pct >= 0 else 'red', 
+                      s=100, zorder=5, label=_get_label('最终权益', 'Final Equity'))
+            
+            ax.set_xlabel(_get_label('回测周期', 'Backtest Period'), fontsize=12)
+            ax.set_ylabel(_get_label('账户权益', 'Account Equity'), fontsize=12)
+            ax.set_title(
+                _get_label('资金净值走势图', 'Equity Curve'),
+                fontsize=14, fontweight='bold'
+            )
+            
+            info_text = _get_label(
+                f'初始资金: {initial_equity:,.0f}\n最终权益: {final_eq:,.0f}\n收益率: {return_pct:.2f}%',
+                f'Initial: {initial_equity:,.0f}\nFinal: {final_eq:,.0f}\nReturn: {return_pct:.2f}%'
+            )
+            props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+            ax.text(0.02, 0.98, info_text, transform=ax.transAxes, fontsize=10,
+                   verticalalignment='top', bbox=props)
+            
+            ax.legend(loc='best')
+            ax.grid(True, alpha=0.3)
+            
+            plt.tight_layout()
+            plt.savefig(output_path, dpi=150, bbox_inches='tight')
+            plt.close()
+            
+            logging.getLogger(__name__).info(f"✓ 资金净值走势图已生成: {output_path}")
+            return output_path
+            
+        except Exception as e:
+            logging.getLogger(__name__).error(f"生成资金净值走势图失败: {e}", exc_info=True)
+            return None
+    
+    @staticmethod
+    def generate_drawdown_chart(
+        result: BacktestResult,
+        output_path: str = None,
+    ) -> Optional[str]:
+        """
+        生成最大回撤分布图 (Drawdown Distribution)
+        
+        Args:
+            result: 回测结果
+            output_path: 输出文件路径
+        
+        Returns:
+            生成的图表文件路径，失败则返回 None
+        """
+        if not MATPLOTLIB_AVAILABLE or not NUMPY_AVAILABLE:
+            logging.getLogger(__name__).error("matplotlib 或 numpy 未安装")
+            return None
+        
+        if not result or not result.equity_curve:
+            logging.getLogger(__name__).warning("没有权益曲线数据，无法生成回撤图表")
+            return None
+        
+        _check_chinese_font_support()
+        
+        if output_path is None:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            output_dir = os.path.join(base_dir, 'logs', 'backtest_reports')
+            os.makedirs(output_dir, exist_ok=True)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            output_path = os.path.join(output_dir, f'drawdown_chart_{timestamp}.png')
+        
+        try:
+            initial_equity = result.initial_equity
+            equity_data = result.equity_curve
+            
+            equities = [p.get('equity', initial_equity) for p in equity_data]
+            equities = [initial_equity] + equities
+            
+            drawdown_series = _calculate_drawdown_series(equities, initial_equity)
+            dd_percents = [dd[2] for dd in drawdown_series]
+            
+            fig, axes = plt.subplots(2, 1, figsize=(12, 10))
+            
+            ax1 = axes[0]
+            ax1.fill_between(range(len(dd_percents)), dd_percents, 0, 
+                           color='red', alpha=0.6)
+            ax1.plot(range(len(dd_percents)), dd_percents, 'r-', linewidth=0.8, alpha=0.8)
+            
+            max_dd = max(dd_percents) if dd_percents else 0
+            max_dd_idx = dd_percents.index(max_dd) if dd_percents else 0
+            
+            ax1.scatter([max_dd_idx], [max_dd], c='darkred', s=100, zorder=5,
+                       label=_get_label(f'最大回撤: {max_dd:.2f}%', f'Max Drawdown: {max_dd:.2f}%'))
+            
+            ax1.set_xlabel(_get_label('回测周期', 'Backtest Period'), fontsize=12)
+            ax1.set_ylabel(_get_label('回撤率 (%)', 'Drawdown (%)'), fontsize=12)
+            ax1.set_title(
+                _get_label('回撤时间序列', 'Drawdown Time Series'),
+                fontsize=14, fontweight='bold'
+            )
+            ax1.legend(loc='best')
+            ax1.grid(True, alpha=0.3)
+            ax1.invert_yaxis()
+            
+            ax2 = axes[1]
+            valid_dds = [dd for dd in dd_percents if dd > 0.01]
+            if valid_dds:
+                n, bins, patches = ax2.hist(valid_dds, bins=20, edgecolor='black', 
+                                            alpha=0.7, color='orange')
+                
+                for patch, left_bin in zip(patches, bins[:-1]):
+                    if left_bin < max_dd * 0.33:
+                        patch.set_facecolor('green')
+                    elif left_bin < max_dd * 0.66:
+                        patch.set_facecolor('orange')
+                    else:
+                        patch.set_facecolor('red')
+                
+                ax2.axvline(x=np.mean(valid_dds), color='blue', linestyle='--', linewidth=2,
+                           label=_get_label(f'平均回撤: {np.mean(valid_dds):.2f}%', 
+                                          f'Avg Drawdown: {np.mean(valid_dds):.2f}%'))
+                ax2.axvline(x=max_dd, color='red', linestyle='-', linewidth=2,
+                           label=_get_label(f'最大回撤: {max_dd:.2f}%', 
+                                          f'Max Drawdown: {max_dd:.2f}%'))
+                
+                ax2.set_xlabel(_get_label('回撤率区间 (%)', 'Drawdown Range (%)'), fontsize=12)
+                ax2.set_ylabel(_get_label('频次', 'Frequency'), fontsize=12)
+                ax2.set_title(
+                    _get_label('回撤分布直方图', 'Drawdown Distribution Histogram'),
+                    fontsize=14, fontweight='bold'
+                )
+                ax2.legend(loc='best')
+                ax2.grid(True, alpha=0.3)
+            else:
+                ax2.text(0.5, 0.5, _get_label('无显著回撤数据', 'No significant drawdown data'),
+                        transform=ax2.transAxes, ha='center', va='center', fontsize=14)
+                ax2.set_title(
+                    _get_label('回撤分布直方图', 'Drawdown Distribution Histogram'),
+                    fontsize=14, fontweight='bold'
+                )
+            
+            plt.tight_layout()
+            plt.savefig(output_path, dpi=150, bbox_inches='tight')
+            plt.close()
+            
+            logging.getLogger(__name__).info(f"✓ 最大回撤分布图已生成: {output_path}")
+            return output_path
+            
+        except Exception as e:
+            logging.getLogger(__name__).error(f"生成最大回撤分布图失败: {e}", exc_info=True)
+            return None
+    
+    @staticmethod
+    def generate_both_charts(
+        result: BacktestResult,
+        output_dir: str = None,
+    ) -> Tuple[Optional[str], Optional[str]]:
+        """
+        生成两张独立图表：资金净值走势图 + 最大回撤分布图
+        
+        Args:
+            result: 回测结果
+            output_dir: 输出目录
+        
+        Returns:
+            (权益图表路径, 回撤图表路径)
+        """
+        if output_dir is None:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            output_dir = os.path.join(base_dir, 'logs', 'backtest_reports')
+        
+        os.makedirs(output_dir, exist_ok=True)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        equity_path = os.path.join(output_dir, f'equity_curve_{timestamp}.png')
+        drawdown_path = os.path.join(output_dir, f'drawdown_chart_{timestamp}.png')
+        
+        equity_result = BacktestCharts.generate_equity_curve_chart(result, equity_path)
+        drawdown_result = BacktestCharts.generate_drawdown_chart(result, drawdown_path)
+        
+        return equity_result, drawdown_result
+
+
+def save_optimization_results_to_csv(
+    results: List[BacktestResult],
+    output_path: str = None,
+) -> Optional[str]:
+    """
+    将参数寻优结果保存为 CSV 文件
+    
+    Args:
+        results: 回测结果列表
+        output_path: 输出文件路径，默认保存到 logs/optimization_results.csv
+    
+    Returns:
+        保存的文件路径，失败则返回 None
+    """
+    if not results:
+        logging.getLogger(__name__).warning("没有寻优结果可保存")
+        return None
+    
+    if output_path is None:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        output_dir = os.path.join(base_dir, 'logs')
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, 'optimization_results.csv')
+    
+    try:
+        fieldnames = [
+            'rank', 'strategy_name', 'params', 'start_dt', 'end_dt',
+            'initial_equity', 'final_equity',
+            'total_return', 'total_return_percent',
+            'annualized_return_percent',
+            'max_drawdown', 'max_drawdown_percent',
+            'sharpe_ratio', 'sortino_ratio', 'calmar_ratio',
+            'total_trades', 'win_rate', 'profit_factor',
+            'risk_triggered', 'frozen_during_backtest', 'frozen_reason',
+            'status', 'error_message'
+        ]
+        
+        with open(output_path, 'w', encoding='utf-8-sig', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            
+            for i, r in enumerate(results, 1):
+                p = r.performance
+                row = {
+                    'rank': i,
+                    'strategy_name': r.strategy_name,
+                    'params': json.dumps(r.params, ensure_ascii=False),
+                    'start_dt': r.start_dt.isoformat(),
+                    'end_dt': r.end_dt.isoformat(),
+                    'initial_equity': r.initial_equity,
+                    'final_equity': r.final_equity,
+                    'total_return': p.total_return,
+                    'total_return_percent': p.total_return_percent,
+                    'annualized_return_percent': p.annualized_return_percent,
+                    'max_drawdown': p.max_drawdown,
+                    'max_drawdown_percent': p.max_drawdown_percent,
+                    'sharpe_ratio': p.sharpe_ratio,
+                    'sortino_ratio': p.sortino_ratio,
+                    'calmar_ratio': p.calmar_ratio,
+                    'total_trades': p.total_trades,
+                    'win_rate': p.win_rate,
+                    'profit_factor': p.profit_factor,
+                    'risk_triggered': r.risk_triggered,
+                    'frozen_during_backtest': r.frozen_during_backtest,
+                    'frozen_reason': r.frozen_reason or '',
+                    'status': r.status,
+                    'error_message': r.error_message or '',
+                }
+                writer.writerow(row)
+        
+        logging.getLogger(__name__).info(f"✓ 参数寻优结果已保存到: {output_path}")
+        print(f"\n{'='*80}")
+        print("                    参数寻优结果导出完成")
+        print("="*80)
+        print(f"文件路径: {output_path}")
+        print(f"共导出 {len(results)} 条记录")
+        
+        return output_path
+        
+    except Exception as e:
+        logging.getLogger(__name__).error(f"保存寻优结果 CSV 失败: {e}", exc_info=True)
+        return None
+
+
+def apply_best_params_to_config(
+    best_result: BacktestResult,
+    config_path: str = None,
+    strategy_name: str = None,
+    param_mapping: Dict[str, str] = None,
+) -> bool:
+    """
+    一键应用最优参数到配置文件
+    
+    Args:
+        best_result: 最优回测结果
+        config_path: 配置文件路径，默认使用 config/settings.yaml
+        strategy_name: 目标策略名称，None 则自动匹配
+        param_mapping: 参数名映射字典，例如 {'short_period': 'fast', 'long_period': 'slow'}
+    
+    Returns:
+        是否成功
+    """
+    if not best_result:
+        logging.getLogger(__name__).error("没有找到最优参数结果")
+        return False
+    
+    if not YAML_AVAILABLE:
+        logging.getLogger(__name__).error("PyYAML 未安装，请运行: pip install pyyaml")
+        return False
+    
+    if config_path is None:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        config_path = os.path.join(base_dir, 'config', 'settings.yaml')
+    
+    if not os.path.exists(config_path):
+        logging.getLogger(__name__).error(f"配置文件不存在: {config_path}")
+        return False
+    
+    default_mapping = {
+        'short_period': 'fast',
+        'long_period': 'slow',
+    }
+    param_mapping = param_mapping or default_mapping
+    
+    logger = logging.getLogger(__name__)
+    
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+        
+        strategies = config.get('strategies', [])
+        if not strategies:
+            logger.error("配置文件中没有 strategies 配置")
+            return False
+        
+        target_strategy_idx = None
+        best_params = best_result.params
+        best_strategy_name = best_result.strategy_name
+        
+        if strategy_name:
+            for i, s in enumerate(strategies):
+                if s.get('name') == strategy_name:
+                    target_strategy_idx = i
+                    break
+            if target_strategy_idx is None:
+                logger.error(f"未找到名为 '{strategy_name}' 的策略配置")
+                return False
+        else:
+            for i, s in enumerate(strategies):
+                if s.get('class') in best_strategy_name or best_strategy_name in s.get('class', ''):
+                    target_strategy_idx = i
+                    break
+            if target_strategy_idx is None:
+                logger.warning(f"未找到匹配的策略，将使用第一个策略")
+                target_strategy_idx = 0
+        
+        target_strategy = strategies[target_strategy_idx]
+        current_params = target_strategy.get('params', {})
+        
+        logger.info(f"当前策略参数: {current_params}")
+        logger.info(f"最优参数: {best_params}")
+        
+        updated = False
+        for source_param, target_param in param_mapping.items():
+            if source_param in best_params and target_param in current_params:
+                old_value = current_params[target_param]
+                new_value = best_params[source_param]
+                if old_value != new_value:
+                    current_params[target_param] = new_value
+                    logger.info(f"更新参数: {target_param}: {old_value} -> {new_value}")
+                    updated = True
+        
+        for param_name, param_value in best_params.items():
+            if param_name not in param_mapping and param_name in current_params:
+                old_value = current_params[param_name]
+                if old_value != param_value:
+                    current_params[param_name] = param_value
+                    logger.info(f"更新参数: {param_name}: {old_value} -> {param_value}")
+                    updated = True
+        
+        if updated:
+            target_strategy['params'] = current_params
+            strategies[target_strategy_idx] = target_strategy
+            config['strategies'] = strategies
+            
+            with open(config_path, 'w', encoding='utf-8') as f:
+                yaml.dump(config, f, allow_unicode=True, default_flow_style=False, sort_keys=False)
+            
+            logger.info(f"✓ 最优参数已同步到配置文件: {config_path}")
+            print(f"\n{'='*80}")
+            print("                    参数同步完成")
+            print("="*80)
+            print(f"目标策略: {target_strategy.get('name', 'Unknown')}")
+            print(f"更新后的参数: {current_params}")
+            print(f"配置文件: {config_path}")
+        else:
+            logger.info("配置文件参数已是最新，无需更新")
+            print("\n配置文件参数已是最新，无需更新")
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"参数同步失败: {e}", exc_info=True)
+        return False
