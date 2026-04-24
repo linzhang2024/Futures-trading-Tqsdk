@@ -7,6 +7,7 @@ import copy
 import itertools
 import math
 import statistics
+import asyncio
 from datetime import date, datetime, timedelta
 from typing import Dict, Any, List, Optional, Tuple, Callable, Type, Union
 from dataclasses import dataclass, field, asdict
@@ -26,6 +27,7 @@ try:
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+    from matplotlib.font_manager import findfont, FontProperties
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
@@ -37,6 +39,135 @@ from tqsdk.exceptions import BacktestFinished
 from strategies.base_strategy import StrategyBase, SignalType
 from core.manager import StrategyManager
 from core.risk_manager import RiskManager, RiskLevel, AccountSnapshot
+
+
+CHINESE_FONT_AVAILABLE = False
+FONT_CHECKED = False
+
+
+def _check_chinese_font_support() -> bool:
+    """检查当前环境是否支持中文字体"""
+    global CHINESE_FONT_AVAILABLE, FONT_CHECKED
+    
+    if FONT_CHECKED:
+        return CHINESE_FONT_AVAILABLE
+    
+    if not MATPLOTLIB_AVAILABLE:
+        FONT_CHECKED = True
+        CHINESE_FONT_AVAILABLE = False
+        return False
+    
+    try:
+        chinese_fonts = [
+            'SimHei', 'Microsoft YaHei', 'STSong', 'STKaiti',
+            'SimSun', 'KaiTi', 'FangSong', 'NSimSun',
+            'PingFang SC', 'Hiragino Sans GB', 'Heiti SC',
+            'WenQuanYi Micro Hei', 'WenQuanYi Zen Hei',
+        ]
+        
+        for font_name in chinese_fonts:
+            try:
+                font_prop = FontProperties(family=[font_name])
+                font_path = findfont(font_prop)
+                if font_path and os.path.exists(font_path):
+                    plt.rcParams['font.sans-serif'] = [font_name] + plt.rcParams['font.sans-serif']
+                    plt.rcParams['axes.unicode_minus'] = False
+                    CHINESE_FONT_AVAILABLE = True
+                    logging.getLogger(__name__).info(f"找到中文字体: {font_name}")
+                    break
+            except Exception:
+                continue
+        
+        if not CHINESE_FONT_AVAILABLE:
+            logging.getLogger(__name__).warning("未找到中文字体，图表将使用英文标签")
+        
+    except Exception as e:
+        logging.getLogger(__name__).warning(f"字体检测失败: {e}")
+        CHINESE_FONT_AVAILABLE = False
+    
+    FONT_CHECKED = True
+    return CHINESE_FONT_AVAILABLE
+
+
+def _get_label(zh_label: str, en_label: str) -> str:
+    """根据字体支持情况返回合适的标签"""
+    if _check_chinese_font_support():
+        return zh_label
+    return en_label
+
+
+def _safe_close_api(api: TqApi) -> None:
+    """安全关闭 TqApi，确保所有协程被清理"""
+    if api is None:
+        return
+    
+    try:
+        if not api.is_closed():
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    loop.call_soon_threadsafe(api.close)
+                else:
+                    loop.run_until_complete(asyncio.sleep(0))
+                    api.close()
+            except Exception:
+                try:
+                    api.close()
+                except Exception:
+                    pass
+    except Exception as e:
+        logging.getLogger(__name__).debug(f"API 关闭时出现异常 (可忽略): {e}")
+
+
+def _has_valid_tq_credentials(config: Dict[str, Any]) -> bool:
+    """检查是否有有效的天勤凭证"""
+    tq_config = config.get('backtest', {}) if config else {}
+    account = tq_config.get('tq_account', '')
+    password = tq_config.get('tq_password', '')
+    
+    if not account or not password:
+        return False
+    
+    if account == 'your_account' or password == 'your_password':
+        return False
+    
+    if account == '' or password == '':
+        return False
+    
+    return True
+
+
+def _print_tq_credentials_guide():
+    """打印天勤凭证注册引导"""
+    guide = """
+╔══════════════════════════════════════════════════════════════╗
+║                    天勤账户配置指南                              ║
+╠══════════════════════════════════════════════════════════════╣
+║                                                                  ║
+║  当前使用匿名模式运行回测。匿名模式限制：                        ║
+║  - 无法获取实时行情数据                                          ║
+║  - 回测可能无法正常执行                                          ║
+║                                                                  ║
+║  如需完整功能，请配置天勤账户：                                  ║
+║                                                                  ║
+║  方法1：环境变量                                                  ║
+║    Windows:                                                       ║
+║      set TQ_ACCOUNT=你的天勤账号                                 ║
+║      set TQ_PASSWORD=你的天勤密码                                ║
+║                                                                  ║
+║    Linux/Mac:                                                     ║
+║      export TQ_ACCOUNT=你的天勤账号                              ║
+║      export TQ_PASSWORD=你的天勤密码                             ║
+║                                                                  ║
+║  方法2：配置文件 config/local_credentials.yaml                   ║
+║    tq_account: 你的天勤账号                                      ║
+║    tq_password: 你的天勤密码                                     ║
+║                                                                  ║
+║  注册天勤账户：https://account.shinnytech.com/                  ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════╝
+"""
+    print(guide)
 
 
 class BacktestMode(Enum):
@@ -191,9 +322,22 @@ class BacktestEngine:
                     account.set_commission(symbol, commission)
                     self.logger.debug(f"设置合约 {symbol} 手续费: {commission}元/手")
         
+        has_valid_creds = self._tq_account and self._tq_password
+        if has_valid_creds:
+            if (self._tq_account == 'your_account' or 
+                self._tq_password == 'your_password' or
+                self._tq_account == '' or 
+                self._tq_password == ''):
+                has_valid_creds = False
+        
+        if not has_valid_creds:
+            self.logger.warning("=" * 60)
+            self.logger.warning("未检测到有效的天勤账户凭证")
+            _print_tq_credentials_guide()
+        
         api = None
         
-        if self._tq_account and self._tq_password:
+        if has_valid_creds:
             try:
                 self.logger.info("尝试使用认证账号连接...")
                 auth = TqAuth(self._tq_account, self._tq_password)
@@ -201,11 +345,7 @@ class BacktestEngine:
                 self.logger.info("认证连接成功")
             except Exception as e:
                 self.logger.warning(f"认证连接失败，将切换至匿名模式: {e}")
-                try:
-                    if api and not api.is_closed():
-                        api.close()
-                except Exception:
-                    pass
+                _safe_close_api(api)
                 api = None
         
         if api is None:
@@ -436,6 +576,14 @@ class BacktestEngine:
             tq_account = config.get('backtest', {}).get('tq_account') if config else None
             tq_password = config.get('backtest', {}).get('tq_password') if config else None
             
+            has_valid_creds = tq_account and tq_password
+            if has_valid_creds:
+                if (tq_account == 'your_account' or 
+                    tq_password == 'your_password' or
+                    tq_account == '' or 
+                    tq_password == ''):
+                    has_valid_creds = False
+            
             if cost_config:
                 for symbol, cfg in cost_config.contract_configs.items():
                     commission = cfg.get('commission_per_lot', 0.0)
@@ -443,17 +591,13 @@ class BacktestEngine:
                         account.set_commission(symbol, commission)
             
             api = None
-            if tq_account and tq_password:
+            if has_valid_creds:
                 try:
                     auth = TqAuth(tq_account, tq_password)
                     api = TqApi(account=account, backtest=backtest, auth=auth)
                 except Exception as e:
                     logging.getLogger(__name__).warning(f"子进程认证连接失败，切换至匿名模式: {e}")
-                    try:
-                        if api and not api.is_closed():
-                            api.close()
-                    except Exception:
-                        pass
+                    _safe_close_api(api)
                     api = None
             
             if api is None:
@@ -609,8 +753,7 @@ class BacktestEngine:
             result_dict['status'] = 'error'
             result_dict['error_message'] = str(e)
         finally:
-            if api and not api.is_closed():
-                api.close()
+            _safe_close_api(api)
         
         return result_dict
 
@@ -1316,6 +1459,8 @@ class BacktestEngine:
             self.logger.error("matplotlib 或 numpy 未安装，请运行: pip install matplotlib numpy")
             return None
         
+        _check_chinese_font_support()
+        
         if output_path is None:
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             output_dir = os.path.join(base_dir, 'logs', 'backtest_reports')
@@ -1366,7 +1511,10 @@ class BacktestEngine:
                 heatmap_data[y_to_idx[y_val], x_to_idx[x_val]] = r.performance.total_return_percent
         
         fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-        fig.suptitle('参数寻优结果分析', fontsize=16, fontweight='bold')
+        fig.suptitle(
+            _get_label('参数寻优结果分析', 'Parameter Optimization Analysis'), 
+            fontsize=16, fontweight='bold'
+        )
         
         ax1 = axes[0, 0]
         im1 = ax1.imshow(heatmap_data, cmap='RdYlGn', aspect='auto', origin='lower')
@@ -1376,7 +1524,9 @@ class BacktestEngine:
         ax1.set_yticklabels(y_values)
         ax1.set_xlabel(x_param)
         ax1.set_ylabel(y_param)
-        ax1.set_title('总收益率热力图 (%)')
+        ax1.set_title(
+            _get_label('总收益率热力图 (%)', 'Total Return Heatmap (%)')
+        )
         plt.colorbar(im1, ax=ax1)
         
         for i in range(len(y_values)):
@@ -1401,7 +1551,9 @@ class BacktestEngine:
         ax2.set_yticklabels(y_values)
         ax2.set_xlabel(x_param)
         ax2.set_ylabel(y_param)
-        ax2.set_title('最大回撤率热力图 (%)')
+        ax2.set_title(
+            _get_label('最大回撤率热力图 (%)', 'Max Drawdown Heatmap (%)')
+        )
         plt.colorbar(im2, ax=ax2)
         
         returns = [r.performance.total_return_percent for r in results]
@@ -1410,17 +1562,27 @@ class BacktestEngine:
         
         ax3 = axes[1, 0]
         ax3.scatter(returns, sharpe_ratios, c=max_drawdowns, cmap='YlOrRd', alpha=0.7, s=50)
-        ax3.set_xlabel('总收益率 (%)')
-        ax3.set_ylabel('夏普比率')
-        ax3.set_title('收益-风险散点图')
+        ax3.set_xlabel(_get_label('总收益率 (%)', 'Total Return (%)'))
+        ax3.set_ylabel(_get_label('夏普比率', 'Sharpe Ratio'))
+        ax3.set_title(
+            _get_label('收益-风险散点图', 'Return-Risk Scatter Plot')
+        )
         ax3.axhline(y=1, color='gray', linestyle='--', alpha=0.5)
         ax3.axvline(x=0, color='gray', linestyle='--', alpha=0.5)
-        plt.colorbar(ax3.collections[0], ax=ax3, label='最大回撤率 (%)')
+        plt.colorbar(
+            ax3.collections[0], 
+            ax=ax3, 
+            label=_get_label('最大回撤率 (%)', 'Max Drawdown (%)')
+        )
         
         if self._best_result:
             best_return = self._best_result.performance.total_return_percent
             best_sharpe = self._best_result.performance.sharpe_ratio
-            ax3.scatter([best_return], [best_sharpe], c='green', s=200, marker='*', label='最优组合')
+            ax3.scatter(
+                [best_return], [best_sharpe], 
+                c='green', s=200, marker='*', 
+                label=_get_label('最优组合', 'Best Combination')
+            )
             ax3.legend()
         
         ax4 = axes[1, 1]
@@ -1434,8 +1596,10 @@ class BacktestEngine:
         ax4.barh(y_pos, top_returns, color=colors, alpha=0.7)
         ax4.set_yticks(y_pos)
         ax4.set_yticklabels(param_labels, fontsize=8)
-        ax4.set_xlabel('总收益率 (%)')
-        ax4.set_title(f'Top {top_n} 参数组合收益率排名')
+        ax4.set_xlabel(_get_label('总收益率 (%)', 'Total Return (%)'))
+        ax4.set_title(
+            _get_label(f'Top {top_n} 参数组合收益率排名', f'Top {top_n} Parameter Return Ranking')
+        )
         ax4.invert_yaxis()
         ax4.axvline(x=0, color='black', linewidth=0.5)
         
@@ -1453,7 +1617,10 @@ class BacktestEngine:
         best_result: Optional[BacktestResult],
     ) -> str:
         fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-        fig.suptitle('回测结果综合分析', fontsize=16, fontweight='bold')
+        fig.suptitle(
+            _get_label('回测结果综合分析', 'Backtest Result Analysis'), 
+            fontsize=16, fontweight='bold'
+        )
         
         ax1 = axes[0, 0]
         if best_result and best_result.equity_curve:
@@ -1462,11 +1629,14 @@ class BacktestEngine:
             equities = [p.get('equity', initial_equity) for p in best_result.equity_curve]
             equities = [initial_equity] + equities
             
-            ax1.plot(range(len(equities)), equities, 'b-', linewidth=1.5, label='权益曲线')
+            ax1.plot(range(len(equities)), equities, 'b-', linewidth=1.5, 
+                     label=_get_label('权益曲线', 'Equity Curve'))
             ax1.fill_between(range(len(equities)), equities, alpha=0.3)
-            ax1.set_xlabel('时间周期')
-            ax1.set_ylabel('账户权益')
-            ax1.set_title('最优参数组合 - 权益曲线')
+            ax1.set_xlabel(_get_label('时间周期', 'Time Period'))
+            ax1.set_ylabel(_get_label('账户权益', 'Account Equity'))
+            ax1.set_title(
+                _get_label('最优参数组合 - 权益曲线', 'Best Parameters - Equity Curve')
+            )
             ax1.legend()
             ax1.grid(True, alpha=0.3)
         
@@ -1476,50 +1646,71 @@ class BacktestEngine:
         sharpe_ratios = [r.performance.sharpe_ratio for r in results]
         
         scatter = ax2.scatter(returns, max_drawdowns, c=sharpe_ratios, cmap='viridis', alpha=0.7, s=60)
-        ax2.set_xlabel('总收益率 (%)')
-        ax2.set_ylabel('最大回撤率 (%)')
-        ax2.set_title('收益-回撤关系图')
+        ax2.set_xlabel(_get_label('总收益率 (%)', 'Total Return (%)'))
+        ax2.set_ylabel(_get_label('最大回撤率 (%)', 'Max Drawdown (%)'))
+        ax2.set_title(
+            _get_label('收益-回撤关系图', 'Return-Drawdown Relationship')
+        )
         ax2.grid(True, alpha=0.3)
         ax2.axvline(x=0, color='gray', linestyle='--', alpha=0.5)
-        plt.colorbar(scatter, ax=ax2, label='夏普比率')
+        plt.colorbar(
+            scatter, 
+            ax=ax2, 
+            label=_get_label('夏普比率', 'Sharpe Ratio')
+        )
         
         if best_result:
             best_return = best_result.performance.total_return_percent
             best_dd = best_result.performance.max_drawdown_percent
-            ax2.scatter([best_return], [best_dd], c='red', s=200, marker='*', label='最优组合')
+            ax2.scatter(
+                [best_return], [best_dd], 
+                c='red', s=200, marker='*', 
+                label=_get_label('最优组合', 'Best Combination')
+            )
             ax2.legend()
         
         ax3 = axes[1, 0]
         valid_sharpe = [s for s in sharpe_ratios if s != 0]
         if valid_sharpe:
             ax3.hist(valid_sharpe, bins=15, edgecolor='black', alpha=0.7, color='steelblue')
-            ax3.axvline(x=1, color='red', linestyle='--', linewidth=2, label='夏普比率=1')
-            ax3.axvline(x=np.mean(valid_sharpe) if valid_sharpe else 0, color='green', linestyle='-', linewidth=2, label='均值')
-            ax3.set_xlabel('夏普比率')
-            ax3.set_ylabel('频次')
-            ax3.set_title('夏普比率分布')
+            ax3.axvline(x=1, color='red', linestyle='--', linewidth=2, 
+                        label=_get_label('夏普比率=1', 'Sharpe Ratio=1'))
+            ax3.axvline(
+                x=np.mean(valid_sharpe) if valid_sharpe else 0, 
+                color='green', linestyle='-', linewidth=2, 
+                label=_get_label('均值', 'Mean')
+            )
+            ax3.set_xlabel(_get_label('夏普比率', 'Sharpe Ratio'))
+            ax3.set_ylabel(_get_label('频次', 'Frequency'))
+            ax3.set_title(
+                _get_label('夏普比率分布', 'Sharpe Ratio Distribution')
+            )
             ax3.legend()
             ax3.grid(True, alpha=0.3)
         
         ax4 = axes[1, 1]
         sorted_results = sorted(results, key=lambda r: r.performance.total_return_percent, reverse=True)
         top_n = min(15, len(sorted_results))
-        metrics = {
-            '收益率': [r.performance.total_return_percent for r in sorted_results[:top_n]],
-            '最大回撤': [-r.performance.max_drawdown_percent for r in sorted_results[:top_n]],
-            '夏普比率': [r.performance.sharpe_ratio * 10 for r in sorted_results[:top_n]],
-        }
+        
+        return_values = [r.performance.total_return_percent for r in sorted_results[:top_n]]
+        drawdown_values = [-r.performance.max_drawdown_percent for r in sorted_results[:top_n]]
+        sharpe_values = [r.performance.sharpe_ratio * 10 for r in sorted_results[:top_n]]
         
         x = np.arange(top_n)
         width = 0.25
         
-        ax4.bar(x - width, metrics['收益率'], width, label='收益率(%)', alpha=0.8)
-        ax4.bar(x, metrics['最大回撤'], width, label='-最大回撤(%)', alpha=0.8)
-        ax4.bar(x + width, metrics['夏普比率'], width, label='夏普比率×10', alpha=0.8)
+        ax4.bar(x - width, return_values, width, 
+                label=_get_label('收益率(%)', 'Return (%)'), alpha=0.8)
+        ax4.bar(x, drawdown_values, width, 
+                label=_get_label('-最大回撤(%)', '-Max Drawdown (%)'), alpha=0.8)
+        ax4.bar(x + width, sharpe_values, width, 
+                label=_get_label('夏普比率×10', 'Sharpe Ratio × 10'), alpha=0.8)
         
-        ax4.set_xlabel('参数组合排名')
-        ax4.set_ylabel('数值')
-        ax4.set_title(f'Top {top_n} 组合多指标对比')
+        ax4.set_xlabel(_get_label('参数组合排名', 'Parameter Ranking'))
+        ax4.set_ylabel(_get_label('数值', 'Value'))
+        ax4.set_title(
+            _get_label(f'Top {top_n} 组合多指标对比', f'Top {top_n} Parameters Comparison')
+        )
         ax4.set_xticks(x)
         ax4.set_xticklabels([str(i+1) for i in range(top_n)])
         ax4.legend()
