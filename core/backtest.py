@@ -176,59 +176,178 @@ def _safe_close_api(api: TqApi) -> None:
         logger.debug(f"API 关闭时出现异常 (可忽略): {e}")
 
 
+def _has_valid_token(tq_token: str = None) -> bool:
+    """检查是否有有效的 Token"""
+    if not tq_token:
+        return False
+    if tq_token == '' or tq_token == 'your_token':
+        return False
+    return True
+
+
+def _prompt_user_for_credentials(logger: logging.Logger = None) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+    """
+    提示用户输入天勤凭证
+    返回: (account, password, token) - 三者至少一个有效，或都为 None
+    """
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    
+    print("\n" + "=" * 80)
+    print("                    天勤认证失败")
+    print("=" * 80)
+    print("\n当前无法连接天勤服务器进行回测。")
+    print("\n您有以下选择：")
+    print("  1. 输入有效的天勤账号密码")
+    print("  2. 输入有效的天勤 Token（推荐）")
+    print("  3. 切换到模拟数据模式（不依赖天勤服务器）")
+    print("  4. 退出程序")
+    print("\n" + "-" * 80)
+    
+    try:
+        choice = input("\n请选择 (1-4): ").strip()
+        
+        if choice == '1':
+            print("\n请输入天勤账号密码：")
+            account = input("  账号: ").strip()
+            password = input("  密码: ").strip()
+            if account and password:
+                return (account, password, None)
+            else:
+                logger.warning("账号或密码为空")
+                return (None, None, None)
+        
+        elif choice == '2':
+            print("\n请输入天勤 Token：")
+            print("  (Token 可以从 https://www.shinnytech.com/ 获取)")
+            token = input("  Token: ").strip()
+            if token:
+                return (None, None, token)
+            else:
+                logger.warning("Token 为空")
+                return (None, None, None)
+        
+        elif choice == '3':
+            logger.info("用户选择切换到模拟数据模式")
+            return ('__MOCK_MODE__', None, None)
+        
+        elif choice == '4':
+            logger.info("用户选择退出程序")
+            raise SystemExit("用户选择退出")
+        
+        else:
+            logger.warning(f"无效选择: {choice}")
+            return (None, None, None)
+    
+    except EOFError:
+        logger.warning("非交互式环境，无法提示用户输入")
+        return (None, None, None)
+    except KeyboardInterrupt:
+        logger.info("用户中断")
+        raise
+
+
 def _create_tq_api_with_auth_fallback(
     account: TqSim,
     backtest: TqBacktest,
     tq_account: str = None,
     tq_password: str = None,
+    tq_token: str = None,
     logger: logging.Logger = None,
+    allow_prompt: bool = True,
 ) -> TqApi:
     """
     创建 TqApi，带认证失败回退逻辑。
-    优先使用账号密码认证，失败则自动切换到匿名模式。
+    优先级: Token > 账号密码 > 用户提示
+    
+    Args:
+        account: TqSim 账户
+        backtest: TqBacktest 回测配置
+        tq_account: 天勤账号
+        tq_password: 天勤密码
+        tq_token: 天勤 Token（推荐）
+        logger: 日志记录器
+        allow_prompt: 是否允许提示用户输入
+    
+    Returns:
+        TqApi 实例
+    
+    Raises:
+        RuntimeError: 所有认证方式都失败时抛出
     """
     if logger is None:
         logger = logging.getLogger(__name__)
     
-    has_valid_creds = tq_account and tq_password
-    if has_valid_creds:
-        if (tq_account == 'your_account' or 
-            tq_password == 'your_password' or
-            tq_account == '' or 
-            tq_password == ''):
-            has_valid_creds = False
-    
     api = None
     
-    if has_valid_creds:
-        logger.info("尝试使用认证账号连接天勤...")
+    has_valid_token = _has_valid_token(tq_token)
+    has_valid_creds = tq_account and tq_password and tq_account != 'your_account' and tq_password != 'your_password'
+    
+    if has_valid_token:
+        logger.info("尝试使用 Token 连接天勤...")
         try:
-            auth = TqAuth(tq_account, tq_password)
+            auth = TqAuth(tq_token)
             api = TqApi(account=account, backtest=backtest, auth=auth)
-            logger.info("✓ 认证连接成功")
+            logger.info("✓ Token 认证成功")
             return api
         except Exception as e:
             error_str = str(e)
-            logger.warning(f"认证连接失败: {error_str}")
-            
-            if '403' in error_str or '权限' in error_str or 'auth' in error_str.lower():
-                logger.warning("检测到认证失败 (403/权限错误)，将切换至匿名模式")
-            else:
-                logger.warning(f"连接失败，将切换至匿名模式")
-            
+            logger.warning(f"Token 认证失败: {error_str}")
             _safe_close_api(api)
             api = None
     
-    logger.info("使用匿名模式创建回测 API...")
-    logger.info("提示: 匿名模式可能有限制，如需完整功能请配置有效天勤账户")
+    if has_valid_creds and not has_valid_token:
+        logger.info("尝试使用账号密码连接天勤...")
+        try:
+            auth = TqAuth(tq_account, tq_password)
+            api = TqApi(account=account, backtest=backtest, auth=auth)
+            logger.info("✓ 账号密码认证成功")
+            return api
+        except Exception as e:
+            error_str = str(e)
+            logger.warning(f"账号密码认证失败: {error_str}")
+            _safe_close_api(api)
+            api = None
     
-    try:
-        api = TqApi(account=account, backtest=backtest)
-        logger.info("✓ 匿名连接成功")
-        return api
-    except Exception as e:
-        logger.error(f"匿名连接也失败: {e}")
-        raise RuntimeError(f"无法创建回测 API: {e}")
+    if allow_prompt:
+        logger.warning("配置文件中的认证信息无效或缺失")
+        user_account, user_password, user_token = _prompt_user_for_credentials(logger)
+        
+        if user_account == '__MOCK_MODE__':
+            logger.info("切换到模拟数据模式")
+            raise ValueError("__MOCK_MODE__")
+        
+        if user_token:
+            logger.info("使用用户输入的 Token 连接天勤...")
+            try:
+                auth = TqAuth(user_token)
+                api = TqApi(account=account, backtest=backtest, auth=auth)
+                logger.info("✓ Token 认证成功")
+                return api
+            except Exception as e:
+                logger.warning(f"Token 认证失败: {e}")
+                _safe_close_api(api)
+        
+        if user_account and user_password:
+            logger.info("使用用户输入的账号密码连接天勤...")
+            try:
+                auth = TqAuth(user_account, user_password)
+                api = TqApi(account=account, backtest=backtest, auth=auth)
+                logger.info("✓ 账号密码认证成功")
+                return api
+            except Exception as e:
+                logger.warning(f"账号密码认证失败: {e}")
+                _safe_close_api(api)
+    
+    error_msg = (
+        "无法创建 TqApi 连接。\n"
+        "请检查以下选项：\n"
+        "  1. 在配置文件 config/settings.yaml 中设置有效的 tq_token 或 tq_account/tq_password\n"
+        "  2. 或者设置 use_mock_data: true 使用模拟数据模式\n"
+        "  3. 注册天勤账户: https://account.shinnytech.com/"
+    )
+    logger.error(error_msg)
+    raise RuntimeError(error_msg)
 
 
 def _has_valid_tq_credentials(config: Dict[str, Any]) -> bool:
@@ -377,10 +496,12 @@ class BacktestEngine:
         backtest_config = self.config.get('backtest', {})
         self._init_balance = backtest_config.get('init_balance', 1000000.0)
         
-        self._tq_account = None
-        if backtest_config.get('tq_account') and backtest_config.get('tq_password'):
-            self._tq_account = backtest_config['tq_account']
-            self._tq_password = backtest_config['tq_password']
+        self._tq_account = backtest_config.get('tq_account')
+        self._tq_password = backtest_config.get('tq_password')
+        self._tq_token = backtest_config.get('tq_token')
+        
+        self._use_mock_data = backtest_config.get('use_mock_data', False)
+        self._mock_data_dir = backtest_config.get('mock_data_dir', 'data/mock')
         
         self._cost_config = self._parse_cost_config(backtest_config)
         
@@ -424,6 +545,11 @@ class BacktestEngine:
     ) -> Tuple[TqApi, TqSim]:
         self.logger.info(f"创建回测 API，时间段: {start_dt} 至 {end_dt}")
         
+        if self._use_mock_data:
+            self.logger.info("检测到 use_mock_data: true，将使用模拟数据模式")
+            self.logger.info("提示: 模拟数据模式不依赖天勤服务器，适合调试策略逻辑")
+            raise ValueError("__MOCK_MODE__")
+        
         account = TqSim(init_balance=self._init_balance)
         backtest = TqBacktest(start_dt=start_dt, end_dt=end_dt)
         
@@ -434,18 +560,26 @@ class BacktestEngine:
                     account.set_commission(symbol, commission)
                     self.logger.debug(f"设置合约 {symbol} 手续费: {commission}元/手")
         
+        has_valid_token = _has_valid_token(self._tq_token)
         has_valid_creds = _has_valid_tq_credentials(self.config)
-        if not has_valid_creds:
+        
+        if not has_valid_token and not has_valid_creds:
             self.logger.warning("=" * 60)
             self.logger.warning("未检测到有效的天勤账户凭证")
-            _print_tq_credentials_guide()
+            self.logger.warning("可用选项:")
+            self.logger.warning("  1. 在 config/settings.yaml 中设置 tq_token")
+            self.logger.warning("  2. 或者设置 tq_account 和 tq_password")
+            self.logger.warning("  3. 或者设置 use_mock_data: true 使用模拟数据模式")
+            self.logger.warning("=" * 60)
         
         api = _create_tq_api_with_auth_fallback(
             account=account,
             backtest=backtest,
             tq_account=self._tq_account,
             tq_password=self._tq_password,
+            tq_token=self._tq_token,
             logger=self.logger,
+            allow_prompt=False,
         )
         
         return api, account
@@ -661,25 +795,40 @@ class BacktestEngine:
             
             init_balance = config.get('backtest', {}).get('init_balance', 1000000.0) if config else 1000000.0
             
-            account = TqSim(init_balance=init_balance)
-            backtest = TqBacktest(start_dt=start_dt, end_dt=end_dt)
+            use_mock_data = config.get('backtest', {}).get('use_mock_data', False) if config else False
             
-            tq_account = config.get('backtest', {}).get('tq_account') if config else None
-            tq_password = config.get('backtest', {}).get('tq_password') if config else None
-            
-            if cost_config:
-                for symbol, cfg in cost_config.contract_configs.items():
-                    commission = cfg.get('commission_per_lot', 0.0)
-                    if commission > 0:
-                        account.set_commission(symbol, commission)
-            
-            api = _create_tq_api_with_auth_fallback(
-                account=account,
-                backtest=backtest,
-                tq_account=tq_account,
-                tq_password=tq_password,
-                logger=logging.getLogger(__name__),
-            )
+            if use_mock_data:
+                logging.getLogger(__name__).info("子进程: 检测到 use_mock_data: true，使用模拟数据模式")
+                api = MockTqApi(
+                    start_dt=start_dt,
+                    end_dt=end_dt,
+                    init_balance=init_balance,
+                    logger=logging.getLogger(__name__),
+                )
+                account = api
+            else:
+                account = TqSim(init_balance=init_balance)
+                backtest = TqBacktest(start_dt=start_dt, end_dt=end_dt)
+                
+                tq_account = config.get('backtest', {}).get('tq_account') if config else None
+                tq_password = config.get('backtest', {}).get('tq_password') if config else None
+                tq_token = config.get('backtest', {}).get('tq_token') if config else None
+                
+                if cost_config:
+                    for symbol, cfg in cost_config.contract_configs.items():
+                        commission = cfg.get('commission_per_lot', 0.0)
+                        if commission > 0:
+                            account.set_commission(symbol, commission)
+                
+                api = _create_tq_api_with_auth_fallback(
+                    account=account,
+                    backtest=backtest,
+                    tq_account=tq_account,
+                    tq_password=tq_password,
+                    tq_token=tq_token,
+                    logger=logging.getLogger(__name__),
+                    allow_prompt=False,
+                )
             
             from strategies.base_strategy import StrategyBase
             from core.manager import StrategyManager
@@ -826,8 +975,9 @@ class BacktestEngine:
         except Exception as e:
             result_dict['status'] = 'error'
             result_dict['error_message'] = str(e)
+            logging.getLogger(__name__).error(f"回测执行出错: {e}", exc_info=True)
         finally:
-            _safe_close_api(api)
+            _cleanup_api_and_loop(api, logging.getLogger(__name__))
         
         return result_dict
 
@@ -2287,3 +2437,616 @@ def apply_best_params_to_config(
     except Exception as e:
         logger.error(f"参数同步失败: {e}", exc_info=True)
         return False
+
+
+class MockKlineRow:
+    """模拟 K 线数据行，支持 to_dict() 方法"""
+    
+    def __init__(self, data: Dict[str, Any]):
+        self._data = data or {}
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return self._data
+    
+    def __getattr__(self, name):
+        if name in self._data:
+            return self._data[name]
+        raise AttributeError(f"'MockKlineRow' object has no attribute '{name}'")
+
+
+class MockKlineData:
+    """模拟 K 线数据，支持类似 pandas 的接口"""
+    
+    def __init__(self, data: List[Dict[str, Any]] = None):
+        self._data = data or []
+        self._current_idx = -1
+    
+    def __len__(self):
+        return len(self._data)
+    
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return MockKlineData(self._data[key])
+        elif isinstance(key, int):
+            return MockKlineRow(self._data[key])
+        return MockKlineData(self._data[key])
+    
+    @property
+    def iloc(self):
+        return self
+    
+    def to_dict(self):
+        if self._current_idx >= 0 and self._current_idx < len(self._data):
+            return self._data[self._current_idx]
+        return self._data[-1] if self._data else {}
+
+
+class MockTqSim:
+    """模拟 TqSim 账户"""
+    
+    def __init__(self, init_balance: float = 1000000.0):
+        self.init_balance = init_balance
+        self._balance = init_balance
+        self._positions = {}
+        self._trades = []
+        
+        self.account = type('obj', (object,), {
+            'balance': init_balance,
+            'available': init_balance,
+            'frozen': 0.0,
+            'margin': 0.0,
+            'close_profit': 0.0,
+            'position_profit': 0.0,
+        })()
+        
+        self._commissions = {}
+    
+    def set_commission(self, symbol: str, commission: float):
+        self._commissions[symbol] = commission
+    
+    def get_commission(self, symbol: str) -> float:
+        return self._commissions.get(symbol, 5.0)
+
+
+class MockTqApi:
+    """
+    模拟 TqApi，完全不依赖天勤服务器
+    使用本地生成的模拟数据进行回测
+    """
+    
+    def __init__(
+        self,
+        account: MockTqSim = None,
+        start_dt: date = None,
+        end_dt: date = None,
+        init_balance: float = 1000000.0,
+        logger: logging.Logger = None,
+    ):
+        self._closed = False
+        self._account = account or MockTqSim(init_balance=init_balance)
+        self._start_dt = start_dt or date(2024, 1, 1)
+        self._end_dt = end_dt or date(2024, 1, 31)
+        self._logger = logger or logging.getLogger(__name__)
+        
+        self._klines = {}
+        self._current_kline_idx = {}
+        self._quotes = {}
+        
+        self._cycle = 0
+        self._max_cycles = self._calculate_max_cycles()
+        
+        self._equity = init_balance
+        self._margin_used = 0.0
+        self._available = init_balance
+        self._float_profit = 0.0
+        
+        self._logger.info(f"✓ 模拟数据模式已启动")
+        self._logger.info(f"  回测区间: {self._start_dt} 至 {self._end_dt}")
+        self._logger.info(f"  初始资金: {init_balance:,.0f}")
+        self._logger.info(f"  总周期数: {self._max_cycles}")
+    
+    def _calculate_max_cycles(self) -> int:
+        """计算总回测周期数"""
+        days = (self._end_dt - self._start_dt).days
+        return max(days * 48, 100)
+    
+    @property
+    def is_closed(self) -> bool:
+        return self._closed
+    
+    def close(self):
+        """关闭模拟 API"""
+        if not self._closed:
+            self._closed = True
+            self._logger.debug("MockTqApi 已关闭")
+    
+    def get_kline_serial(self, symbol: str, duration_seconds: int) -> MockKlineData:
+        """获取模拟 K 线数据"""
+        if symbol not in self._klines:
+            self._klines[symbol] = self._generate_mock_klines(
+                symbol=symbol,
+                duration_seconds=duration_seconds,
+            )
+            self._current_kline_idx[symbol] = 0
+        
+        return self._klines[symbol]
+    
+    def get_quote(self, symbol: str):
+        """获取模拟行情数据"""
+        if symbol not in self._quotes:
+            self._quotes[symbol] = self._generate_mock_quote(symbol)
+        return self._quotes[symbol]
+    
+    def get_account(self) -> Dict[str, Any]:
+        """获取模拟账户信息"""
+        return {
+            'balance': self._equity - self._float_profit,
+            'equity': self._equity,
+            'margin': self._margin_used,
+            'available': self._available,
+            'float_profit': self._float_profit,
+        }
+    
+    @property
+    def trades(self) -> List[Dict[str, Any]]:
+        """获取交易记录"""
+        return self._account._trades
+    
+    def get_position(self) -> Dict[str, Any]:
+        """获取模拟持仓数据"""
+        positions = {}
+        for symbol, pos in self._account._positions.items():
+            if pos['long'] > 0 or pos['short'] > 0:
+                positions[symbol] = {
+                    'buy_volume': pos['long'],
+                    'sell_volume': pos['short'],
+                    'buy_margin': 0.0,
+                    'sell_margin': 0.0,
+                    'buy_open_price': 0.0,
+                    'sell_open_price': 0.0,
+                    'last_price': self._get_base_price(symbol),
+                    'float_profit': 0.0,
+                }
+        return positions
+    
+    def _generate_mock_quote(self, symbol: str) -> Any:
+        """生成模拟行情数据"""
+        base_price = self._get_base_price(symbol)
+        volatility = base_price * 0.01
+        
+        quote_data = {
+            'last_price': base_price,
+            'bid_price1': base_price - volatility * 0.1,
+            'ask_price1': base_price + volatility * 0.1,
+            'bid_volume1': 100,
+            'ask_volume1': 100,
+            'high': base_price * 1.02,
+            'low': base_price * 0.98,
+            'open': base_price,
+            'pre_close': base_price * 0.995,
+            'volume': 10000,
+            'amount': base_price * 10000,
+            'open_interest': 50000,
+        }
+        
+        return type('obj', (object,), quote_data)()
+    
+    def _get_base_price(self, symbol: str) -> float:
+        """获取合约基准价格"""
+        price_map = {
+            'SHFE.rb': 4000.0,
+            'SHFE.hc': 4200.0,
+            'DCE.i': 900.0,
+            'CZCE.CF': 15000.0,
+            'SHFE.cu': 70000.0,
+            'SHFE.au': 450.0,
+        }
+        
+        for prefix, price in price_map.items():
+            if symbol.startswith(prefix):
+                return price
+        
+        return 4000.0
+    
+    def _generate_mock_klines(
+        self,
+        symbol: str,
+        duration_seconds: int,
+        count: int = 200,
+    ) -> MockKlineData:
+        """生成模拟 K 线数据"""
+        import random
+        random.seed(hash(symbol) % 10000)
+        
+        base_price = self._get_base_price(symbol)
+        volatility = base_price * 0.005
+        
+        klines = []
+        current_price = base_price
+        
+        for i in range(count):
+            trend = math.sin(i * 0.05) * 0.5 + random.uniform(-0.3, 0.3)
+            price_change = trend * volatility
+            current_price = max(base_price * 0.8, min(base_price * 1.2, current_price + price_change))
+            
+            open_price = current_price
+            high_price = current_price * (1 + random.uniform(0, 0.005))
+            low_price = current_price * (1 - random.uniform(0, 0.005))
+            close_price = current_price * (1 + random.uniform(-0.002, 0.002))
+            
+            kline = {
+                'open': open_price,
+                'high': high_price,
+                'low': low_price,
+                'close': close_price,
+                'volume': random.randint(500, 5000),
+                'open_oi': random.randint(10000, 50000),
+                'close_oi': random.randint(10000, 50000),
+                'datetime': self._cycle + i,
+                'cycle': self._cycle + i,
+            }
+            klines.append(kline)
+        
+        return MockKlineData(klines)
+    
+    def insert_order(self, symbol: str, direction: str, offset: str, volume: int, limit_price: float = 0):
+        """模拟下单"""
+        order_id = f"mock_order_{self._cycle}_{len(self._account._trades)}"
+        
+        base_price = self._get_base_price(symbol)
+        commission = self._account.get_commission(symbol)
+        
+        trade = {
+            'order_id': order_id,
+            'symbol': symbol,
+            'direction': direction,
+            'offset': offset,
+            'volume': volume,
+            'price': base_price,
+            'commission': commission * volume,
+            'cycle': self._cycle,
+        }
+        self._account._trades.append(trade)
+        
+        if direction == 'BUY' and offset == 'OPEN':
+            if symbol not in self._account._positions:
+                self._account._positions[symbol] = {'long': 0, 'short': 0}
+            self._account._positions[symbol]['long'] += volume
+        elif direction == 'SELL' and offset == 'OPEN':
+            if symbol not in self._account._positions:
+                self._account._positions[symbol] = {'long': 0, 'short': 0}
+            self._account._positions[symbol]['short'] += volume
+        
+        self._logger.debug(f"模拟订单: {direction} {offset} {volume}手 {symbol} @ {base_price}")
+        
+        return type('obj', (object,), {
+            'order_id': order_id,
+            'status': 'FINISHED',
+            'volume_orign': volume,
+            'volume_left': 0,
+        })()
+    
+    def cancel_order(self, order):
+        """模拟撤单"""
+        pass
+    
+    def wait_update(self, timeout: float = 1.0) -> bool:
+        """模拟等待更新，推进时间周期"""
+        from tqsdk.exceptions import BacktestFinished
+        
+        if self._cycle >= self._max_cycles:
+            raise BacktestFinished("模拟回测完成")
+        
+        self._cycle += 1
+        
+        for symbol in self._klines:
+            if symbol in self._current_kline_idx:
+                self._current_kline_idx[symbol] = min(
+                    self._current_kline_idx[symbol] + 1,
+                    len(self._klines[symbol]) - 1
+                )
+        
+        return True
+
+
+def _force_cleanup_asyncio(logger: logging.Logger = None):
+    """
+    强制清理 Asyncio 资源，避免 Task was destroyed 警告
+    """
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            
+            loop = None
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                pass
+            
+            if loop is None:
+                try:
+                    loop = asyncio.get_event_loop()
+                except Exception:
+                    loop = None
+            
+            if loop and not loop.is_closed():
+                pending = asyncio.all_tasks(loop) if hasattr(asyncio, 'all_tasks') else []
+                
+                if pending:
+                    logger.debug(f"发现 {len(pending)} 个待处理的任务，尝试清理...")
+                    
+                    for task in pending:
+                        if not task.done():
+                            task.cancel()
+                    
+                    try:
+                        if loop.is_running():
+                            pass
+                        else:
+                            loop.run_until_complete(asyncio.sleep(0.1))
+                    except Exception as e:
+                        logger.debug(f"清理任务时出现异常 (可忽略): {e}")
+                
+                try:
+                    if not loop.is_closed():
+                        loop.close()
+                        logger.debug("事件循环已关闭")
+                except Exception as e:
+                    logger.debug(f"关闭事件循环时出现异常 (可忽略): {e}")
+            
+            asyncio.set_event_loop(None)
+            
+    except Exception as e:
+        logger.debug(f"Asyncio 清理时出现异常 (可忽略): {e}")
+
+
+def _cleanup_api_and_loop(api: Any, logger: logging.Logger = None):
+    """
+    统一的 API 和事件循环清理函数
+    在异常捕获块中调用，确保资源被正确释放
+    """
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    
+    if api is not None:
+        try:
+            if hasattr(api, 'is_closed') and not api.is_closed:
+                if hasattr(api, 'close'):
+                    api.close()
+                    logger.debug("API 已关闭")
+        except Exception as e:
+            logger.debug(f"关闭 API 时出现异常 (可忽略): {e}")
+    
+    _force_cleanup_asyncio(logger)
+
+
+class MockDataBacktestRunner:
+    """
+    模拟数据回测运行器
+    完全不依赖天勤服务器，使用本地生成的模拟数据进行回测
+    """
+    
+    def __init__(
+        self,
+        init_balance: float = 1000000.0,
+        start_dt: date = None,
+        end_dt: date = None,
+        logger: logging.Logger = None,
+    ):
+        self.init_balance = init_balance
+        self.start_dt = start_dt or date(2024, 1, 1)
+        self.end_dt = end_dt or date(2024, 1, 31)
+        self.logger = logger or logging.getLogger(__name__)
+        
+        self.equity_curve: List[Dict[str, Any]] = []
+        self.trades: List[Dict[str, Any]] = []
+        self.risk_events: List[Dict[str, Any]] = []
+        self.frozen_during_backtest = False
+        self.frozen_reason = None
+        
+        self._current_equity = init_balance
+        self._cycle = 0
+    
+    def run_backtest(
+        self,
+        strategy_class: Type[StrategyBase],
+        strategy_params: Dict[str, Any],
+        cost_config: CostConfig = None,
+    ) -> Dict[str, Any]:
+        """
+        运行模拟数据回测
+        
+        Args:
+            strategy_class: 策略类
+            strategy_params: 策略参数
+            cost_config: 成本配置
+        
+        Returns:
+            回测结果字典
+        """
+        self.logger.info(f"开始模拟数据回测...")
+        self.logger.info(f"策略: {strategy_class.__name__}")
+        self.logger.info(f"参数: {strategy_params}")
+        
+        try:
+            mock_api = MockTqApi(
+                start_dt=self.start_dt,
+                end_dt=self.end_dt,
+                init_balance=self.init_balance,
+                logger=self.logger,
+            )
+            
+            mock_connector = type('MockConnector', (), {
+                'get_api': lambda self: mock_api,
+                'get_config': lambda self: {},
+            })()
+            
+            strategy = strategy_class(connector=mock_connector, **strategy_params)
+            strategy.initialize()
+            strategy.subscribe()
+            
+            self.logger.info("策略初始化完成，开始回测循环...")
+            
+            max_cycles = mock_api._max_cycles
+            cycles_ran = 0
+            last_equity = self.init_balance
+            
+            while cycles_ran < max_cycles:
+                try:
+                    has_update = mock_api.wait_update(0.1)
+                    if not has_update:
+                        break
+                    
+                    strategy._on_update()
+                    
+                    cycles_ran += 1
+                    
+                    if cycles_ran % 10 == 0:
+                        trade_count = len(mock_api._account._trades)
+                        self._current_equity = self._calculate_equity(
+                            mock_api._account._balance,
+                            mock_api._account._trades,
+                            strategy_params.get('contract', 'SHFE.rb2410'),
+                        )
+                        
+                        equity_point = {
+                            'cycle': cycles_ran,
+                            'equity': self._current_equity,
+                            'trades': trade_count,
+                        }
+                        self.equity_curve.append(equity_point)
+                        
+                        if cycles_ran % 50 == 0:
+                            self.logger.debug(
+                                f"周期 {cycles_ran}/{max_cycles}: "
+                                f"权益={self._current_equity:,.0f}, "
+                                f"交易次数={trade_count}"
+                            )
+                    
+                    last_equity = self._current_equity
+                    
+                except KeyboardInterrupt:
+                    self.logger.info("用户中断，停止回测")
+                    break
+            
+            final_equity = self._calculate_equity(
+                mock_api._account._balance,
+                mock_api._account._trades,
+                strategy_params.get('contract', 'SHFE.rb2410'),
+            )
+            self.trades = mock_api._account._trades
+            
+            self.logger.info(f"回测完成: 总周期={cycles_ran}, 最终权益={final_equity:,.0f}")
+            
+            _cleanup_api_and_loop(mock_api, self.logger)
+            
+            return {
+                'status': 'completed',
+                'initial_equity': self.init_balance,
+                'final_equity': final_equity,
+                'equity_curve': self.equity_curve,
+                'trades': self.trades,
+                'risk_events': self.risk_events,
+                'frozen_during_backtest': self.frozen_during_backtest,
+                'frozen_reason': self.frozen_reason,
+                'error_message': None,
+            }
+            
+        except Exception as e:
+            self.logger.error(f"模拟数据回测失败: {e}", exc_info=True)
+            _cleanup_api_and_loop(None, self.logger)
+            return {
+                'status': 'error',
+                'initial_equity': self.init_balance,
+                'final_equity': self.init_balance,
+                'equity_curve': [],
+                'trades': [],
+                'risk_events': [],
+                'frozen_during_backtest': False,
+                'frozen_reason': None,
+                'error_message': str(e),
+            }
+    
+    def _calculate_equity(
+        self,
+        base_balance: float,
+        trades: List[Dict[str, Any]],
+        contract: str,
+    ) -> float:
+        """
+        根据交易记录计算权益
+        使用简化的 PnL 计算模型
+        """
+        if not trades:
+            return base_balance
+        
+        total_pnl = 0.0
+        total_commission = 0.0
+        
+        base_price = 4000.0
+        if 'rb' in contract:
+            base_price = 4000.0
+        elif 'i' in contract:
+            base_price = 900.0
+        elif 'cu' in contract:
+            base_price = 70000.0
+        elif 'au' in contract:
+            base_price = 450.0
+        
+        contract_multiplier = 10
+        if 'au' in contract:
+            contract_multiplier = 1000
+        
+        position = 0
+        entry_price = 0.0
+        
+        for trade in trades:
+            direction = trade.get('direction', 'BUY')
+            offset = trade.get('offset', 'OPEN')
+            volume = trade.get('volume', 1)
+            price = trade.get('price', base_price)
+            commission = trade.get('commission', 5.0)
+            
+            total_commission += commission
+            
+            if offset == 'OPEN':
+                if direction == 'BUY':
+                    if position == 0:
+                        entry_price = price
+                    else:
+                        entry_price = (entry_price * abs(position) + price * volume) / (abs(position) + volume)
+                    position += volume
+                else:
+                    if position == 0:
+                        entry_price = price
+                    else:
+                        entry_price = (entry_price * abs(position) + price * volume) / (abs(position) + volume)
+                    position -= volume
+            
+            elif offset == 'CLOSE':
+                if direction == 'SELL' and position > 0:
+                    pnl = (price - entry_price) * min(volume, position) * contract_multiplier
+                    total_pnl += pnl
+                    position -= min(volume, position)
+                elif direction == 'BUY' and position < 0:
+                    pnl = (entry_price - price) * min(volume, -position) * contract_multiplier
+                    total_pnl += pnl
+                    position += min(volume, -position)
+            
+            elif offset == 'CLOSETODAY':
+                if direction == 'SELL' and position > 0:
+                    pnl = (price - entry_price) * min(volume, position) * contract_multiplier
+                    total_pnl += pnl
+                    position -= min(volume, position)
+                elif direction == 'BUY' and position < 0:
+                    pnl = (entry_price - price) * min(volume, -position) * contract_multiplier
+                    total_pnl += pnl
+                    position += min(volume, -position)
+        
+        final_equity = base_balance + total_pnl - total_commission
+        
+        return max(0.0, final_equity)
