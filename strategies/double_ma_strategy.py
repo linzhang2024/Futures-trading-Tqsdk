@@ -52,6 +52,10 @@ class DoubleMAStrategy(StrategyBase):
         
         self._all_prices: List[float] = []
         
+        self._position = 0
+        self._entry_price = None
+        self._trade_count = 0
+        
         self.logger.info(f"双均线策略初始化: 短期周期={short_period}, 长期周期={long_period}, 合约={contract}, K线周期={kline_duration}秒, 均线类型={'EMA' if use_ema else 'SMA'}")
 
     def subscribe(self):
@@ -194,6 +198,55 @@ class DoubleMAStrategy(StrategyBase):
             self.logger.info(f"死叉信号: 短期均线({self.short_ma:.2f}) 下穿 长期均线({self.long_ma:.2f})")
         else:
             self.signal = SignalType.HOLD
+        
+        if self.signal != SignalType.HOLD:
+            self._execute_trade(self.signal)
+
+    def _execute_trade(self, signal: SignalType):
+        """执行交易下单"""
+        if self.api is None:
+            self.logger.warning("API 未初始化，无法执行交易")
+            return
+        
+        try:
+            quote = self.api.get_quote(self.contract)
+            
+            if signal == SignalType.BUY:
+                if self._position < 0:
+                    self._place_order(quote, direction="BUY", offset="CLOSE", volume=abs(self._position))
+                    self._position = 0
+                
+                if self._position == 0:
+                    self._place_order(quote, direction="BUY", offset="OPEN", volume=1)
+                    self._position = 1
+                    
+            elif signal == SignalType.SELL:
+                if self._position > 0:
+                    self._place_order(quote, direction="SELL", offset="CLOSE", volume=self._position)
+                    self._position = 0
+                
+                if self._position == 0:
+                    self._place_order(quote, direction="SELL", offset="OPEN", volume=1)
+                    self._position = -1
+                    
+        except Exception as e:
+            self.logger.error(f"执行交易失败: {e}")
+
+    def _place_order(self, quote, direction: str, offset: str, volume: int):
+        """下单"""
+        try:
+            order = self.api.insert_order(
+                quote,
+                direction=direction,
+                offset=offset,
+                volume=volume,
+            )
+            self._trade_count += 1
+            self.logger.info(f"下单成功: {direction} {offset} {volume}手 {self.contract}, 交易次数={self._trade_count}")
+            return order
+        except Exception as e:
+            self.logger.error(f"下单失败: {direction} {offset} {volume}手 {self.contract}, 错误={e}")
+            return None
 
     def get_signal(self) -> SignalType:
         return self.signal
@@ -235,10 +288,34 @@ class DoubleMAStrategy(StrategyBase):
         
         try:
             if len(self.klines) > 0:
+                if not self.is_ready():
+                    self._warmup_klines()
+                
                 latest_kline = self.klines.iloc[-1]
                 self.on_bar(latest_kline.to_dict())
         except Exception as e:
             self.logger.error(f"处理更新时出错: {str(e)}", exc_info=True)
+    
+    def _warmup_klines(self):
+        """预加载历史 K 线数据，用于计算初始均线"""
+        if len(self.klines) <= self.long_period:
+            self.logger.debug(f"K 线数量不足，跳过预热: {len(self.klines)} < {self.long_period + 1}")
+            return
+        
+        warmup_count = min(len(self.klines) - 1, max(200, self.long_period * 3))
+        start_idx = max(0, len(self.klines) - warmup_count)
+        
+        self.logger.info(f"预热 K 线: 从索引 {start_idx} 到 {len(self.klines) - 2}, 共 {warmup_count - 1} 根")
+        
+        for i in range(start_idx, len(self.klines) - 1):
+            try:
+                kline = self.klines.iloc[i]
+                kline_dict = kline.to_dict() if hasattr(kline, 'to_dict') else dict(kline)
+                self.update_from_kline(kline_dict)
+            except Exception as e:
+                self.logger.warning(f"预热 K 线 {i} 时出错: {e}")
+        
+        self.logger.info(f"预热完成: 已收集 {len(self._all_prices)} 条价格记录, 短期均线={self.short_ma}, 长期均线={self.long_ma}")
 
     def run(self):
         if not self._initialized:
