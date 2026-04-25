@@ -1,0 +1,46 @@
+{
+  "report_type": "FROZEN_REPORT",
+  "version": "2.0",
+  "generated_at": "2026-04-25T10:57:42.718774",
+  "freeze_reason": "日亏损超过 2.0%",
+  "freeze_timestamp": 1777085862.718774,
+  "freeze_datetime": "2026-04-25T10:57:42.718774",
+  "thresholds": {
+    "max_drawdown_percent": 10.0,
+    "max_strategy_margin_percent": 30.0,
+    "max_total_margin_percent": 80.0,
+    "price_gap_threshold_percent": 5.0,
+    "daily_loss_limit_percent": 2.0,
+    "consecutive_loss_limit": 5,
+    "price_deviation_threshold_percent": 1.0
+  },
+  "current_state": {
+    "peak_equity": 1000000.0,
+    "current_drawdown_percent": 0.0,
+    "total_strategies": 0,
+    "total_positions": 0,
+    "api_timeouts": 0,
+    "total_canceled_orders": 0,
+    "risk_blocked_orders": 0
+  },
+  "account_snapshots": [],
+  "positions_snapshot": {},
+  "strategies_snapshot": {},
+  "equity_curve": [],
+  "risk_events": [
+    {
+      "event_type": "DAILY_LOSS_EXCEEDED",
+      "timestamp": 1777085862.718774,
+      "datetime": "2026-04-25T10:57:42.718774",
+      "level": "CRITICAL",
+      "message": "日亏损超过限额: 当前亏损 3.00% > 限额 2.0%",
+      "details": {
+        "daily_start_equity": 1000000.0,
+        "current_equity": 970000.0,
+        "daily_loss_amount": 30000.0,
+        "daily_loss_percent": 3.0,
+        "limit_percent": 2.0
+      }
+    }
+  ]
+}
