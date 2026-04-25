@@ -40,6 +40,25 @@ risk:
   price_gap_threshold_percent: 5.0
   api_timeout_seconds: 3.0
   risk_check_interval: 1
+realtime:
+  heartbeat_interval_seconds: 60.0
+  status_report_interval_seconds: 30.0
+  order_timeout_seconds: 30.0
+  max_order_retries: 3
+  price_protection_percent: 0.1
+  position_sync_interval_seconds: 60.0
+
+notification:
+  webhook_enabled: false
+  webhook_url: "https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-token"
+  webhook_secret: ""
+  webhook_timeout_seconds: 10.0
+  webhook_retry_count: 3
+  webhook_retry_delay_seconds: 2.0
+  notify_on_trade: true
+  notify_on_risk: true
+  notify_on_order: false
+
 strategies:
 - name: ShortTerm_MA
   class: DoubleMAStrategy
