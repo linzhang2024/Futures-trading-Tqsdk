@@ -171,7 +171,7 @@ class EquityPlotter:
             cycles = list(range(len(equities)))
             initial_equity = result.initial_equity
             
-            fig, ax = plt.subplots(figsize=(12, 6))
+            fig, ax = plt.subplots(figsize=(14, 7))
             
             ax.plot(cycles, equities, 'b-', linewidth=1.5, alpha=0.8, 
                     label=_get_label('权益曲线', 'Equity Curve'))
@@ -192,6 +192,9 @@ class EquityPlotter:
                       c='green' if final_eq >= initial_equity else 'red',
                       s=100, zorder=5, label=_get_label('最终权益', 'Final Equity'))
             
+            if result.trade_records and len(result.equity_curve) > 0:
+                self._plot_trade_signals(ax, result, cycles, equities)
+            
             ax.set_xlabel(_get_label('回测周期', 'Backtest Period'), fontsize=12)
             ax.set_ylabel(_get_label('账户权益', 'Account Equity'), fontsize=12)
             
@@ -200,8 +203,8 @@ class EquityPlotter:
             else:
                 ax.set_title(
                     _get_label(
-                        f'{result.contract} 权益曲线',
-                        f'{result.contract} Equity Curve'
+                        f'{result.contract} 权益曲线 (含交易信号)',
+                        f'{result.contract} Equity Curve (with Signals)'
                     ),
                     fontsize=14, fontweight='bold'
                 )
@@ -244,6 +247,97 @@ class EquityPlotter:
         except Exception as e:
             self.logger.error(f"生成权益曲线图表失败: {e}", exc_info=True)
             return None
+    
+    def _plot_trade_signals(self, ax, result: ContractResult, cycles: List[int], equities: List[float]):
+        if not result.trade_records:
+            return
+        
+        eq_timestamps = [p.timestamp for p in result.equity_curve]
+        
+        buy_open_cycles = []
+        buy_open_equities = []
+        buy_open_labels = []
+        
+        sell_open_cycles = []
+        sell_open_equities = []
+        sell_open_labels = []
+        
+        buy_close_cycles = []
+        buy_close_equities = []
+        buy_close_labels = []
+        
+        sell_close_cycles = []
+        sell_close_equities = []
+        sell_close_labels = []
+        
+        for trade in result.trade_records:
+            trade_ts = trade.timestamp
+            
+            nearest_idx = 0
+            min_diff = float('inf')
+            for i, eq_ts in enumerate(eq_timestamps):
+                diff = abs(eq_ts - trade_ts)
+                if diff < min_diff:
+                    min_diff = diff
+                    nearest_idx = i
+            
+            equity_at_trade = equities[nearest_idx] if nearest_idx < len(equities) else result.initial_equity
+            
+            direction = trade.direction
+            offset = trade.offset
+            
+            if direction == 'BUY' and offset == 'OPEN':
+                buy_open_cycles.append(cycles[nearest_idx])
+                buy_open_equities.append(equity_at_trade)
+                buy_open_labels.append(_get_label(f'开多\n{trade.price:.2f}', f'Buy Open\n{trade.price:.2f}'))
+            elif direction == 'SELL' and offset == 'OPEN':
+                sell_open_cycles.append(cycles[nearest_idx])
+                sell_open_equities.append(equity_at_trade)
+                sell_open_labels.append(_get_label(f'开空\n{trade.price:.2f}', f'Sell Open\n{trade.price:.2f}'))
+            elif direction == 'BUY' and offset == 'CLOSE':
+                buy_close_cycles.append(cycles[nearest_idx])
+                buy_close_equities.append(equity_at_trade)
+                buy_close_labels.append(_get_label(f'平空\n{trade.price:.2f}', f'Buy Close\n{trade.price:.2f}'))
+            elif direction == 'SELL' and offset == 'CLOSE':
+                sell_close_cycles.append(cycles[nearest_idx])
+                sell_close_equities.append(equity_at_trade)
+                sell_close_labels.append(_get_label(f'平多\n{trade.price:.2f}', f'Sell Close\n{trade.price:.2f}'))
+        
+        if buy_open_cycles:
+            ax.scatter(buy_open_cycles, buy_open_equities, 
+                      c='limegreen', s=120, marker='^', zorder=10, edgecolors='darkgreen',
+                      label=_get_label('开多信号 (买入)', 'Buy Open Signal'))
+            
+            for i, (cycle, equity, label) in enumerate(zip(buy_open_cycles, buy_open_equities, buy_open_labels)):
+                if i % max(1, len(buy_open_cycles) // 10) == 0:
+                    ax.annotate(label, (cycle, equity),
+                               xytext=(5, 15), textcoords='offset points',
+                               fontsize=7, alpha=0.8, color='darkgreen',
+                               bbox=dict(boxstyle='round,pad=0.2', fc='white', alpha=0.7))
+        
+        if sell_open_cycles:
+            ax.scatter(sell_open_cycles, sell_open_equities, 
+                      c='crimson', s=120, marker='v', zorder=10, edgecolors='darkred',
+                      label=_get_label('开空信号 (卖出)', 'Sell Open Signal'))
+            
+            for i, (cycle, equity, label) in enumerate(zip(sell_open_cycles, sell_open_equities, sell_open_labels)):
+                if i % max(1, len(sell_open_cycles) // 10) == 0:
+                    ax.annotate(label, (cycle, equity),
+                               xytext=(5, -25), textcoords='offset points',
+                               fontsize=7, alpha=0.8, color='darkred',
+                               bbox=dict(boxstyle='round,pad=0.2', fc='white', alpha=0.7))
+        
+        if buy_close_cycles:
+            ax.scatter(buy_close_cycles, buy_close_equities, 
+                      c='deepskyblue', s=80, marker='D', zorder=9, edgecolors='navy',
+                      label=_get_label('平空信号', 'Buy Close Signal'))
+        
+        if sell_close_cycles:
+            ax.scatter(sell_close_cycles, sell_close_equities, 
+                      c='orange', s=80, marker='s', zorder=9, edgecolors='darkorange',
+                      label=_get_label('平多信号', 'Sell Close Signal'))
+        
+        self.logger.info(f"标注交易信号: 开多={len(buy_open_cycles)}, 开空={len(sell_open_cycles)}, 平空={len(buy_close_cycles)}, 平多={len(sell_close_cycles)}")
     
     def plot_multi_contract_comparison(
         self,

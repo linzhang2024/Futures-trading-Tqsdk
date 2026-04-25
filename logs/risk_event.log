@@ -3773,3 +3773,11 @@
     
 [2026-04-25 10:57:42] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 日亏损超过 2.0%
 [2026-04-25 10:57:42] [risk_manager] [CRITICAL]    详情: {"reason": "日亏损超过 2.0%", "timestamp": 1777085862.718774}
+[2026-04-25 12:21:24] [__init__] [WARNING] ⚠️ [API_TIMEOUT] API响应超时: 10.16秒 > 阈值 3.0秒
+2026-04-25 12:21:24,202 - WARNING - {"event_type": "API_TIMEOUT", "timestamp": 1777090884.2015824, "datetime": "2026-04-25T12:21:24.201582", "level": "WARNING", "message": "API响应超时: 10.16秒 > 阈值 3.0秒", "details": {"elapsed_seconds": 10.159741640090942, "timeout_threshold": 3.0, "consecutive_timeouts": 1}}
+[2026-04-25 12:22:17] [__init__] [WARNING] ⚠️ [API_TIMEOUT] API响应超时: 10.55秒 > 阈值 3.0秒
+2026-04-25 12:22:17,116 - WARNING - {"event_type": "API_TIMEOUT", "timestamp": 1777090937.11459, "datetime": "2026-04-25T12:22:17.114590", "level": "WARNING", "message": "API响应超时: 10.55秒 > 阈值 3.0秒", "details": {"elapsed_seconds": 10.554100036621094, "timeout_threshold": 3.0, "consecutive_timeouts": 1}}
+[2026-04-25 12:23:09] [__init__] [WARNING] ⚠️ [API_TIMEOUT] API响应超时: 11.06秒 > 阈值 3.0秒
+2026-04-25 12:23:09,545 - WARNING - {"event_type": "API_TIMEOUT", "timestamp": 1777090989.544875, "datetime": "2026-04-25T12:23:09.544875", "level": "WARNING", "message": "API响应超时: 11.06秒 > 阈值 3.0秒", "details": {"elapsed_seconds": 11.064286708831787, "timeout_threshold": 3.0, "consecutive_timeouts": 1}}
+[2026-04-25 12:24:01] [__init__] [WARNING] ⚠️ [API_TIMEOUT] API响应超时: 10.30秒 > 阈值 3.0秒
+2026-04-25 12:24:01,588 - WARNING - {"event_type": "API_TIMEOUT", "timestamp": 1777091041.5880656, "datetime": "2026-04-25T12:24:01.588066", "level": "WARNING", "message": "API响应超时: 10.30秒 > 阈值 3.0秒", "details": {"elapsed_seconds": 10.299423217773438, "timeout_threshold": 3.0, "consecutive_timeouts": 1}}

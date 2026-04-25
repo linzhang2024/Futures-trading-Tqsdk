@@ -127,10 +127,10 @@ class MultiContractRunner:
             if not strategy_params:
                 strategy_params = {
                     'short_period': 5,
-                    'long_period': 20,
+                    'long_period': 13,
                     'kline_duration': 60,
                     'use_ema': False,
-                    'rsi_period': 14,
+                    'rsi_period': 7,
                     'rsi_threshold': 50.0,
                     'use_rsi_filter': False,
                     'initial_data_days': 5,
@@ -454,10 +454,10 @@ def run_all_backtests(
                 strategy_class=DoubleMAStrategy,
                 strategy_params={
                     'short_period': 5,
-                    'long_period': 20,
+                    'long_period': 13,
                     'kline_duration': 60,
                     'use_ema': False,
-                    'rsi_period': 14,
+                    'rsi_period': 7,
                     'rsi_threshold': 50.0,
                     'use_rsi_filter': False,
                     'initial_data_days': 5,
