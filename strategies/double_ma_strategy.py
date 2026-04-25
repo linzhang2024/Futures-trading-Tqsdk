@@ -28,6 +28,7 @@ class DoubleMAStrategy(StrategyBase):
         use_rsi_filter: bool = False,
         take_profit_ratio: Optional[float] = None,
         stop_loss_ratio: Optional[float] = None,
+        initial_data_days: int = 5,
     ):
         super().__init__(connector)
         
@@ -59,6 +60,21 @@ class DoubleMAStrategy(StrategyBase):
         self.use_rsi_filter = use_rsi_filter
         self.take_profit_ratio = take_profit_ratio
         self.stop_loss_ratio = stop_loss_ratio
+        
+        self.initial_data_days = initial_data_days
+        self._data_warmed_up = False
+        
+        klines_per_day = self._calculate_klines_per_day(kline_duration)
+        self._required_warmup_klines = max(
+            long_period * 3,
+            rsi_period + 10,
+            int(initial_data_days * klines_per_day),
+        )
+        
+        self.logger.info(
+            f"冷启动配置: initial_data_days={initial_data_days}天, "
+            f"需要预热K线数={self._required_warmup_klines}根"
+        )
         
         self.short_prices: deque = deque(maxlen=long_period)
         self.long_prices: deque = deque(maxlen=long_period)
@@ -112,6 +128,17 @@ class DoubleMAStrategy(StrategyBase):
         except Exception as e:
             self.logger.error(f"订阅 K 线数据失败: {str(e)}", exc_info=True)
             raise
+
+    @staticmethod
+    def _calculate_klines_per_day(kline_duration: int) -> int:
+        """
+        计算每天的K线数量
+        假设期货每天交易约4小时（240分钟）= 14400秒
+        """
+        seconds_per_day = 14400
+        if kline_duration <= 0:
+            return 240
+        return max(1, int(seconds_per_day / kline_duration))
 
     @staticmethod
     def calculate_sma(prices: List[float], period: int) -> Optional[float]:
@@ -586,6 +613,9 @@ class DoubleMAStrategy(StrategyBase):
         }
 
     def is_ready(self) -> bool:
+        if not self._data_warmed_up:
+            return False
+        
         if self.use_rsi_filter:
             return (self.short_ma is not None and 
                     self.long_ma is not None and 
@@ -632,16 +662,31 @@ class DoubleMAStrategy(StrategyBase):
     
     def _warmup_klines(self):
         """预加载历史 K 线数据，用于计算初始均线和 RSI"""
-        required_period = max(self.long_period, self.rsi_period) if self.use_rsi_filter else self.long_period
-        
-        if len(self.klines) <= required_period:
-            self.logger.debug(f"K 线数量不足，跳过预热: {len(self.klines)} < {required_period + 1}")
+        if self._data_warmed_up:
             return
         
-        warmup_count = min(len(self.klines) - 1, max(200, required_period * 3))
+        required_period = max(
+            self.long_period,
+            self.rsi_period,
+            self._required_warmup_klines,
+        )
+        
+        if len(self.klines) <= required_period:
+            self.logger.debug(
+                f"K 线数量不足，跳过预热: "
+                f"{len(self.klines)} < {required_period + 1}, "
+                f"需要 {self.initial_data_days} 天数据"
+            )
+            return
+        
+        warmup_count = min(len(self.klines) - 1, self._required_warmup_klines)
         start_idx = max(0, len(self.klines) - warmup_count)
         
-        self.logger.info(f"预热 K 线: 从索引 {start_idx} 到 {len(self.klines) - 2}, 共 {warmup_count - 1} 根")
+        self.logger.info(
+            f"开始预热 K 线: initial_data_days={self.initial_data_days}天, "
+            f"需要预热K线数={self._required_warmup_klines}根, "
+            f"从索引 {start_idx} 到 {len(self.klines) - 2}, 共 {warmup_count - 1} 根"
+        )
         
         for i in range(start_idx, len(self.klines) - 1):
             try:
@@ -651,8 +696,13 @@ class DoubleMAStrategy(StrategyBase):
             except Exception as e:
                 self.logger.warning(f"预热 K 线 {i} 时出错: {e}")
         
+        self._data_warmed_up = True
+        
         rsi_status = f", RSI={self.rsi:.2f}" if self.rsi is not None else ""
-        self.logger.info(f"预热完成: 已收集 {len(self._all_prices)} 条价格记录, 短期均线={self.short_ma}, 长期均线={self.long_ma}{rsi_status}")
+        self.logger.info(
+            f"冷启动预热完成: 已收集 {len(self._all_prices)} 条价格记录, "
+            f"短期均线={self.short_ma}, 长期均线={self.long_ma}{rsi_status}"
+        )
 
     def run(self):
         if not self._initialized:

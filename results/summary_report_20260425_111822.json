@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-04-25T11:18:22.280048",
+  "contracts": [
+    {
+      "contract": "SHFE.hc2410",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "total_return": 0.0,
+      "total_return_percent": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_percent": 0.0,
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "equity_points_count": 86,
+      "trade_records_count": 0
+    },
+    {
+      "contract": "SHFE.rb2410",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "total_return": 0.0,
+      "total_return_percent": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_percent": 0.0,
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "equity_points_count": 86,
+      "trade_records_count": 0
+    },
+    {
+      "contract": "CZCE.CF409",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "total_return": 0.0,
+      "total_return_percent": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_percent": 0.0,
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "equity_points_count": 86,
+      "trade_records_count": 0
+    },
+    {
+      "contract": "DCE.i2409",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "total_return": 0.0,
+      "total_return_percent": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_percent": 0.0,
+      "total_trades": 0,
+      "winning_trades": 0,
+      "win_rate": 0.0,
+      "equity_points_count": 86,
+      "trade_records_count": 0
+    }
+  ],
+  "summary": {
+    "total_contracts": 4,
+    "combined_initial_equity": 4000000.0,
+    "combined_final_equity": 4000000.0,
+    "combined_return": 0.0,
+    "combined_return_percent": 0.0,
+    "total_trades": 0,
+    "total_wins": 0,
+    "overall_win_rate": 0.0,
+    "max_drawdown_across_contracts": 0.0
+  }
+}
