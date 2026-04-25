@@ -1,44 +1,38 @@
 tq_sdk:
   account: ${TQ_ACCOUNT:your_account}
   password: ${TQ_PASSWORD:your_password}
-  
 env:
   mode: ${ENV_MODE:sim}
   sim:
     init_balance: 10000000.0
-    account_type: "tqsim"
+    account_type: tqsim
   real:
     broker_id: ${BROKER_ID:your_broker}
     futures_account: ${FUTURES_ACCOUNT:your_futures_account}
     futures_password: ${FUTURES_PASSWORD:your_futures_password}
     front_broker: null
     front_url: null
-
 trading:
-  default_contract: "SHFE.rb2410"
+  default_contract: SHFE.rb2410
   contracts:
-    - "SHFE.rb2410"
-    - "SHFE.hc2410"
-    - "DCE.i2409"
-    - "CZCE.CF409"
-
+  - SHFE.rb2410
+  - SHFE.hc2410
+  - DCE.i2409
+  - CZCE.CF409
 connection:
   retry_times: 3
   initial_retry_delay: 2
   max_retry_delay: 30
-
 logging:
   level: INFO
   file: logs/app.log
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  datefmt: "%Y-%m-%d %H:%M:%S"
-
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  datefmt: '%Y-%m-%d %H:%M:%S'
 manager:
   status_report_interval: 30
   load_saved_states: true
-  state_dir: "data/states"
+  state_dir: data/states
   auto_save_states: true
-
 risk:
   max_drawdown_percent: 5.0
   max_strategy_margin_percent: 30.0
@@ -46,62 +40,59 @@ risk:
   price_gap_threshold_percent: 5.0
   api_timeout_seconds: 3.0
   risk_check_interval: 1
-
 strategies:
-  - name: "ShortTerm_MA"
-    class: "DoubleMAStrategy"
-    params:
-      fast: 5
-      slow: 10
-      contract: "SHFE.rb2410"
-      kline_duration: 60
-      use_ema: false
-
-  - name: "MidTerm_MA"
-    class: "DoubleMAStrategy"
-    params:
-      fast: 10
-      slow: 20
-      contract: "SHFE.rb2410"
-      kline_duration: 60
-      use_ema: false
-
+- name: ShortTerm_MA
+  class: DoubleMAStrategy
+  params:
+    fast: 2
+    slow: 8
+    contract: SHFE.rb2410
+    kline_duration: 60
+    use_ema: false
+    rsi_period: 7
+    rsi_threshold: 50.0
+    use_rsi_filter: true
+    take_profit_ratio: 0.01
+    stop_loss_ratio: 0.01
+- name: MidTerm_MA
+  class: DoubleMAStrategy
+  params:
+    fast: 10
+    slow: 20
+    contract: SHFE.rb2410
+    kline_duration: 60
+    use_ema: false
 backtest:
-  start_dt: "2024-01-01"
-  end_dt: "2024-03-31"
+  start_dt: '2024-01-01'
+  end_dt: '2024-03-31'
   init_balance: 1000000.0
   tq_account: ${TQ_ACCOUNT:}
   tq_password: ${TQ_PASSWORD:}
   tq_token: ${TQ_TOKEN:}
-  
   use_mock_data: true
-  mock_data_dir: "data/mock"
-  
+  mock_data_dir: data/mock
   costs:
     default_commission_per_lot: 5.0
     default_slippage_points: 1.0
-    
     contracts:
-      "SHFE.rb2410":
+      SHFE.rb2410:
         commission_per_lot: 5.0
         slippage_points: 1.0
-      "SHFE.rb2405":
+      SHFE.rb2405:
         commission_per_lot: 5.0
         slippage_points: 1.0
-  
   performance:
     risk_free_rate: 0.03
     trading_days_per_year: 252
-  
   optimization:
     param_ranges:
-      - name: "short_period"
-        min: 5
-        max: 20
-        step: 1
-      - name: "long_period"
-        min: 20
-        max: 60
-        step: 5
-    optimize_by: "total_return_percent"
+    - name: short_period
+      min: 5
+      max: 20
+      step: 1
+    - name: long_period
+      min: 20
+      max: 60
+      step: 5
+    optimize_by: total_return_percent
     max_workers: 4

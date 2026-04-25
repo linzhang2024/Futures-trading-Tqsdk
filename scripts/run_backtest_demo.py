@@ -97,7 +97,7 @@ def run_multi_contract_optimization():
     print(f"  RSI 阈值 (rsi_threshold): {[optimization_config['rsi_threshold'].min_val + i * optimization_config['rsi_threshold'].step for i in range(total_rsi_threshold)]}")
     print(f"  止盈止损组合数: {total_tp_sl} 种")
     print(f"  合约: {contracts}")
-    print(f"  回测区间: 2024-01-02 至 2024-02-01 (30天)")
+    print(f"  回测区间: 2024-01-02 至 2024-04-02 (90天)")
     print(f"\n  总测试组合数: {total_combinations}")
     
     all_results = []
@@ -135,7 +135,7 @@ def run_multi_contract_optimization():
                     param_ranges=optimization_config,
                     base_params=base_params,
                     start_dt=date(2024, 1, 2),
-                    end_dt=date(2024, 2, 1),
+                    end_dt=date(2024, 4, 2),
                     optimize_by='total_return_percent',
                 )
                 
@@ -182,9 +182,26 @@ def run_multi_contract_optimization():
     for r in completed_results:
         r.stability_score = calculate_stability_score(r)
     
+    def is_valid_result(result):
+        p = result.performance
+        has_trades = p.total_trades >= 1
+        has_non_zero_return = abs(p.total_return_percent) > 0.0001
+        return has_trades and has_non_zero_return
+    
+    def is_recommended_result(result):
+        p = result.performance
+        has_enough_trades = p.total_trades >= 3
+        has_non_zero_return = abs(p.total_return_percent) > 0.0001
+        return has_enough_trades and has_non_zero_return
+    
     sorted_by_stability = sorted(completed_results, key=lambda x: x.stability_score, reverse=True)
-    sorted_by_trades = sorted([r for r in completed_results if r.performance.total_trades >= 3], 
+    sorted_by_trades = sorted([r for r in completed_results if is_recommended_result(r)], 
                                key=lambda x: x.stability_score, reverse=True)
+    
+    valid_results = [r for r in completed_results if is_valid_result(r)]
+    print(f"\n【有效性统计】")
+    print(f"  有效结果数(有交易且非零收益): {len(valid_results)}")
+    print(f"  推荐结果数(交易>=3且非零收益): {len(sorted_by_trades)}")
     
     print(f"\n{'='*120}")
     print("                    按稳定性评分排序 Top 10")
@@ -240,7 +257,19 @@ def run_multi_contract_optimization():
     print("                    参数同步选项")
     print("=" * 120)
     
-    top_candidates = sorted_by_trades[:3] if sorted_by_trades else sorted_by_stability[:3]
+    if sorted_by_trades:
+        top_candidates = sorted_by_trades[:3]
+        print(f"\n  选择标准: 交易次数 >=3 且非零收益")
+    elif valid_results:
+        top_candidates = sorted(valid_results, key=lambda x: x.stability_score, reverse=True)[:3]
+        print(f"\n  选择标准: 有交易且非零收益（回退模式）")
+    else:
+        print("\n  ⚠️  没有找到有效的结果（无交易或零收益）")
+        print("  建议:")
+        print("    1. 延长回测时间")
+        print("    2. 调整策略参数（如 RSI 阈值、均线周期等）")
+        print("    3. 检查模拟数据是否有足够的波动")
+        return
     
     if top_candidates:
         print(f"\n【Top 3 候选参数组合】")
@@ -572,62 +601,85 @@ def run_rsi_filter_comparison():
         'default_slippage_points': 1.0,
     }
     
+    contract = 'DCE.i2409'
+    
     print(f"\n【测试配置】")
     print(f"  最大回撤限制: {test_config['risk']['max_drawdown_percent']}%")
     print(f"  手续费: 5元/手")
     print(f"  滑点: 1点")
-    print(f"  合约: SHFE.rb2410")
-    print(f"  回测区间: 2024-01-02 至 2024-02-01 (30天)")
-    print(f"  RSI 周期: 14")
+    print(f"  合约: {contract} (铁矿石 - 波动率更高)")
+    print(f"  回测区间: 2024-01-02 至 2024-04-02 (90天)")
+    print(f"  RSI 周期: 7")
     print(f"  RSI 阈值: 50")
-    print(f"  短期均线周期: 5")
-    print(f"  长期均线周期: 20")
+    print(f"  短期均线周期: 2")
+    print(f"  长期均线周期: 8")
+    print(f"  止盈: 2%")
+    print(f"  止损: 2%")
     
     print(f"\n{'='*80}")
     print("开始对比测试...")
     print("=" * 80)
     
-    results_no_rsi = None
-    results_with_rsi = None
-    
     try:
         engine_no_rsi = BacktestEngine(config=test_config)
         
-        print(f"\n【测试 1: 无 RSI 过滤】")
-        result_no_rsi = engine_no_rsi.run_backtest(
+        print(f"\n【测试 1: 无 RSI 过滤 + 无止盈止损】")
+        result_no_rsi_no_tpsl = engine_no_rsi.run_backtest(
             strategy_class=DoubleMAStrategy,
             strategy_params={
-                'short_period': 5,
-                'long_period': 20,
-                'contract': 'SHFE.rb2410',
+                'short_period': 2,
+                'long_period': 8,
+                'contract': contract,
                 'kline_duration': 60,
                 'use_ema': False,
                 'use_rsi_filter': False,
             },
             start_dt=date(2024, 1, 2),
-            end_dt=date(2024, 2, 1),
+            end_dt=date(2024, 4, 2),
+        )
+        
+        engine_no_rsi_tpsl = BacktestEngine(config=test_config)
+        
+        print(f"\n【测试 2: 无 RSI 过滤 + 有止盈止损】")
+        result_no_rsi_with_tpsl = engine_no_rsi_tpsl.run_backtest(
+            strategy_class=DoubleMAStrategy,
+            strategy_params={
+                'short_period': 2,
+                'long_period': 8,
+                'contract': contract,
+                'kline_duration': 60,
+                'use_ema': False,
+                'use_rsi_filter': False,
+                'take_profit_ratio': 0.02,
+                'stop_loss_ratio': 0.02,
+            },
+            start_dt=date(2024, 1, 2),
+            end_dt=date(2024, 4, 2),
         )
         
         engine_with_rsi = BacktestEngine(config=test_config)
         
-        print(f"\n【测试 2: 有 RSI 过滤】")
+        print(f"\n【测试 3: 有 RSI 过滤 + 有止盈止损】")
         result_with_rsi = engine_with_rsi.run_backtest(
             strategy_class=DoubleMAStrategy,
             strategy_params={
-                'short_period': 5,
-                'long_period': 20,
-                'contract': 'SHFE.rb2410',
+                'short_period': 2,
+                'long_period': 8,
+                'contract': contract,
                 'kline_duration': 60,
                 'use_ema': False,
                 'use_rsi_filter': True,
-                'rsi_period': 14,
+                'rsi_period': 7,
                 'rsi_threshold': 50.0,
+                'take_profit_ratio': 0.02,
+                'stop_loss_ratio': 0.02,
             },
             start_dt=date(2024, 1, 2),
-            end_dt=date(2024, 2, 1),
+            end_dt=date(2024, 4, 2),
         )
         
-        p_no_rsi = result_no_rsi.performance
+        p_no_rsi_no_tpsl = result_no_rsi_no_tpsl.performance
+        p_no_rsi_with_tpsl = result_no_rsi_with_tpsl.performance
         p_with_rsi = result_with_rsi.performance
         
         print(f"\n{'='*80}")
@@ -635,62 +687,57 @@ def run_rsi_filter_comparison():
         print("=" * 80)
         
         print(f"\n【收益对比】")
-        print(f"  {'指标':<20} {'无RSI过滤':<20} {'有RSI过滤':<20} {'变化':<15}")
-        print(f"  {'-'*75}")
+        print(f"  {'指标':<20} {'无RSI无TP/SL':<20} {'无RSI有TP/SL':<20} {'有RSI有TP/SL':<20}")
+        print(f"  {'-'*85}")
         
-        final_eq_no = result_no_rsi.final_equity
-        final_eq_with = result_with_rsi.final_equity
-        eq_change = ((final_eq_with - final_eq_no) / final_eq_no * 100) if final_eq_no > 0 else 0
+        final_eq_1 = result_no_rsi_no_tpsl.final_equity
+        final_eq_2 = result_no_rsi_with_tpsl.final_equity
+        final_eq_3 = result_with_rsi.final_equity
         
-        print(f"  {'最终权益':<20} {final_eq_no:,.2f}{'':<10} {final_eq_with:,.2f}{'':<10} {eq_change:+.2f}%")
+        print(f"  {'最终权益':<20} {final_eq_1:,.2f}{'':<10} {final_eq_2:,.2f}{'':<10} {final_eq_3:,.2f}")
         
-        return_no = p_no_rsi.total_return_percent
-        return_with = p_with_rsi.total_return_percent
-        return_change = return_with - return_no
-        print(f"  {'总收益率(%)':<20} {return_no:.2f}%{'':<12} {return_with:.2f}%{'':<12} {return_change:+.2f}%")
+        return_1 = p_no_rsi_no_tpsl.total_return_percent
+        return_2 = p_no_rsi_with_tpsl.total_return_percent
+        return_3 = p_with_rsi.total_return_percent
+        print(f"  {'总收益率(%)':<20} {return_1:.2f}%{'':<12} {return_2:.2f}%{'':<12} {return_3:.2f}%")
         
-        sharpe_no = p_no_rsi.sharpe_ratio
-        sharpe_with = p_with_rsi.sharpe_ratio
-        sharpe_change = sharpe_with - sharpe_no
-        print(f"  {'夏普比率':<20} {sharpe_no:.2f}{'':<15} {sharpe_with:.2f}{'':<15} {sharpe_change:+.2f}")
+        sharpe_1 = p_no_rsi_no_tpsl.sharpe_ratio
+        sharpe_2 = p_no_rsi_with_tpsl.sharpe_ratio
+        sharpe_3 = p_with_rsi.sharpe_ratio
+        print(f"  {'夏普比率':<20} {sharpe_1:.2f}{'':<15} {sharpe_2:.2f}{'':<15} {sharpe_3:.2f}")
         
         print(f"\n【风险对比】")
-        max_dd_no = p_no_rsi.max_drawdown_percent
-        max_dd_with = p_with_rsi.max_drawdown_percent
-        max_dd_change = max_dd_with - max_dd_no
-        print(f"  {'最大回撤率(%)':<20} {max_dd_no:.2f}%{'':<12} {max_dd_with:.2f}%{'':<12} {max_dd_change:+.2f}%")
+        max_dd_1 = p_no_rsi_no_tpsl.max_drawdown_percent
+        max_dd_2 = p_no_rsi_with_tpsl.max_drawdown_percent
+        max_dd_3 = p_with_rsi.max_drawdown_percent
+        print(f"  {'最大回撤率(%)':<20} {max_dd_1:.2f}%{'':<12} {max_dd_2:.2f}%{'':<12} {max_dd_3:.2f}%")
         
-        sortino_no = p_no_rsi.sortino_ratio
-        sortino_with = p_with_rsi.sortino_ratio
-        sortino_change = sortino_with - sortino_no
-        print(f"  {'索提诺比率':<20} {sortino_no:.2f}{'':<15} {sortino_with:.2f}{'':<15} {sortino_change:+.2f}")
+        sortino_1 = p_no_rsi_no_tpsl.sortino_ratio
+        sortino_2 = p_no_rsi_with_tpsl.sortino_ratio
+        sortino_3 = p_with_rsi.sortino_ratio
+        print(f"  {'索提诺比率':<20} {sortino_1:.2f}{'':<15} {sortino_2:.2f}{'':<15} {sortino_3:.2f}")
         
         print(f"\n【交易统计对比】")
-        trades_no = p_no_rsi.total_trades
-        trades_with = p_with_rsi.total_trades
-        trades_reduction = ((trades_no - trades_with) / trades_no * 100) if trades_no > 0 else 0
+        trades_1 = p_no_rsi_no_tpsl.total_trades
+        trades_2 = p_no_rsi_with_tpsl.total_trades
+        trades_3 = p_with_rsi.total_trades
         
-        if trades_reduction > 0:
-            trades_reduction_str = f"-{trades_reduction:.1f}%"
-        else:
-            trades_reduction_str = "0%"
+        print(f"  总交易次数            {trades_1:<20} {trades_2:<20} {trades_3:<20}")
         
-        print(f"  总交易次数            {trades_no:<20} {trades_with:<20} {trades_reduction_str:<15}")
+        win_rate_1 = p_no_rsi_no_tpsl.win_rate
+        win_rate_2 = p_no_rsi_with_tpsl.win_rate
+        win_rate_3 = p_with_rsi.win_rate
+        print(f"  胜率(%)              {win_rate_1:.2f}%{'':<12} {win_rate_2:.2f}%{'':<12} {win_rate_3:.2f}%")
         
-        win_rate_no = p_no_rsi.win_rate
-        win_rate_with = p_with_rsi.win_rate
-        win_rate_change = win_rate_with - win_rate_no
-        print(f"  胜率(%)              {win_rate_no:.2f}%{'':<12} {win_rate_with:.2f}%{'':<12} {win_rate_change:+.2f}%")
+        profit_factor_1 = p_no_rsi_no_tpsl.profit_factor
+        profit_factor_2 = p_no_rsi_with_tpsl.profit_factor
+        profit_factor_3 = p_with_rsi.profit_factor
+        print(f"  盈亏比                {profit_factor_1:.2f}{'':<15} {profit_factor_2:.2f}{'':<15} {profit_factor_3:.2f}")
         
-        profit_factor_no = p_no_rsi.profit_factor
-        profit_factor_with = p_with_rsi.profit_factor
-        profit_factor_change = profit_factor_with - profit_factor_no
-        print(f"  盈亏比                {profit_factor_no:.2f}{'':<15} {profit_factor_with:.2f}{'':<15} {profit_factor_change:+.2f}")
-        
-        avg_trade_no = p_no_rsi.avg_trade_return
-        avg_trade_with = p_with_rsi.avg_trade_return
-        avg_trade_change = avg_trade_with - avg_trade_no if avg_trade_no is not None and avg_trade_with is not None else 0
-        print(f"  平均每笔收益          {avg_trade_no:,.2f}{'':<10} {avg_trade_with:,.2f}{'':<10} {avg_trade_change:+.2f}")
+        avg_trade_1 = p_no_rsi_no_tpsl.avg_trade_return
+        avg_trade_2 = p_no_rsi_with_tpsl.avg_trade_return
+        avg_trade_3 = p_with_rsi.avg_trade_return
+        print(f"  平均每笔收益          {avg_trade_1:,.2f}{'':<10} {avg_trade_2:,.2f}{'':<10} {avg_trade_3:,.2f}")
         
         print(f"\n{'='*80}")
         print("                    测试结论")
@@ -698,33 +745,37 @@ def run_rsi_filter_comparison():
         
         conclusions = []
         
-        if trades_with < trades_no:
-            conclusions.append(f"✅ RSI 过滤成功减少交易次数: {trades_no} -> {trades_with} (减少 {trades_reduction:.1f}%)")
+        if trades_3 < trades_2:
+            reduction_pct = ((trades_2 - trades_3) / trades_2 * 100) if trades_2 > 0 else 0
+            conclusions.append(f"[OK] RSI 过滤成功减少交易次数: {trades_2} -> {trades_3} (减少 {reduction_pct:.1f}%)")
         else:
-            conclusions.append(f"⚠️ RSI 过滤未减少交易次数")
+            conclusions.append(f"[WARN] RSI 过滤未减少交易次数")
         
-        if sharpe_with > sharpe_no:
-            conclusions.append(f"✅ 夏普比率提升: {sharpe_no:.2f} -> {sharpe_with:.2f}")
-        elif sharpe_with < sharpe_no:
-            conclusions.append(f"⚠️ 夏普比率下降: {sharpe_no:.2f} -> {sharpe_with:.2f}")
+        if sharpe_3 > sharpe_2:
+            conclusions.append(f"[OK] 夏普比率提升: {sharpe_2:.2f} -> {sharpe_3:.2f}")
+        elif sharpe_3 < sharpe_2:
+            conclusions.append(f"[WARN] 夏普比率下降: {sharpe_2:.2f} -> {sharpe_3:.2f}")
         
-        if final_eq_with > final_eq_no:
-            conclusions.append(f"✅ 最终权益提升: {final_eq_no:,.2f} -> {final_eq_with:,.2f}")
-        elif final_eq_with < final_eq_no:
-            conclusions.append(f"⚠️ 最终权益下降: {final_eq_no:,.2f} -> {final_eq_with:,.2f}")
+        if max_dd_3 < max_dd_2:
+            conclusions.append(f"[OK] 最大回撤降低: {max_dd_2:.2f}% -> {max_dd_3:.2f}%")
         
-        if win_rate_with > win_rate_no:
-            conclusions.append(f"✅ 胜率提升: {win_rate_no:.2f}% -> {win_rate_with:.2f}%")
+        if win_rate_3 > win_rate_2:
+            conclusions.append(f"[OK] 胜率提升: {win_rate_2:.2f}% -> {win_rate_3:.2f}%")
         
         print("\n" + "\n".join(conclusions))
         
         print(f"\n【关键指标总结】")
-        print(f"  交易次数下降比例: {trades_reduction:.1f}%")
-        print(f"  夏普比率变化: {sharpe_change:+.2f}")
-        print(f"  最终权益变化: {eq_change:+.2f}%")
+        print(f"  无RSI无TP/SL - 交易次数: {trades_1}, 收益率: {return_1:.2f}%, 最大回撤: {max_dd_1:.2f}%")
+        print(f"  无RSI有TP/SL - 交易次数: {trades_2}, 收益率: {return_2:.2f}%, 最大回撤: {max_dd_2:.2f}%")
+        print(f"  有RSI有TP/SL - 交易次数: {trades_3}, 收益率: {return_3:.2f}%, 最大回撤: {max_dd_3:.2f}%")
+        
+        if trades_1 >= 20:
+            print(f"\n[OK] 无过滤模式下产生了 {trades_1} 次交易（目标: >=20）")
+        else:
+            print(f"\n[WARN] 无过滤模式下只产生了 {trades_1} 次交易（目标: >=20）")
         
     except Exception as e:
-        print(f"\n❌ 对比测试执行出错: {e}")
+        print(f"\n[ERROR] 对比测试执行出错: {e}")
         import traceback
         traceback.print_exc()
 

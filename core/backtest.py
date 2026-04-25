@@ -2629,9 +2629,11 @@ class MockTqApi:
     def get_kline_serial(self, symbol: str, duration_seconds: int) -> MockKlineData:
         """获取模拟 K 线数据"""
         if symbol not in self._klines:
+            kline_count = max(self._max_cycles + 200, 500)
             self._klines[symbol] = self._generate_mock_klines(
                 symbol=symbol,
                 duration_seconds=duration_seconds,
+                count=kline_count,
             )
             self._current_kline_idx[symbol] = 0
         
@@ -2720,25 +2722,43 @@ class MockTqApi:
         duration_seconds: int,
         count: int = 200,
     ) -> MockKlineData:
-        """生成模拟 K 线数据"""
+        """生成模拟 K 线数据 - 增加波动率和趋势，确保能产生交易信号"""
         import random
-        random.seed(hash(symbol) % 10000)
+        
+        seed_val = hash(symbol) % 10000 + int(self._start_dt.year * 10000 + self._start_dt.month * 100 + self._start_dt.day)
+        random.seed(seed_val)
         
         base_price = self._get_base_price(symbol)
-        volatility = base_price * 0.005
+        volatility = base_price * 0.03
         
         klines = []
-        current_price = base_price
+        current_price = base_price * 0.95
+        
+        trend_direction = 1
+        trend_counter = 0
+        trend_duration = random.randint(20, 50)
         
         for i in range(count):
-            trend = math.sin(i * 0.05) * 0.5 + random.uniform(-0.3, 0.3)
-            price_change = trend * volatility
+            trend_counter += 1
+            if trend_counter >= trend_duration:
+                trend_direction *= -1
+                trend_counter = 0
+                trend_duration = random.randint(20, 50)
+            
+            trend_component = trend_direction * random.uniform(0.3, 0.8)
+            noise_component = random.uniform(-0.4, 0.4)
+            price_change = (trend_component + noise_component) * volatility
+            
             current_price = max(base_price * 0.8, min(base_price * 1.2, current_price + price_change))
             
             open_price = current_price
-            high_price = current_price * (1 + random.uniform(0, 0.005))
-            low_price = current_price * (1 - random.uniform(0, 0.005))
-            close_price = current_price * (1 + random.uniform(-0.002, 0.002))
+            bar_volatility = volatility * random.uniform(0.3, 0.7)
+            high_price = current_price + bar_volatility * random.uniform(0.5, 1.5)
+            low_price = current_price - bar_volatility * random.uniform(0.5, 1.5)
+            close_price = current_price + random.uniform(-bar_volatility * 0.3, bar_volatility * 0.3)
+            
+            high_price = max(high_price, low_price, close_price, open_price)
+            low_price = min(high_price, low_price, close_price, open_price)
             
             kline = {
                 'open': open_price,
