@@ -57,10 +57,10 @@ BACKTEST_CONFIG = {
     'initial_balance': 1000000.0,
     'strategy_params': {
         'short_period': 5,
-        'long_period': 20,
+        'long_period': 13,
         'kline_duration': 60,
         'use_ema': False,
-        'rsi_period': 14,
+        'rsi_period': 7,
         'rsi_threshold': 50.0,
         'use_rsi_filter': False,
         'initial_data_days': 5,

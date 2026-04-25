@@ -87,12 +87,12 @@ backtest:
   optimization:
     param_ranges:
     - name: short_period
-      min: 5
-      max: 20
+      min: 3
+      max: 8
       step: 1
     - name: long_period
-      min: 20
-      max: 60
-      step: 5
+      min: 13
+      max: 34
+      step: 1
     optimize_by: total_return_percent
     max_workers: 4

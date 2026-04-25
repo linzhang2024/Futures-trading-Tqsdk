@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-04-25T12:24:43.485950",
+  "contracts": [
+    {
+      "contract": "SHFE.rb2410",
+      "initial_equity": 1000000.0,
+      "final_equity": 1016340.2982484056,
+      "total_return": 16340.298248405568,
+      "total_return_percent": 1.6340298248405567,
+      "max_drawdown": 0.0,
+      "max_drawdown_percent": 0.0,
+      "total_trades": 74,
+      "winning_trades": 28,
+      "win_rate": 37.83783783783784,
+      "equity_points_count": 86,
+      "trade_records_count": 74
+    },
+    {
+      "contract": "SHFE.hc2410",
+      "initial_equity": 1000000.0,
+      "final_equity": 1010806.8817295372,
+      "total_return": 10806.881729537155,
+      "total_return_percent": 1.0806881729537154,
+      "max_drawdown": 0.0,
+      "max_drawdown_percent": 0.0,
+      "total_trades": 74,
+      "winning_trades": 25,
+      "win_rate": 33.78378378378378,
+      "equity_points_count": 86,
+      "trade_records_count": 74
+    },
+    {
+      "contract": "DCE.i2409",
+      "initial_equity": 1000000.0,
+      "final_equity": 1003576.697169481,
+      "total_return": 3576.6971694809617,
+      "total_return_percent": 0.3576697169480962,
+      "max_drawdown": 0.0,
+      "max_drawdown_percent": 0.0,
+      "total_trades": 66,
+      "winning_trades": 26,
+      "win_rate": 39.39393939393939,
+      "equity_points_count": 86,
+      "trade_records_count": 66
+    },
+    {
+      "contract": "CZCE.CF409",
+      "initial_equity": 1000000.0,
+      "final_equity": 1074795.8703108078,
+      "total_return": 74795.87031080783,
+      "total_return_percent": 7.479587031080784,
+      "max_drawdown": 0.0,
+      "max_drawdown_percent": 0.0,
+      "total_trades": 68,
+      "winning_trades": 28,
+      "win_rate": 41.17647058823529,
+      "equity_points_count": 86,
+      "trade_records_count": 68
+    }
+  ],
+  "summary": {
+    "total_contracts": 4,
+    "combined_initial_equity": 4000000.0,
+    "combined_final_equity": 4105519.7474582316,
+    "combined_return": 105519.74745823164,
+    "combined_return_percent": 2.6379936864557907,
+    "total_trades": 282,
+    "total_wins": 107,
+    "overall_win_rate": 37.94326241134752,
+    "max_drawdown_across_contracts": 0.0
+  }
+}
