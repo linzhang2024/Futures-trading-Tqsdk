@@ -2606,6 +2606,9 @@ class MockTqApi:
         end_dt: date = None,
         init_balance: float = 1000000.0,
         logger: logging.Logger = None,
+        slippage_min: int = 1,
+        slippage_max: int = 3,
+        use_random_slippage: bool = False,
     ):
         self._closed = False
         self._account = account or MockTqSim(init_balance=init_balance)
@@ -2625,10 +2628,20 @@ class MockTqApi:
         self._available = init_balance
         self._float_profit = 0.0
         
+        self._slippage_min = slippage_min
+        self._slippage_max = slippage_max
+        self._use_random_slippage = use_random_slippage
+        self._total_slippage_cost = 0.0
+        self._slippage_applied = []
+        
         self._logger.info(f"✓ 模拟数据模式已启动")
         self._logger.info(f"  回测区间: {self._start_dt} 至 {self._end_dt}")
         self._logger.info(f"  初始资金: {init_balance:,.0f}")
         self._logger.info(f"  总周期数: {self._max_cycles}")
+        if self._use_random_slippage:
+            self._logger.info(f"  随机滑点: 开启 (范围: {slippage_min}-{slippage_max} ticks)")
+        else:
+            self._logger.info(f"  固定滑点: 关闭")
     
     def _calculate_max_cycles(self) -> int:
         """计算总回测周期数"""
@@ -2804,13 +2817,42 @@ class MockTqApi:
         
         return MockKlineData(klines)
     
+    def _get_price_tick(self, symbol: str) -> float:
+        """获取合约最小变动价位"""
+        tick_map = {
+            'SHFE.rb': 1.0,
+            'SHFE.hc': 1.0,
+            'DCE.i': 0.5,
+            'CZCE.CF': 5.0,
+            'SHFE.cu': 10.0,
+            'SHFE.au': 0.02,
+            'SHFE.ag': 1.0,
+            'SHFE.ni': 10.0,
+            'SHFE.sn': 10.0,
+            'DCE.m': 1.0,
+            'DCE.y': 2.0,
+            'DCE.p': 2.0,
+            'DCE.c': 1.0,
+            'CZCE.SR': 1.0,
+            'CZCE.FG': 1.0,
+            'CZCE.MA': 1.0,
+        }
+        
+        for prefix, tick in tick_map.items():
+            if symbol.startswith(prefix):
+                return tick
+        
+        return 1.0
+    
     def insert_order(self, quote_or_symbol, direction: str, offset: str, volume: int, limit_price: float = 0):
         """
         模拟下单，兼容 TqSdk 的接口
         支持传入 quote 对象（有 underlying_symbol 属性）或直接传入 symbol 字符串
         使用实际行情价格，记录开仓价格，平仓时计算盈亏
+        支持随机滑点模拟
         """
         import time
+        import random
         
         if hasattr(quote_or_symbol, 'underlying_symbol'):
             symbol = quote_or_symbol.underlying_symbol
@@ -2840,6 +2882,35 @@ class MockTqApi:
             trade_price = quote_or_symbol.last_price
         else:
             trade_price = self._get_current_price(symbol)
+        
+        price_tick = self._get_price_tick(symbol)
+        slippage_ticks = 0
+        slippage_cost = 0.0
+        original_price = trade_price
+        
+        if self._use_random_slippage:
+            slippage_ticks = random.randint(self._slippage_min, self._slippage_max)
+            
+            if direction == 'BUY':
+                trade_price = original_price + slippage_ticks * price_tick
+                slippage_cost = slippage_ticks * price_tick * volume * 10
+            elif direction == 'SELL':
+                trade_price = original_price - slippage_ticks * price_tick
+                slippage_cost = slippage_ticks * price_tick * volume * 10
+            
+            self._total_slippage_cost += slippage_cost
+            self._slippage_applied.append({
+                'cycle': self._cycle,
+                'symbol': symbol,
+                'direction': direction,
+                'offset': offset,
+                'volume': volume,
+                'original_price': original_price,
+                'slippage_price': trade_price,
+                'slippage_ticks': slippage_ticks,
+                'slippage_cost': slippage_cost,
+                'price_tick': price_tick,
+            })
         
         commission = self._account.get_commission(symbol)
         
@@ -2898,6 +2969,7 @@ class MockTqApi:
                     self._equity += profit_loss
         
         self._equity -= commission * volume
+        self._equity -= slippage_cost
         
         trade = {
             'order_id': order_id,
@@ -2906,6 +2978,9 @@ class MockTqApi:
             'offset': offset,
             'volume': volume,
             'price': trade_price,
+            'original_price': original_price,
+            'slippage_ticks': slippage_ticks,
+            'slippage_cost': slippage_cost,
             'profit_loss': profit_loss,
             'commission': commission * volume,
             'cycle': self._cycle,
@@ -2917,7 +2992,10 @@ class MockTqApi:
         self._account.account.balance = self._equity
         self._account.account.available = self._equity
         
-        self._logger.debug(f"模拟订单: {direction} {offset} {volume}手 {symbol} @ {trade_price:.2f}, 盈亏={profit_loss:.2f}")
+        if self._use_random_slippage:
+            self._logger.debug(f"模拟订单: {direction} {offset} {volume}手 {symbol} @ 原价={original_price:.2f}, 滑点后={trade_price:.2f}, 滑点={slippage_ticks}ticks, 滑点成本={slippage_cost:.2f}, 盈亏={profit_loss:.2f}")
+        else:
+            self._logger.debug(f"模拟订单: {direction} {offset} {volume}手 {symbol} @ {trade_price:.2f}, 盈亏={profit_loss:.2f}")
         
         return type('obj', (object,), {
             'order_id': order_id,
@@ -2925,6 +3003,9 @@ class MockTqApi:
             'volume_orign': volume,
             'volume_left': 0,
             'trade_price': trade_price,
+            'original_price': original_price,
+            'slippage_ticks': slippage_ticks,
+            'slippage_cost': slippage_cost,
         })()
     
     def cancel_order(self, order):
@@ -3037,11 +3118,18 @@ class MockDataBacktestRunner:
         start_dt: date = None,
         end_dt: date = None,
         logger: logging.Logger = None,
+        slippage_min: int = 1,
+        slippage_max: int = 3,
+        use_random_slippage: bool = False,
     ):
         self.init_balance = init_balance
         self.start_dt = start_dt or date(2024, 1, 1)
         self.end_dt = end_dt or date(2024, 1, 31)
         self.logger = logger or logging.getLogger(__name__)
+        
+        self.slippage_min = slippage_min
+        self.slippage_max = slippage_max
+        self.use_random_slippage = use_random_slippage
         
         self.equity_curve: List[Dict[str, Any]] = []
         self.trades: List[Dict[str, Any]] = []
@@ -3079,6 +3167,9 @@ class MockDataBacktestRunner:
                 end_dt=self.end_dt,
                 init_balance=self.init_balance,
                 logger=self.logger,
+                slippage_min=self.slippage_min,
+                slippage_max=self.slippage_max,
+                use_random_slippage=self.use_random_slippage,
             )
             
             mock_connector = type('MockConnector', (), {
