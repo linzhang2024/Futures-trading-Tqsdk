@@ -8,6 +8,7 @@ from typing import Dict, Any, Optional, List, Callable, Tuple
 from collections import defaultdict
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
+from threading import Lock
 
 try:
     import numpy as np
@@ -31,6 +32,22 @@ class RiskEventType(Enum):
     PRICE_GAP_DETECTED = "PRICE_GAP_DETECTED"
     API_TIMEOUT = "API_TIMEOUT"
     CONNECTION_LOST = "CONNECTION_LOST"
+    DAILY_LOSS_EXCEEDED = "DAILY_LOSS_EXCEEDED"
+    CONSECUTIVE_LOSS_EXCEEDED = "CONSECUTIVE_LOSS_EXCEEDED"
+    PRICE_DEVIATION_BLOCKED = "PRICE_DEVIATION_BLOCKED"
+    ORDER_BLOCKED = "ORDER_BLOCKED"
+    STRATEGY_PAUSED = "STRATEGY_PAUSED"
+
+
+class TradeEventType(Enum):
+    ORDER_PLACED = "ORDER_PLACED"
+    ORDER_FILLED = "ORDER_FILLED"
+    ORDER_CANCELED = "ORDER_CANCELED"
+    ORDER_REJECTED = "ORDER_REJECTED"
+    POSITION_OPENED = "POSITION_OPENED"
+    POSITION_CLOSED = "POSITION_CLOSED"
+    PROFIT_TAKEN = "PROFIT_TAKEN"
+    STOP_LOSS_TRIGGERED = "STOP_LOSS_TRIGGERED"
 
 
 @dataclass
@@ -81,6 +98,12 @@ class StrategyRiskInfo:
     position_value: float = 0.0
     float_profit: float = 0.0
     positions: Dict[str, PositionInfo] = field(default_factory=dict)
+    paused: bool = False
+    pause_reason: Optional[str] = None
+    consecutive_losses: int = 0
+    total_trades: int = 0
+    winning_trades: int = 0
+    losing_trades: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -89,6 +112,12 @@ class StrategyRiskInfo:
             'position_value': self.position_value,
             'float_profit': self.float_profit,
             'positions': {k: v.to_dict() for k, v in self.positions.items()},
+            'paused': self.paused,
+            'pause_reason': self.pause_reason,
+            'consecutive_losses': self.consecutive_losses,
+            'total_trades': self.total_trades,
+            'winning_trades': self.winning_trades,
+            'losing_trades': self.losing_trades,
         }
 
 
@@ -135,6 +164,35 @@ class RiskEvent:
 
 
 @dataclass
+class TradeEvent:
+    event_type: TradeEventType
+    timestamp: float
+    strategy_name: str
+    contract: str
+    direction: str
+    volume: int
+    price: float
+    profit_loss: Optional[float] = None
+    order_id: Optional[str] = None
+    details: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'event_type': self.event_type.value,
+            'timestamp': self.timestamp,
+            'datetime': datetime.fromtimestamp(self.timestamp).isoformat(),
+            'strategy_name': self.strategy_name,
+            'contract': self.contract,
+            'direction': self.direction,
+            'volume': self.volume,
+            'price': self.price,
+            'profit_loss': self.profit_loss,
+            'order_id': self.order_id,
+            'details': self.details,
+        }
+
+
+@dataclass
 class PriceGapInfo:
     contract: str
     previous_price: float
@@ -144,15 +202,427 @@ class PriceGapInfo:
     direction: str
 
 
+@dataclass
+class RiskCheckReport:
+    generated_at: datetime
+    total_canceled_orders: int = 0
+    risk_blocked_orders: int = 0
+    max_single_drawdown: float = 0.0
+    max_single_drawdown_percent: float = 0.0
+    daily_loss_amount: float = 0.0
+    daily_loss_percent: float = 0.0
+    total_risk_events: int = 0
+    critical_risk_events: int = 0
+    current_risk_level: RiskLevel = RiskLevel.SAFE
+    is_frozen: bool = False
+    frozen_reason: Optional[str] = None
+    consecutive_losses: int = 0
+    max_consecutive_losses: int = 0
+    total_trades: int = 0
+    winning_trades: int = 0
+    losing_trades: int = 0
+    peak_equity: float = 0.0
+    current_equity: float = 0.0
+    current_drawdown_percent: float = 0.0
+    details: Dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'generated_at': self.generated_at.isoformat(),
+            'total_canceled_orders': self.total_canceled_orders,
+            'risk_blocked_orders': self.risk_blocked_orders,
+            'max_single_drawdown': self.max_single_drawdown,
+            'max_single_drawdown_percent': self.max_single_drawdown_percent,
+            'daily_loss_amount': self.daily_loss_amount,
+            'daily_loss_percent': self.daily_loss_percent,
+            'total_risk_events': self.total_risk_events,
+            'critical_risk_events': self.critical_risk_events,
+            'current_risk_level': self.current_risk_level.value,
+            'is_frozen': self.is_frozen,
+            'frozen_reason': self.frozen_reason,
+            'consecutive_losses': self.consecutive_losses,
+            'max_consecutive_losses': self.max_consecutive_losses,
+            'total_trades': self.total_trades,
+            'winning_trades': self.winning_trades,
+            'losing_trades': self.losing_trades,
+            'peak_equity': self.peak_equity,
+            'current_equity': self.current_equity,
+            'current_drawdown_percent': self.current_drawdown_percent,
+            'details': self.details,
+        }
+
+
+class StructuredLogger:
+    _instance = None
+    _lock = Lock()
+
+    EMERGENCY_ASCII = """
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    """
+
+    HIGHLIGHT_PREFIXES = {
+        'CRITICAL': '🔥🔥🔥 ',
+        'ERROR': '❌ ',
+        'WARNING': '⚠️ ',
+        'INFO': 'ℹ️ ',
+        'DEBUG': '🔍 ',
+    }
+
+    TRADE_EMOJIS = {
+        TradeEventType.ORDER_PLACED: '📤',
+        TradeEventType.ORDER_FILLED: '✅',
+        TradeEventType.ORDER_CANCELED: '❌',
+        TradeEventType.ORDER_REJECTED: '🚫',
+        TradeEventType.POSITION_OPENED: '📈',
+        TradeEventType.POSITION_CLOSED: '📉',
+        TradeEventType.PROFIT_TAKEN: '💰',
+        TradeEventType.STOP_LOSS_TRIGGERED: '🛑',
+    }
+
+    RISK_EMOJIS = {
+        RiskEventType.DAILY_LOSS_EXCEEDED: '💸',
+        RiskEventType.CONSECUTIVE_LOSS_EXCEEDED: '📉📉📉',
+        RiskEventType.PRICE_DEVIATION_BLOCKED: '🚧',
+        RiskEventType.ORDER_BLOCKED: '🔒',
+        RiskEventType.DRAWDOWN_EXCEEDED: '📉',
+        RiskEventType.STRATEGY_PAUSED: '⏸️',
+    }
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    cls._instance._initialized = False
+        return cls._instance
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs) -> 'StructuredLogger':
+        return cls(*args, **kwargs)
+
+    def __init__(self, log_dir: str = None, console_output: bool = True):
+        if self._initialized:
+            return
+
+        self._initialized = True
+        self.logger = logging.getLogger('StructuredLogger')
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.propagate = False
+
+        if log_dir is None:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            log_dir = os.path.join(base_dir, 'logs')
+
+        os.makedirs(log_dir, exist_ok=True)
+
+        self.console_output = console_output
+        self._setup_handlers(log_dir)
+
+    def _setup_handlers(self, log_dir: str):
+        log_format = '[%(asctime)s] [%(module)s] [%(levelname)s] %(message)s'
+        date_format = '%Y-%m-%d %H:%M:%S'
+        formatter = logging.Formatter(log_format, datefmt=date_format)
+
+        trade_events_file = os.path.join(log_dir, 'trade_events.log')
+        trade_handler = logging.handlers.RotatingFileHandler(
+            trade_events_file,
+            maxBytes=50 * 1024 * 1024,
+            backupCount=10,
+            encoding='utf-8',
+        )
+        trade_handler.setLevel(logging.INFO)
+        trade_handler.setFormatter(formatter)
+        self.logger.addHandler(trade_handler)
+
+        risk_events_file = os.path.join(log_dir, 'risk_event.log')
+        risk_handler = logging.handlers.RotatingFileHandler(
+            risk_events_file,
+            maxBytes=20 * 1024 * 1024,
+            backupCount=5,
+            encoding='utf-8',
+        )
+        risk_handler.setLevel(logging.WARNING)
+        risk_handler.setFormatter(formatter)
+        self.logger.addHandler(risk_handler)
+
+        if self.console_output:
+            console_handler = logging.StreamHandler()
+            console_handler.setLevel(logging.INFO)
+            console_handler.setFormatter(formatter)
+            self.logger.addHandler(console_handler)
+
+        self.trade_events_file = trade_events_file
+        self.risk_events_file = risk_events_file
+
+    def log_trade_event(self, event: TradeEvent, highlight: bool = True):
+        emoji = self.TRADE_EMOJIS.get(event.event_type, '📋')
+        pl_str = f" | PnL: {event.profit_loss:,.2f}" if event.profit_loss is not None else ""
+        
+        message = (
+            f"{emoji} [{event.event_type.value}] "
+            f"策略: {event.strategy_name} | "
+            f"合约: {event.contract} | "
+            f"方向: {event.direction} | "
+            f"数量: {event.volume} | "
+            f"价格: {event.price:.2f}"
+            f"{pl_str}"
+        )
+
+        if event.profit_loss is not None:
+            if event.profit_loss > 0:
+                message = f"🟢 {message}"
+            elif event.profit_loss < 0:
+                message = f"🔴 {message}"
+
+        if highlight:
+            self.logger.info(message)
+        else:
+            self.logger.debug(message)
+
+    def log_risk_event(self, event: RiskEvent, highlight: bool = True):
+        emoji = self.RISK_EMOJIS.get(event.event_type, '⚠️')
+        
+        message = (
+            f"{emoji} [{event.event_type.value}] "
+            f"{event.message}"
+        )
+
+        if event.level == RiskLevel.FROZEN or event.level == RiskLevel.CRITICAL:
+            self.logger.critical(message)
+            if event.details:
+                self.logger.critical(f"   详情: {json.dumps(event.details, ensure_ascii=False)}")
+        elif event.level == RiskLevel.WARNING:
+            self.logger.warning(message)
+        else:
+            self.logger.info(message)
+
+    def log_order_placed(
+        self,
+        strategy_name: str,
+        contract: str,
+        direction: str,
+        volume: int,
+        price: float,
+        order_id: str = None,
+    ):
+        event = TradeEvent(
+            event_type=TradeEventType.ORDER_PLACED,
+            timestamp=time.time(),
+            strategy_name=strategy_name,
+            contract=contract,
+            direction=direction,
+            volume=volume,
+            price=price,
+            order_id=order_id,
+        )
+        self.log_trade_event(event)
+
+    def log_order_filled(
+        self,
+        strategy_name: str,
+        contract: str,
+        direction: str,
+        volume: int,
+        price: float,
+        order_id: str = None,
+    ):
+        event = TradeEvent(
+            event_type=TradeEventType.ORDER_FILLED,
+            timestamp=time.time(),
+            strategy_name=strategy_name,
+            contract=contract,
+            direction=direction,
+            volume=volume,
+            price=price,
+            order_id=order_id,
+        )
+        self.log_trade_event(event)
+
+    def log_order_canceled(
+        self,
+        strategy_name: str,
+        contract: str,
+        order_id: str = None,
+        reason: str = None,
+    ):
+        event = TradeEvent(
+            event_type=TradeEventType.ORDER_CANCELED,
+            timestamp=time.time(),
+            strategy_name=strategy_name,
+            contract=contract,
+            direction='N/A',
+            volume=0,
+            price=0.0,
+            order_id=order_id,
+            details={'reason': reason} if reason else {},
+        )
+        self.log_trade_event(event)
+
+    def log_position_closed(
+        self,
+        strategy_name: str,
+        contract: str,
+        direction: str,
+        volume: int,
+        price: float,
+        profit_loss: float,
+    ):
+        event = TradeEvent(
+            event_type=TradeEventType.POSITION_CLOSED,
+            timestamp=time.time(),
+            strategy_name=strategy_name,
+            contract=contract,
+            direction=direction,
+            volume=volume,
+            price=price,
+            profit_loss=profit_loss,
+        )
+        self.log_trade_event(event)
+
+    def log_profit_taken(
+        self,
+        strategy_name: str,
+        contract: str,
+        profit: float,
+        volume: int,
+        price: float,
+    ):
+        event = TradeEvent(
+            event_type=TradeEventType.PROFIT_TAKEN,
+            timestamp=time.time(),
+            strategy_name=strategy_name,
+            contract=contract,
+            direction='CLOSE',
+            volume=volume,
+            price=price,
+            profit_loss=profit,
+        )
+        self.log_trade_event(event)
+
+    def log_stop_loss(
+        self,
+        strategy_name: str,
+        contract: str,
+        loss: float,
+        volume: int,
+        price: float,
+    ):
+        event = TradeEvent(
+            event_type=TradeEventType.STOP_LOSS_TRIGGERED,
+            timestamp=time.time(),
+            strategy_name=strategy_name,
+            contract=contract,
+            direction='CLOSE',
+            volume=volume,
+            price=price,
+            profit_loss=-abs(loss),
+        )
+        self.log_trade_event(event)
+
+    def log_info(self, module: str, message: str):
+        self.logger.info(f"[{module}] {message}")
+
+    def log_warning(self, module: str, message: str):
+        self.logger.warning(f"[{module}] {message}")
+
+    def log_error(self, module: str, message: str):
+        self.logger.error(f"[{module}] {message}")
+
+    def log_critical(self, module: str, message: str):
+        self.logger.critical(f"[{module}] {message}")
+
+    def print_risk_check_report(self, report: RiskCheckReport):
+        status_icon = "🟢" if report.current_risk_level == RiskLevel.SAFE else (
+            "🟡" if report.current_risk_level == RiskLevel.WARNING else "🔴"
+        )
+        frozen_status = "🔒 已冻结" if report.is_frozen else "🆓 正常运行"
+        
+        report_str = f"""
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        📊 风 控 体 检 报 告                                      ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  生成时间: {report.generated_at.strftime('%Y-%m-%d %H:%M:%S')}                                                ║
+║  当前状态: {status_icon} {report.current_risk_level.value} | {frozen_status}                                    ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                                  ║
+║  ┌──────────────── 订单与风控统计 ────────────────┐                             ║
+║  │  总撤单数:              {report.total_canceled_orders:>8} 笔                    │                             ║
+║  │  风控拦截订单数:        {report.risk_blocked_orders:>8} 笔                    │                             ║
+║  │  总风险事件数:          {report.total_risk_events:>8} 次                    │                             ║
+║  │  严重风险事件数:        {report.critical_risk_events:>8} 次                    │                             ║
+║  └──────────────────────────────────────────────────┘                             ║
+║                                                                                  ║
+║  ┌──────────────── 盈亏与回撤统计 ────────────────┐                             ║
+║  │  峰值权益:              {report.peak_equity:>15,.2f}                         │                             ║
+║  │  当前权益:              {report.current_equity:>15,.2f}                         │                             ║
+║  │  当前回撤:              {report.current_drawdown_percent:>12,.2f}%                         │                             ║
+║  │  最大单笔回撤:          {report.max_single_drawdown:>15,.2f}                         │                             ║
+║  │  最大单笔回撤(%):       {report.max_single_drawdown_percent:>12,.2f}%                         │                             ║
+║  │  当日亏损金额:          {report.daily_loss_amount:>15,.2f}                         │                             ║
+║  │  当日亏损比例:          {report.daily_loss_percent:>12,.2f}%                         │                             ║
+║  └──────────────────────────────────────────────────┘                             ║
+║                                                                                  ║
+║  ┌──────────────── 交易与连胜统计 ────────────────┐                             ║
+║  │  总交易次数:            {report.total_trades:>8} 次                    │                             ║
+║  │  盈利交易:              {report.winning_trades:>8} 次                    │                             ║
+║  │  亏损交易:              {report.losing_trades:>8} 次                    │                             ║
+║  │  当前连续亏损:          {report.consecutive_losses:>8} 次                    │                             ║
+║  │  最大连续亏损:          {report.max_consecutive_losses:>8} 次                    │                             ║
+║  └──────────────────────────────────────────────────┘                             ║
+"""
+
+        if report.is_frozen and report.frozen_reason:
+            report_str += f"""║                                                                                  ║
+║  ┌──────────────── 🔴 冻结原因 ──────────────────┐                             ║
+║  │  {report.frozen_reason:<60}  │                             ║
+║  └──────────────────────────────────────────────────┘                             ║
+"""
+
+        report_str += """║                                                                                  ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+"""
+
+        self.logger.info(report_str)
+        return report_str
+
+
 class RiskManager:
     DEFAULT_MAX_DRAWDOWN_PERCENT = 5.0
     DEFAULT_MAX_STRATEGY_MARGIN_PERCENT = 30.0
     DEFAULT_MAX_TOTAL_MARGIN_PERCENT = 80.0
     DEFAULT_PRICE_GAP_THRESHOLD_PERCENT = 5.0
     DEFAULT_API_TIMEOUT_SECONDS = 3.0
+    DEFAULT_DAILY_LOSS_LIMIT_PERCENT = 2.0
+    DEFAULT_CONSECUTIVE_LOSS_LIMIT = 5
+    DEFAULT_PRICE_DEVIATION_THRESHOLD_PERCENT = 1.0
 
+    _instance = None
+    _lock = Lock()
     _risk_logger = None
-    _risk_log_file = None
+    _structured_logger = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    cls._instance._initialized = False
+        return cls._instance
+
+    @classmethod
+    def get_instance(cls, *args, **kwargs) -> 'RiskManager':
+        return cls(*args, **kwargs)
+
+    @classmethod
+    def reset_instance(cls):
+        with cls._lock:
+            cls._instance = None
 
     def __init__(
         self,
@@ -162,10 +632,16 @@ class RiskManager:
         max_total_margin_percent: float = None,
         price_gap_threshold_percent: float = None,
         api_timeout_seconds: float = None,
+        daily_loss_limit_percent: float = None,
+        consecutive_loss_limit: int = None,
+        price_deviation_threshold_percent: float = None,
         on_risk_event: Optional[Callable[[RiskEvent], None]] = None,
         on_frozen: Optional[Callable[[], None]] = None,
         risk_log_file: str = None,
     ):
+        if self._initialized:
+            return
+
         self.connector = connector
         self.api = None
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -178,6 +654,9 @@ class RiskManager:
         self.max_total_margin_percent = max_total_margin_percent or self.DEFAULT_MAX_TOTAL_MARGIN_PERCENT
         self.price_gap_threshold_percent = price_gap_threshold_percent or self.DEFAULT_PRICE_GAP_THRESHOLD_PERCENT
         self.api_timeout_seconds = api_timeout_seconds or self.DEFAULT_API_TIMEOUT_SECONDS
+        self.daily_loss_limit_percent = daily_loss_limit_percent or self.DEFAULT_DAILY_LOSS_LIMIT_PERCENT
+        self.consecutive_loss_limit = consecutive_loss_limit or self.DEFAULT_CONSECUTIVE_LOSS_LIMIT
+        self.price_deviation_threshold_percent = price_deviation_threshold_percent or self.DEFAULT_PRICE_DEVIATION_THRESHOLD_PERCENT
 
         self.on_risk_event = on_risk_event
         self.on_frozen = on_frozen
@@ -189,13 +668,17 @@ class RiskManager:
 
         self._peak_equity: float = 0.0
         self._initial_equity: float = 0.0
+        self._daily_start_equity: float = 0.0
         self._current_drawdown_percent: float = 0.0
+        self._max_single_drawdown: float = 0.0
+        self._max_single_drawdown_percent: float = 0.0
 
         self._strategy_risk: Dict[str, StrategyRiskInfo] = defaultdict(
             lambda: StrategyRiskInfo(strategy_name="")
         )
         self._positions: Dict[str, PositionInfo] = defaultdict(PositionInfo)
         self._previous_prices: Dict[str, float] = {}
+        self._current_prices: Dict[str, float] = {}
 
         self._snapshots: List[AccountSnapshot] = []
         self._max_snapshots = 10000
@@ -203,11 +686,22 @@ class RiskManager:
         self._risk_events: List[RiskEvent] = []
         self._max_events = 1000
 
+        self._trade_events: List[TradeEvent] = []
+        self._max_trade_events = 5000
+
         self._api_last_response_time: float = time.time()
         self._api_timeouts: int = 0
         self._max_api_timeouts = 3
 
+        self._total_canceled_orders: int = 0
+        self._risk_blocked_orders: int = 0
+        self._max_consecutive_losses: int = 0
+        self._total_trades: int = 0
+        self._winning_trades: int = 0
+        self._losing_trades: int = 0
+
         self._setup_risk_logger(risk_log_file)
+        self._structured_logger = StructuredLogger.get_instance()
 
         self.logger.info(
             f"RiskManager 初始化: "
@@ -215,7 +709,9 @@ class RiskManager:
             f"单策略最大保证金={self.max_strategy_margin_percent}%, "
             f"总最大保证金={self.max_total_margin_percent}%, "
             f"价格跳空阈值={self.price_gap_threshold_percent}%, "
-            f"API超时={self.api_timeout_seconds}秒"
+            f"日损限额={self.daily_loss_limit_percent}%, "
+            f"连续亏损限制={self.consecutive_loss_limit}次, "
+            f"价格偏离阈值={self.price_deviation_threshold_percent}%"
         )
 
     def _setup_risk_logger(self, log_file: str = None):
@@ -246,6 +742,9 @@ class RiskManager:
 
         self._risk_logger = risk_logger
         self.logger.info(f"风险日志已配置: {log_file}")
+
+    def get_structured_logger(self) -> StructuredLogger:
+        return self._structured_logger
 
     def set_connector(self, connector: Any):
         if connector is None:
@@ -278,9 +777,14 @@ class RiskManager:
             if account:
                 self._initial_equity = float(account.get('equity', 0))
                 self._peak_equity = self._initial_equity
+                self._daily_start_equity = self._initial_equity
                 self.logger.info(f"初始账户权益: {self._initial_equity:.2f}")
         except Exception as e:
             self.logger.warning(f"加载账户状态失败: {e}，将使用默认值")
+
+    def set_daily_start_equity(self, equity: float):
+        self._daily_start_equity = equity
+        self.logger.info(f"已设置当日起始权益: {equity:.2f}")
 
     def is_frozen(self) -> bool:
         return self._frozen
@@ -296,17 +800,18 @@ class RiskManager:
         self._frozen_reason = reason
         self._frozen_time = time.time()
 
-        fire_ascii = """
-        🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        🔥                                          🔥
-        🔥     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     🔥
-        🔥                                          🔥
-        🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        """
-
-        self.logger.critical(fire_ascii)
+        self._structured_logger.log_critical("RiskManager", StructuredLogger.EMERGENCY_ASCII)
         self.logger.critical(f"熔断原因: {reason}")
         self.logger.critical(f"熔断时间: {datetime.fromtimestamp(self._frozen_time).strftime('%Y-%m-%d %H:%M:%S')}")
+
+        risk_event = RiskEvent(
+            event_type=RiskEventType.DRAWDOWN_EXCEEDED,
+            timestamp=time.time(),
+            level=RiskLevel.FROZEN,
+            message=f"系统冻结: {reason}",
+            details={'reason': reason, 'timestamp': self._frozen_time},
+        )
+        self._structured_logger.log_risk_event(risk_event)
 
         self._generate_freeze_report(reason)
 
@@ -328,7 +833,7 @@ class RiskManager:
 
         report = {
             'report_type': 'FROZEN_REPORT',
-            'version': '1.0',
+            'version': '2.0',
             'generated_at': freeze_time.isoformat(),
             'freeze_reason': reason,
             'freeze_timestamp': self._frozen_time,
@@ -338,6 +843,9 @@ class RiskManager:
                 'max_strategy_margin_percent': self.max_strategy_margin_percent,
                 'max_total_margin_percent': self.max_total_margin_percent,
                 'price_gap_threshold_percent': self.price_gap_threshold_percent,
+                'daily_loss_limit_percent': self.daily_loss_limit_percent,
+                'consecutive_loss_limit': self.consecutive_loss_limit,
+                'price_deviation_threshold_percent': self.price_deviation_threshold_percent,
             },
             'current_state': {
                 'peak_equity': self._peak_equity,
@@ -345,6 +853,8 @@ class RiskManager:
                 'total_strategies': len(self._strategy_risk),
                 'total_positions': len(self._positions),
                 'api_timeouts': self._api_timeouts,
+                'total_canceled_orders': self._total_canceled_orders,
+                'risk_blocked_orders': self._risk_blocked_orders,
             },
             'account_snapshots': [],
             'positions_snapshot': {},
@@ -375,65 +885,6 @@ class RiskManager:
         except Exception as e:
             self.logger.error(f"保存熔断报告失败: {e}")
 
-        log_message = f"""
-        ================ 风 险 熔 断 复 盘 报 告 ================
-        时间: {freeze_time.strftime('%Y-%m-%d %H:%M:%S')}
-        原因: {reason}
-        
-        ---------- 阈值配置 ----------
-        最大回撤阈值: {self.max_drawdown_percent}%
-        单策略最大保证金: {self.max_strategy_margin_percent}%
-        总最大保证金: {self.max_total_margin_percent}%
-        价格跳空阈值: {self.price_gap_threshold_percent}%
-        
-        ---------- 当前状态 ----------
-        峰值权益: {self._peak_equity:,.2f}
-        当前回撤: {self._current_drawdown_percent:.2f}%
-        策略数量: {len(self._strategy_risk)}
-        持仓数量: {len(self._positions)}
-        
-        ---------- 持仓快照 ----------
-        """
-
-        for contract, pos in self._positions.items():
-            log_message += f"""
-        合约: {contract}
-          多单: {pos.long_volume} 手 @ {pos.long_open_price:.2f}
-          空单: {pos.short_volume} 手 @ {pos.short_open_price:.2f}
-          现价: {pos.current_price:.2f}
-          浮动盈亏: {pos.float_profit:,.2f}
-          占用保证金: {pos.total_margin:,.2f}
-            """
-
-        log_message += f"""
-        ---------- 策略风险快照 ----------
-        """
-
-        for name, strategy in self._strategy_risk.items():
-            log_message += f"""
-        策略: {name}
-          占用保证金: {strategy.margin_used:,.2f}
-          持仓价值: {strategy.position_value:,.2f}
-          浮动盈亏: {strategy.float_profit:,.2f}
-            """
-
-        log_message += f"""
-        ---------- 最近净值曲线 (最近20条) ----------
-        """
-
-        recent_snapshots = self._snapshots[-20:]
-        for i, s in enumerate(recent_snapshots):
-            drawdown = (self._peak_equity - s.equity) / self._peak_equity * 100 if self._peak_equity > 0 else 0
-            log_message += f"  [{i+1}] {datetime.fromtimestamp(s.timestamp).strftime('%H:%M:%S')} - 权益: {s.equity:,.2f}, 回撤: {drawdown:.2f}%\n"
-
-        log_message += """
-        ========================================================
-        """
-
-        if self._risk_logger:
-            self._risk_logger.critical(log_message)
-            self._risk_logger.critical(f"完整报告已保存至: {report_file}")
-
     def unfreeze(self) -> None:
         if not self._frozen:
             return
@@ -442,6 +893,10 @@ class RiskManager:
         self._frozen_reason = None
         self._frozen_time = None
         self.logger.info("系统已解冻")
+
+        for strategy_name, strategy_info in self._strategy_risk.items():
+            strategy_info.paused = False
+            strategy_info.pause_reason = None
 
         if self._risk_logger:
             self._risk_logger.info(f"系统已解冻，时间: {datetime.now().isoformat()}")
@@ -464,6 +919,8 @@ class RiskManager:
         self._risk_events.append(event)
         if len(self._risk_events) > self._max_events:
             self._risk_events = self._risk_events[-self._max_events:]
+
+        self._structured_logger.log_risk_event(event)
 
         log_msg = f"[{event_type.value}] {message}"
 
@@ -532,15 +989,20 @@ class RiskManager:
         self._api_last_response_time = time.time()
         self._api_timeouts = 0
 
+    def update_current_price(self, contract: str, price: float):
+        self._current_prices[contract] = price
+
     def check_price_gap(self, contract: str, current_price: float) -> Optional[PriceGapInfo]:
         if contract not in self._previous_prices:
             self._previous_prices[contract] = current_price
+            self._current_prices[contract] = current_price
             return None
 
         previous_price = self._previous_prices[contract]
 
         if previous_price <= 0 or current_price <= 0:
             self._previous_prices[contract] = current_price
+            self._current_prices[contract] = current_price
             return None
 
         gap_percent = abs((current_price - previous_price) / previous_price * 100)
@@ -571,6 +1033,7 @@ class RiskManager:
             )
 
         self._previous_prices[contract] = current_price
+        self._current_prices[contract] = current_price
         return None
 
     def get_account_snapshot(self) -> AccountSnapshot:
@@ -712,6 +1175,10 @@ class RiskManager:
         if self._peak_equity > 0:
             drawdown = self._peak_equity - current_equity
             self._current_drawdown_percent = (drawdown / self._peak_equity) * 100
+
+            if drawdown > self._max_single_drawdown:
+                self._max_single_drawdown = drawdown
+                self._max_single_drawdown_percent = self._current_drawdown_percent
         else:
             self._current_drawdown_percent = 0.0
 
@@ -747,6 +1214,189 @@ class RiskManager:
             return RiskLevel.WARNING
 
         return RiskLevel.SAFE
+
+    def check_daily_loss(self, snapshot: AccountSnapshot = None) -> RiskLevel:
+        if self._frozen:
+            return RiskLevel.FROZEN
+
+        if self._daily_start_equity <= 0:
+            if snapshot is None:
+                snapshot = self.get_account_snapshot()
+            if snapshot.equity > 0:
+                self._daily_start_equity = snapshot.equity
+                self.logger.info(f"自动设置当日起始权益: {self._daily_start_equity:.2f}")
+            return RiskLevel.SAFE
+
+        if snapshot is None:
+            snapshot = self.get_account_snapshot()
+
+        current_equity = snapshot.equity
+        if current_equity <= 0:
+            return RiskLevel.SAFE
+
+        daily_loss = self._daily_start_equity - current_equity
+        daily_loss_percent = (daily_loss / self._daily_start_equity) * 100 if self._daily_start_equity > 0 else 0.0
+
+        if daily_loss_percent >= self.daily_loss_limit_percent:
+            self._emit_risk_event(
+                event_type=RiskEventType.DAILY_LOSS_EXCEEDED,
+                level=RiskLevel.CRITICAL,
+                message=f"日亏损超过限额: 当前亏损 {daily_loss_percent:.2f}% > 限额 {self.daily_loss_limit_percent}%",
+                details={
+                    'daily_start_equity': self._daily_start_equity,
+                    'current_equity': current_equity,
+                    'daily_loss_amount': daily_loss,
+                    'daily_loss_percent': daily_loss_percent,
+                    'limit_percent': self.daily_loss_limit_percent,
+                },
+            )
+
+            self.freeze(f"日亏损超过 {self.daily_loss_limit_percent}%")
+            return RiskLevel.FROZEN
+
+        warning_threshold = self.daily_loss_limit_percent * 0.7
+        if daily_loss_percent >= warning_threshold:
+            self._emit_risk_event(
+                event_type=RiskEventType.DAILY_LOSS_EXCEEDED,
+                level=RiskLevel.WARNING,
+                message=f"日亏损接近限额: 当前亏损 {daily_loss_percent:.2f}%",
+                details={
+                    'daily_start_equity': self._daily_start_equity,
+                    'current_equity': current_equity,
+                    'daily_loss_amount': daily_loss,
+                    'daily_loss_percent': daily_loss_percent,
+                    'warning_threshold': warning_threshold,
+                },
+            )
+            return RiskLevel.WARNING
+
+        return RiskLevel.SAFE
+
+    def check_price_deviation(
+        self,
+        contract: str,
+        order_price: float,
+        current_price: float = None,
+    ) -> Tuple[bool, str, float]:
+        if current_price is None:
+            current_price = self._current_prices.get(contract)
+        
+        if current_price is None or current_price <= 0:
+            current_price = self._previous_prices.get(contract)
+        
+        if current_price is None or current_price <= 0:
+            return True, "无当前价格参考，跳过价格偏离检查", 0.0
+
+        if order_price <= 0:
+            return False, "订单价格无效", 0.0
+
+        deviation_percent = abs((order_price - current_price) / current_price * 100)
+
+        if deviation_percent >= self.price_deviation_threshold_percent:
+            return (
+                False,
+                f"价格偏离超过阈值: 偏离 {deviation_percent:.2f}% > 阈值 {self.price_deviation_threshold_percent}%",
+                deviation_percent,
+            )
+
+        return True, "价格偏离检查通过", deviation_percent
+
+    def record_trade_event(
+        self,
+        strategy_name: str,
+        contract: str,
+        direction: str,
+        volume: int,
+        price: float,
+        profit_loss: Optional[float] = None,
+        event_type: TradeEventType = TradeEventType.POSITION_CLOSED,
+    ):
+        if strategy_name not in self._strategy_risk:
+            self._strategy_risk[strategy_name] = StrategyRiskInfo(strategy_name=strategy_name)
+
+        strategy_info = self._strategy_risk[strategy_name]
+
+        trade_event = TradeEvent(
+            event_type=event_type,
+            timestamp=time.time(),
+            strategy_name=strategy_name,
+            contract=contract,
+            direction=direction,
+            volume=volume,
+            price=price,
+            profit_loss=profit_loss,
+        )
+
+        self._trade_events.append(trade_event)
+        if len(self._trade_events) > self._max_trade_events:
+            self._trade_events = self._trade_events[-self._max_trade_events:]
+
+        self._structured_logger.log_trade_event(trade_event)
+
+        if profit_loss is not None:
+            strategy_info.total_trades += 1
+            self._total_trades += 1
+
+            if profit_loss > 0:
+                strategy_info.winning_trades += 1
+                self._winning_trades += 1
+                strategy_info.consecutive_losses = 0
+            else:
+                strategy_info.losing_trades += 1
+                self._losing_trades += 1
+                strategy_info.consecutive_losses += 1
+
+                if strategy_info.consecutive_losses > self._max_consecutive_losses:
+                    self._max_consecutive_losses = strategy_info.consecutive_losses
+
+                if strategy_info.consecutive_losses >= self.consecutive_loss_limit:
+                    self._emit_risk_event(
+                        event_type=RiskEventType.CONSECUTIVE_LOSS_EXCEEDED,
+                        level=RiskLevel.WARNING,
+                        message=f"策略 [{strategy_name}] 连续亏损 {strategy_info.consecutive_losses} 次，超过限制 {self.consecutive_loss_limit} 次",
+                        details={
+                            'strategy_name': strategy_name,
+                            'consecutive_losses': strategy_info.consecutive_losses,
+                            'limit': self.consecutive_loss_limit,
+                        },
+                    )
+
+                    strategy_info.paused = True
+                    strategy_info.pause_reason = f"连续亏损 {strategy_info.consecutive_losses} 次"
+
+                    self._emit_risk_event(
+                        event_type=RiskEventType.STRATEGY_PAUSED,
+                        level=RiskLevel.WARNING,
+                        message=f"策略 [{strategy_name}] 已暂停",
+                        details={
+                            'strategy_name': strategy_name,
+                            'reason': strategy_info.pause_reason,
+                        },
+                    )
+
+    def resume_strategy(self, strategy_name: str) -> bool:
+        if strategy_name not in self._strategy_risk:
+            self.logger.warning(f"策略 [{strategy_name}] 不存在")
+            return False
+
+        strategy_info = self._strategy_risk[strategy_name]
+        strategy_info.paused = False
+        strategy_info.consecutive_losses = 0
+        strategy_info.pause_reason = None
+
+        self._structured_logger.log_info(
+            "RiskManager",
+            f"策略 [{strategy_name}] 已恢复交易"
+        )
+        return True
+
+    def is_strategy_paused(self, strategy_name: str) -> bool:
+        if strategy_name not in self._strategy_risk:
+            return False
+        return self._strategy_risk[strategy_name].paused
+
+    def record_canceled_order(self):
+        self._total_canceled_orders += 1
 
     def check_strategy_margin(
         self,
@@ -861,9 +1511,14 @@ class RiskManager:
         volume: int,
         price: float,
         margin_per_contract: float = None,
+        current_market_price: float = None,
     ) -> tuple[bool, str, RiskLevel]:
         if self._frozen:
             return False, f"系统已冻结: {self._frozen_reason}", RiskLevel.FROZEN
+
+        if self.is_strategy_paused(strategy_name):
+            pause_reason = self._strategy_risk[strategy_name].pause_reason
+            return False, f"策略已暂停: {pause_reason}", RiskLevel.WARNING
 
         if volume <= 0:
             return False, "下单数量必须大于 0", RiskLevel.SAFE
@@ -871,6 +1526,29 @@ class RiskManager:
         api_healthy, api_msg = self.check_api_health()
         if not api_healthy:
             return False, f"API健康检查失败: {api_msg}", RiskLevel.WARNING
+
+        price_ok, price_msg, deviation = self.check_price_deviation(
+            contract=contract,
+            order_price=price,
+            current_price=current_market_price,
+        )
+
+        if not price_ok:
+            self._risk_blocked_orders += 1
+            self._emit_risk_event(
+                event_type=RiskEventType.PRICE_DEVIATION_BLOCKED,
+                level=RiskLevel.WARNING,
+                message=f"订单价格偏离拦截: {price_msg}",
+                details={
+                    'strategy_name': strategy_name,
+                    'contract': contract,
+                    'order_price': price,
+                    'current_price': current_market_price,
+                    'deviation_percent': deviation,
+                    'threshold_percent': self.price_deviation_threshold_percent,
+                },
+            )
+            return False, f"价格偏离拦截: {price_msg}", RiskLevel.WARNING
 
         snapshot = self.get_account_snapshot()
 
@@ -972,7 +1650,7 @@ class RiskManager:
 
     def run_risk_checks(self) -> Dict[str, RiskLevel]:
         if self._frozen:
-            return {'drawdown': RiskLevel.FROZEN, 'total_margin': RiskLevel.FROZEN}
+            return {'drawdown': RiskLevel.FROZEN, 'total_margin': RiskLevel.FROZEN, 'daily_loss': RiskLevel.FROZEN}
 
         self.check_api_health()
 
@@ -982,6 +1660,9 @@ class RiskManager:
         results = {}
 
         results['drawdown'] = self.check_drawdown(snapshot)
+
+        if not self._frozen:
+            results['daily_loss'] = self.check_daily_loss(snapshot)
 
         if not self._frozen:
             results['total_margin'] = self.check_total_margin(snapshot)
@@ -1112,11 +1793,85 @@ class RiskManager:
                 'consecutive_timeouts': self._api_timeouts,
                 'max_timeouts': self._max_api_timeouts,
             },
+            'daily_loss': {
+                'start_equity': self._daily_start_equity,
+                'current_loss': self._daily_start_equity - snapshot.equity if self._daily_start_equity > 0 else 0,
+                'loss_percent': (self._daily_start_equity - snapshot.equity) / self._daily_start_equity * 100 if self._daily_start_equity > 0 else 0,
+                'limit_percent': self.daily_loss_limit_percent,
+            },
+            'consecutive_loss': {
+                'max_consecutive_losses': self._max_consecutive_losses,
+                'limit': self.consecutive_loss_limit,
+            },
+            'order_stats': {
+                'total_canceled_orders': self._total_canceled_orders,
+                'risk_blocked_orders': self._risk_blocked_orders,
+            },
         }
 
     def get_risk_events(self, limit: int = 10) -> List[Dict[str, Any]]:
         events = self._risk_events[-limit:] if limit > 0 else self._risk_events
         return [e.to_dict() for e in events]
+
+    def generate_risk_check_report(self) -> RiskCheckReport:
+        snapshot = self.get_account_snapshot()
+        
+        critical_events = [e for e in self._risk_events if e.level in (RiskLevel.CRITICAL, RiskLevel.FROZEN)]
+        
+        current_consecutive = max(
+            [s.consecutive_losses for s in self._strategy_risk.values()]
+        ) if self._strategy_risk else 0
+        
+        daily_loss = self._daily_start_equity - snapshot.equity if self._daily_start_equity > 0 else 0
+        daily_loss_percent = (daily_loss / self._daily_start_equity) * 100 if self._daily_start_equity > 0 else 0.0
+        
+        current_risk_level = RiskLevel.SAFE
+        if self._frozen:
+            current_risk_level = RiskLevel.FROZEN
+        elif critical_events:
+            current_risk_level = RiskLevel.CRITICAL
+        elif self._risk_events:
+            current_risk_level = RiskLevel.WARNING
+
+        report = RiskCheckReport(
+            generated_at=datetime.now(),
+            total_canceled_orders=self._total_canceled_orders,
+            risk_blocked_orders=self._risk_blocked_orders,
+            max_single_drawdown=self._max_single_drawdown,
+            max_single_drawdown_percent=self._max_single_drawdown_percent,
+            daily_loss_amount=daily_loss,
+            daily_loss_percent=daily_loss_percent,
+            total_risk_events=len(self._risk_events),
+            critical_risk_events=len(critical_events),
+            current_risk_level=current_risk_level,
+            is_frozen=self._frozen,
+            frozen_reason=self._frozen_reason,
+            consecutive_losses=current_consecutive,
+            max_consecutive_losses=self._max_consecutive_losses,
+            total_trades=self._total_trades,
+            winning_trades=self._winning_trades,
+            losing_trades=self._losing_trades,
+            peak_equity=self._peak_equity,
+            current_equity=snapshot.equity,
+            current_drawdown_percent=self._current_drawdown_percent,
+            details={
+                'thresholds': {
+                    'max_drawdown_percent': self.max_drawdown_percent,
+                    'daily_loss_limit_percent': self.daily_loss_limit_percent,
+                    'consecutive_loss_limit': self.consecutive_loss_limit,
+                    'price_deviation_threshold_percent': self.price_deviation_threshold_percent,
+                },
+                'strategies_paused': sum(1 for s in self._strategy_risk.values() if s.paused),
+                'total_positions': len(self._positions),
+                'total_strategies': len(self._strategy_risk),
+            },
+        )
+
+        return report
+
+    def print_risk_check_report(self) -> str:
+        report = self.generate_risk_check_report()
+        return self._structured_logger.print_risk_check_report(report)
 
     def close_all_positions(self) -> Dict[str, Any]:
         if self.api is None:
@@ -1224,3 +1979,4 @@ class RiskManager:
 
         self._current_drawdown_percent = 0.0
         self.logger.info(f"峰值权益已重置为: {self._peak_equity:.2f}")
+

@@ -3091,3 +3091,685 @@
 2026-04-24 13:57:51,234 - FATAL - 完整报告已保存至: D:\workspace\Trae\Futures-trading-Tqsdk\logs\freeze_reports\freeze_report_20260424_135751.json
 2026-04-24 13:57:51,238 - WARNING - {"event_type": "STRATEGY_MARGIN_EXCEEDED", "timestamp": 1777010271.2373161, "datetime": "2026-04-24T13:57:51.237316", "level": "WARNING", "message": "策略 [StrategyA] 保证金接近阈值: 25.00%", "details": {"strategy_name": "StrategyA", "margin_used": 200000.0, "margin_percent": 25.0, "warning_threshold": 21.0}}
 2026-04-24 13:57:51,238 - FATAL - {"event_type": "STRATEGY_MARGIN_EXCEEDED", "timestamp": 1777010271.2383187, "datetime": "2026-04-24T13:57:51.238319", "level": "CRITICAL", "message": "策略 [StrategyA] 保证金超过阈值: 40.00% > 30.0%", "details": {"strategy_name": "StrategyA", "margin_used": 200000.0, "total_asset": 500000.0, "margin_percent": 40.0, "threshold_percent": 30.0}}
+[2026-04-25 10:55:13] [risk_manager] [WARNING] 🚧 [PRICE_DEVIATION_BLOCKED] 订单价格偏离拦截: 价格偏离超过阈值: 偏离 1.43% > 阈值 1.0%
+2026-04-25 10:55:13,455 - WARNING - {"event_type": "PRICE_DEVIATION_BLOCKED", "timestamp": 1777085713.4549682, "datetime": "2026-04-25T10:55:13.454968", "level": "WARNING", "message": "订单价格偏离拦截: 价格偏离超过阈值: 偏离 1.43% > 阈值 1.0%", "details": {"strategy_name": "TestStrategy", "contract": "SHFE.rb2410", "order_price": 3550.0, "current_price": 3500.0, "deviation_percent": 1.4285714285714286, "threshold_percent": 1.0}}
+[2026-04-25 10:55:13] [risk_manager] [WARNING] 💸 [DAILY_LOSS_EXCEEDED] 日亏损接近限额: 当前亏损 1.50%
+2026-04-25 10:55:13,455 - WARNING - {"event_type": "DAILY_LOSS_EXCEEDED", "timestamp": 1777085713.4559686, "datetime": "2026-04-25T10:55:13.455969", "level": "WARNING", "message": "日亏损接近限额: 当前亏损 1.50%", "details": {"daily_start_equity": 1000000.0, "current_equity": 985000.0, "daily_loss_amount": 15000.0, "daily_loss_percent": 1.5, "warning_threshold": 1.4}}
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL] 💸 [DAILY_LOSS_EXCEEDED] 日亏损超过限额: 当前亏损 2.00% > 限额 2.0%
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL]    详情: {"daily_start_equity": 1000000.0, "current_equity": 980000.0, "daily_loss_amount": 20000.0, "daily_loss_percent": 2.0, "limit_percent": 2.0}
+2026-04-25 10:55:13,456 - CRITICAL - {"event_type": "DAILY_LOSS_EXCEEDED", "timestamp": 1777085713.4569693, "datetime": "2026-04-25T10:55:13.456969", "level": "CRITICAL", "message": "日亏损超过限额: 当前亏损 2.00% > 限额 2.0%", "details": {"daily_start_equity": 1000000.0, "current_equity": 980000.0, "daily_loss_amount": 20000.0, "daily_loss_percent": 2.0, "limit_percent": 2.0}}
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 日亏损超过 2.0%
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL]    详情: {"reason": "日亏损超过 2.0%", "timestamp": 1777085713.4569693}
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL] 💸 [DAILY_LOSS_EXCEEDED] 日亏损超过限额: 当前亏损 3.00% > 限额 2.0%
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL]    详情: {"daily_start_equity": 1000000.0, "current_equity": 970000.0, "daily_loss_amount": 30000.0, "daily_loss_percent": 3.0, "limit_percent": 2.0}
+2026-04-25 10:55:13,458 - CRITICAL - {"event_type": "DAILY_LOSS_EXCEEDED", "timestamp": 1777085713.4585583, "datetime": "2026-04-25T10:55:13.458558", "level": "CRITICAL", "message": "日亏损超过限额: 当前亏损 3.00% > 限额 2.0%", "details": {"daily_start_equity": 1000000.0, "current_equity": 970000.0, "daily_loss_amount": 30000.0, "daily_loss_percent": 3.0, "limit_percent": 2.0}}
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 日亏损超过 2.0%
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL]    详情: {"reason": "日亏损超过 2.0%", "timestamp": 1777085713.4595633}
+[2026-04-25 10:55:13] [risk_manager] [WARNING] 📉📉📉 [CONSECUTIVE_LOSS_EXCEEDED] 策略 [TestStrategy] 连续亏损 5 次，超过限制 5 次
+2026-04-25 10:55:13,473 - WARNING - {"event_type": "CONSECUTIVE_LOSS_EXCEEDED", "timestamp": 1777085713.4722588, "datetime": "2026-04-25T10:55:13.472259", "level": "WARNING", "message": "策略 [TestStrategy] 连续亏损 5 次，超过限制 5 次", "details": {"strategy_name": "TestStrategy", "consecutive_losses": 5, "limit": 5}}
+[2026-04-25 10:55:13] [risk_manager] [WARNING] ⏸️ [STRATEGY_PAUSED] 策略 [TestStrategy] 已暂停
+2026-04-25 10:55:13,473 - WARNING - {"event_type": "STRATEGY_PAUSED", "timestamp": 1777085713.4732592, "datetime": "2026-04-25T10:55:13.473259", "level": "WARNING", "message": "策略 [TestStrategy] 已暂停", "details": {"strategy_name": "TestStrategy", "reason": "连续亏损 5 次"}}
+[2026-04-25 10:55:13] [risk_manager] [WARNING] 📉📉📉 [CONSECUTIVE_LOSS_EXCEEDED] 策略 [TestStrategy] 连续亏损 6 次，超过限制 5 次
+2026-04-25 10:55:13,474 - WARNING - {"event_type": "CONSECUTIVE_LOSS_EXCEEDED", "timestamp": 1777085713.4732592, "datetime": "2026-04-25T10:55:13.473259", "level": "WARNING", "message": "策略 [TestStrategy] 连续亏损 6 次，超过限制 5 次", "details": {"strategy_name": "TestStrategy", "consecutive_losses": 6, "limit": 5}}
+[2026-04-25 10:55:13] [risk_manager] [WARNING] ⏸️ [STRATEGY_PAUSED] 策略 [TestStrategy] 已暂停
+2026-04-25 10:55:13,474 - WARNING - {"event_type": "STRATEGY_PAUSED", "timestamp": 1777085713.4742587, "datetime": "2026-04-25T10:55:13.474259", "level": "WARNING", "message": "策略 [TestStrategy] 已暂停", "details": {"strategy_name": "TestStrategy", "reason": "连续亏损 6 次"}}
+[2026-04-25 10:55:13] [risk_manager] [WARNING] 📉📉📉 [CONSECUTIVE_LOSS_EXCEEDED] 策略 [TestStrategy] 连续亏损 7 次，超过限制 5 次
+2026-04-25 10:55:13,474 - WARNING - {"event_type": "CONSECUTIVE_LOSS_EXCEEDED", "timestamp": 1777085713.4742587, "datetime": "2026-04-25T10:55:13.474259", "level": "WARNING", "message": "策略 [TestStrategy] 连续亏损 7 次，超过限制 5 次", "details": {"strategy_name": "TestStrategy", "consecutive_losses": 7, "limit": 5}}
+[2026-04-25 10:55:13] [risk_manager] [WARNING] ⏸️ [STRATEGY_PAUSED] 策略 [TestStrategy] 已暂停
+2026-04-25 10:55:13,474 - WARNING - {"event_type": "STRATEGY_PAUSED", "timestamp": 1777085713.4742587, "datetime": "2026-04-25T10:55:13.474259", "level": "WARNING", "message": "策略 [TestStrategy] 已暂停", "details": {"strategy_name": "TestStrategy", "reason": "连续亏损 7 次"}}
+[2026-04-25 10:55:13] [risk_manager] [WARNING] 🚧 [PRICE_DEVIATION_BLOCKED] 订单价格偏离拦截: 价格偏离超过阈值: 偏离 5.71% > 阈值 1.0%
+2026-04-25 10:55:13,476 - WARNING - {"event_type": "PRICE_DEVIATION_BLOCKED", "timestamp": 1777085713.4752603, "datetime": "2026-04-25T10:55:13.475260", "level": "WARNING", "message": "订单价格偏离拦截: 价格偏离超过阈值: 偏离 5.71% > 阈值 1.0%", "details": {"strategy_name": "AggressiveStrategy", "contract": "SHFE.rb2410", "order_price": 3300.0, "current_price": 3500.0, "deviation_percent": 5.714285714285714, "threshold_percent": 1.0}}
+[2026-04-25 10:55:13] [risk_manager] [WARNING] 📉📉📉 [CONSECUTIVE_LOSS_EXCEEDED] 策略 [AggressiveStrategy] 连续亏损 3 次，超过限制 3 次
+2026-04-25 10:55:13,477 - WARNING - {"event_type": "CONSECUTIVE_LOSS_EXCEEDED", "timestamp": 1777085713.4762607, "datetime": "2026-04-25T10:55:13.476261", "level": "WARNING", "message": "策略 [AggressiveStrategy] 连续亏损 3 次，超过限制 3 次", "details": {"strategy_name": "AggressiveStrategy", "consecutive_losses": 3, "limit": 3}}
+[2026-04-25 10:55:13] [risk_manager] [WARNING] ⏸️ [STRATEGY_PAUSED] 策略 [AggressiveStrategy] 已暂停
+2026-04-25 10:55:13,477 - WARNING - {"event_type": "STRATEGY_PAUSED", "timestamp": 1777085713.477262, "datetime": "2026-04-25T10:55:13.477262", "level": "WARNING", "message": "策略 [AggressiveStrategy] 已暂停", "details": {"strategy_name": "AggressiveStrategy", "reason": "连续亏损 3 次"}}
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL] 💸 [DAILY_LOSS_EXCEEDED] 日亏损超过限额: 当前亏损 3.00% > 限额 2.0%
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL]    详情: {"daily_start_equity": 1000000.0, "current_equity": 970000.0, "daily_loss_amount": 30000.0, "daily_loss_percent": 3.0, "limit_percent": 2.0}
+2026-04-25 10:55:13,478 - CRITICAL - {"event_type": "DAILY_LOSS_EXCEEDED", "timestamp": 1777085713.477262, "datetime": "2026-04-25T10:55:13.477262", "level": "CRITICAL", "message": "日亏损超过限额: 当前亏损 3.00% > 限额 2.0%", "details": {"daily_start_equity": 1000000.0, "current_equity": 970000.0, "daily_loss_amount": 30000.0, "daily_loss_percent": 3.0, "limit_percent": 2.0}}
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 日亏损超过 2.0%
+[2026-04-25 10:55:13] [risk_manager] [CRITICAL]    详情: {"reason": "日亏损超过 2.0%", "timestamp": 1777085713.478417}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 测试冻结原因
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"reason": "测试冻结原因", "timestamp": 1777085739.2793975}
+2026-04-25 10:55:39,280 - INFO - 系统已解冻，时间: 2026-04-25T10:55:39.280437
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.50%
+2026-04-25 10:55:39,283 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.2836888, "datetime": "2026-04-25T10:55:39.283689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.50%", "details": {"peak_equity": 1000000.0, "current_equity": 965000.0, "drawdown_percent": 3.5000000000000004, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 净值回撤超过阈值: 当前回撤 6.00% > 阈值 5.0%
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"peak_equity": 1000000.0, "current_equity": 940000.0, "drawdown_percent": 6.0, "threshold_percent": 5.0}
+2026-04-25 10:55:39,284 - CRITICAL - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.284689, "datetime": "2026-04-25T10:55:39.284689", "level": "CRITICAL", "message": "净值回撤超过阈值: 当前回撤 6.00% > 阈值 5.0%", "details": {"peak_equity": 1000000.0, "current_equity": 940000.0, "drawdown_percent": 6.0, "threshold_percent": 5.0}}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 净值回撤超过 5.0%
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"reason": "净值回撤超过 5.0%", "timestamp": 1777085739.284689}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 净值回撤超过阈值: 当前回撤 50.00% > 阈值 5.0%
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"peak_equity": 1000000.0, "current_equity": 500000.0, "drawdown_percent": 50.0, "threshold_percent": 5.0}
+2026-04-25 10:55:39,301 - CRITICAL - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3011584, "datetime": "2026-04-25T10:55:39.301158", "level": "CRITICAL", "message": "净值回撤超过阈值: 当前回撤 50.00% > 阈值 5.0%", "details": {"peak_equity": 1000000.0, "current_equity": 500000.0, "drawdown_percent": 50.0, "threshold_percent": 5.0}}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 净值回撤超过 5.0%
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"reason": "净值回撤超过 5.0%", "timestamp": 1777085739.3011584}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] ⚠️ [STRATEGY_MARGIN_EXCEEDED] 策略 [TestStrategy] 保证金接近阈值: 25.00%
+2026-04-25 10:55:39,313 - WARNING - {"event_type": "STRATEGY_MARGIN_EXCEEDED", "timestamp": 1777085739.3136218, "datetime": "2026-04-25T10:55:39.313622", "level": "WARNING", "message": "策略 [TestStrategy] 保证金接近阈值: 25.00%", "details": {"strategy_name": "TestStrategy", "margin_used": 250000.0, "margin_percent": 25.0, "warning_threshold": 21.0}}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] ⚠️ [STRATEGY_MARGIN_EXCEEDED] 策略 [TestStrategy] 保证金超过阈值: 35.00% > 30.0%
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"strategy_name": "TestStrategy", "margin_used": 350000.0, "total_asset": 1000000.0, "margin_percent": 35.0, "threshold_percent": 30.0}
+2026-04-25 10:55:39,315 - CRITICAL - {"event_type": "STRATEGY_MARGIN_EXCEEDED", "timestamp": 1777085739.3151312, "datetime": "2026-04-25T10:55:39.315131", "level": "CRITICAL", "message": "策略 [TestStrategy] 保证金超过阈值: 35.00% > 30.0%", "details": {"strategy_name": "TestStrategy", "margin_used": 350000.0, "total_asset": 1000000.0, "margin_percent": 35.0, "threshold_percent": 30.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] ⚠️ [TOTAL_MARGIN_EXCEEDED] 总保证金接近阈值: 70.00%
+2026-04-25 10:55:39,317 - WARNING - {"event_type": "TOTAL_MARGIN_EXCEEDED", "timestamp": 1777085739.3161347, "datetime": "2026-04-25T10:55:39.316135", "level": "WARNING", "message": "总保证金接近阈值: 70.00%", "details": {"total_margin": 700000.0, "margin_percent": 70.0, "warning_threshold": 64.0}}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] ⚠️ [TOTAL_MARGIN_EXCEEDED] 总保证金超过阈值: 90.00% > 80.0%
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"total_margin": 900000.0, "total_asset": 1000000.0, "margin_percent": 90.0, "threshold_percent": 80.0}
+2026-04-25 10:55:39,318 - CRITICAL - {"event_type": "TOTAL_MARGIN_EXCEEDED", "timestamp": 1777085739.3171344, "datetime": "2026-04-25T10:55:39.317134", "level": "CRITICAL", "message": "总保证金超过阈值: 90.00% > 80.0%", "details": {"total_margin": 900000.0, "total_asset": 1000000.0, "margin_percent": 90.0, "threshold_percent": 80.0}}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] ⚠️ [STRATEGY_MARGIN_EXCEEDED] 策略 [TestStrategy] 保证金超过阈值: 35.00% > 30.0%
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"strategy_name": "TestStrategy", "margin_used": 35000.0, "total_asset": 100000.0, "margin_percent": 35.0, "threshold_percent": 30.0}
+2026-04-25 10:55:39,319 - CRITICAL - {"event_type": "STRATEGY_MARGIN_EXCEEDED", "timestamp": 1777085739.319636, "datetime": "2026-04-25T10:55:39.319636", "level": "CRITICAL", "message": "策略 [TestStrategy] 保证金超过阈值: 35.00% > 30.0%", "details": {"strategy_name": "TestStrategy", "margin_used": 35000.0, "total_asset": 100000.0, "margin_percent": 35.0, "threshold_percent": 30.0}}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 测试冻结
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"reason": "测试冻结", "timestamp": 1777085739.320639}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.00%
+2026-04-25 10:55:39,333 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3336897, "datetime": "2026-04-25T10:55:39.333690", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.00%", "details": {"peak_equity": 1000000.0, "current_equity": 970000.0, "drawdown_percent": 3.0, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.01%
+2026-04-25 10:55:39,333 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3336897, "datetime": "2026-04-25T10:55:39.333690", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.01%", "details": {"peak_equity": 1000000.0, "current_equity": 969900.0, "drawdown_percent": 3.01, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.02%
+2026-04-25 10:55:39,333 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3336897, "datetime": "2026-04-25T10:55:39.333690", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.02%", "details": {"peak_equity": 1000000.0, "current_equity": 969800.0, "drawdown_percent": 3.02, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.03%
+2026-04-25 10:55:39,333 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3336897, "datetime": "2026-04-25T10:55:39.333690", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.03%", "details": {"peak_equity": 1000000.0, "current_equity": 969700.0, "drawdown_percent": 3.0300000000000002, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.04%
+2026-04-25 10:55:39,333 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3336897, "datetime": "2026-04-25T10:55:39.333690", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.04%", "details": {"peak_equity": 1000000.0, "current_equity": 969600.0, "drawdown_percent": 3.04, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.05%
+2026-04-25 10:55:39,334 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3346891, "datetime": "2026-04-25T10:55:39.334689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.05%", "details": {"peak_equity": 1000000.0, "current_equity": 969500.0, "drawdown_percent": 3.05, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.06%
+2026-04-25 10:55:39,334 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3346891, "datetime": "2026-04-25T10:55:39.334689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.06%", "details": {"peak_equity": 1000000.0, "current_equity": 969400.0, "drawdown_percent": 3.06, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.07%
+2026-04-25 10:55:39,334 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3346891, "datetime": "2026-04-25T10:55:39.334689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.07%", "details": {"peak_equity": 1000000.0, "current_equity": 969300.0, "drawdown_percent": 3.0700000000000003, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.08%
+2026-04-25 10:55:39,334 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3346891, "datetime": "2026-04-25T10:55:39.334689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.08%", "details": {"peak_equity": 1000000.0, "current_equity": 969200.0, "drawdown_percent": 3.08, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.09%
+2026-04-25 10:55:39,334 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3346891, "datetime": "2026-04-25T10:55:39.334689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.09%", "details": {"peak_equity": 1000000.0, "current_equity": 969100.0, "drawdown_percent": 3.09, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.10%
+2026-04-25 10:55:39,334 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3346891, "datetime": "2026-04-25T10:55:39.334689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.10%", "details": {"peak_equity": 1000000.0, "current_equity": 969000.0, "drawdown_percent": 3.1, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.11%
+2026-04-25 10:55:39,335 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3346891, "datetime": "2026-04-25T10:55:39.334689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.11%", "details": {"peak_equity": 1000000.0, "current_equity": 968900.0, "drawdown_percent": 3.11, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.12%
+2026-04-25 10:55:39,335 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3356893, "datetime": "2026-04-25T10:55:39.335689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.12%", "details": {"peak_equity": 1000000.0, "current_equity": 968800.0, "drawdown_percent": 3.1199999999999997, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.13%
+2026-04-25 10:55:39,335 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3356893, "datetime": "2026-04-25T10:55:39.335689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.13%", "details": {"peak_equity": 1000000.0, "current_equity": 968700.0, "drawdown_percent": 3.1300000000000003, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.14%
+2026-04-25 10:55:39,335 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3356893, "datetime": "2026-04-25T10:55:39.335689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.14%", "details": {"peak_equity": 1000000.0, "current_equity": 968600.0, "drawdown_percent": 3.1399999999999997, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.15%
+2026-04-25 10:55:39,335 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3356893, "datetime": "2026-04-25T10:55:39.335689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.15%", "details": {"peak_equity": 1000000.0, "current_equity": 968500.0, "drawdown_percent": 3.15, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.16%
+2026-04-25 10:55:39,335 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3356893, "datetime": "2026-04-25T10:55:39.335689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.16%", "details": {"peak_equity": 1000000.0, "current_equity": 968400.0, "drawdown_percent": 3.16, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.17%
+2026-04-25 10:55:39,335 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3356893, "datetime": "2026-04-25T10:55:39.335689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.17%", "details": {"peak_equity": 1000000.0, "current_equity": 968300.0, "drawdown_percent": 3.17, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.18%
+2026-04-25 10:55:39,336 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3356893, "datetime": "2026-04-25T10:55:39.335689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.18%", "details": {"peak_equity": 1000000.0, "current_equity": 968200.0, "drawdown_percent": 3.18, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.19%
+2026-04-25 10:55:39,336 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.336689, "datetime": "2026-04-25T10:55:39.336689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.19%", "details": {"peak_equity": 1000000.0, "current_equity": 968100.0, "drawdown_percent": 3.19, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.20%
+2026-04-25 10:55:39,336 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.336689, "datetime": "2026-04-25T10:55:39.336689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.20%", "details": {"peak_equity": 1000000.0, "current_equity": 968000.0, "drawdown_percent": 3.2, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.21%
+2026-04-25 10:55:39,336 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.336689, "datetime": "2026-04-25T10:55:39.336689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.21%", "details": {"peak_equity": 1000000.0, "current_equity": 967900.0, "drawdown_percent": 3.2099999999999995, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.22%
+2026-04-25 10:55:39,336 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.336689, "datetime": "2026-04-25T10:55:39.336689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.22%", "details": {"peak_equity": 1000000.0, "current_equity": 967800.0, "drawdown_percent": 3.2199999999999998, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.23%
+2026-04-25 10:55:39,336 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.336689, "datetime": "2026-04-25T10:55:39.336689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.23%", "details": {"peak_equity": 1000000.0, "current_equity": 967700.0, "drawdown_percent": 3.2300000000000004, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.24%
+2026-04-25 10:55:39,336 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.336689, "datetime": "2026-04-25T10:55:39.336689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.24%", "details": {"peak_equity": 1000000.0, "current_equity": 967600.0, "drawdown_percent": 3.2399999999999998, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.25%
+2026-04-25 10:55:39,336 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.336689, "datetime": "2026-04-25T10:55:39.336689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.25%", "details": {"peak_equity": 1000000.0, "current_equity": 967500.0, "drawdown_percent": 3.25, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.26%
+2026-04-25 10:55:39,336 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.336689, "datetime": "2026-04-25T10:55:39.336689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.26%", "details": {"peak_equity": 1000000.0, "current_equity": 967400.0, "drawdown_percent": 3.26, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.27%
+2026-04-25 10:55:39,336 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.336689, "datetime": "2026-04-25T10:55:39.336689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.27%", "details": {"peak_equity": 1000000.0, "current_equity": 967300.0, "drawdown_percent": 3.27, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.28%
+2026-04-25 10:55:39,336 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.336689, "datetime": "2026-04-25T10:55:39.336689", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.28%", "details": {"peak_equity": 1000000.0, "current_equity": 967200.0, "drawdown_percent": 3.2800000000000002, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.29%
+2026-04-25 10:55:39,338 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.338191, "datetime": "2026-04-25T10:55:39.338191", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.29%", "details": {"peak_equity": 1000000.0, "current_equity": 967100.0, "drawdown_percent": 3.29, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.30%
+2026-04-25 10:55:39,338 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.338191, "datetime": "2026-04-25T10:55:39.338191", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.30%", "details": {"peak_equity": 1000000.0, "current_equity": 967000.0, "drawdown_percent": 3.3000000000000003, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.31%
+2026-04-25 10:55:39,338 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.338191, "datetime": "2026-04-25T10:55:39.338191", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.31%", "details": {"peak_equity": 1000000.0, "current_equity": 966900.0, "drawdown_percent": 3.3099999999999996, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.32%
+2026-04-25 10:55:39,338 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.338191, "datetime": "2026-04-25T10:55:39.338191", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.32%", "details": {"peak_equity": 1000000.0, "current_equity": 966800.0, "drawdown_percent": 3.32, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.33%
+2026-04-25 10:55:39,338 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.338191, "datetime": "2026-04-25T10:55:39.338191", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.33%", "details": {"peak_equity": 1000000.0, "current_equity": 966700.0, "drawdown_percent": 3.3300000000000005, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.34%
+2026-04-25 10:55:39,338 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.338191, "datetime": "2026-04-25T10:55:39.338191", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.34%", "details": {"peak_equity": 1000000.0, "current_equity": 966600.0, "drawdown_percent": 3.34, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.35%
+2026-04-25 10:55:39,338 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.338191, "datetime": "2026-04-25T10:55:39.338191", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.35%", "details": {"peak_equity": 1000000.0, "current_equity": 966500.0, "drawdown_percent": 3.35, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.36%
+2026-04-25 10:55:39,338 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.338191, "datetime": "2026-04-25T10:55:39.338191", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.36%", "details": {"peak_equity": 1000000.0, "current_equity": 966400.0, "drawdown_percent": 3.36, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.37%
+2026-04-25 10:55:39,338 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.338191, "datetime": "2026-04-25T10:55:39.338191", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.37%", "details": {"peak_equity": 1000000.0, "current_equity": 966300.0, "drawdown_percent": 3.37, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.38%
+2026-04-25 10:55:39,338 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.338191, "datetime": "2026-04-25T10:55:39.338191", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.38%", "details": {"peak_equity": 1000000.0, "current_equity": 966200.0, "drawdown_percent": 3.38, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.39%
+2026-04-25 10:55:39,339 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.338191, "datetime": "2026-04-25T10:55:39.338191", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.39%", "details": {"peak_equity": 1000000.0, "current_equity": 966100.0, "drawdown_percent": 3.39, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.40%
+2026-04-25 10:55:39,339 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3397021, "datetime": "2026-04-25T10:55:39.339702", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.40%", "details": {"peak_equity": 1000000.0, "current_equity": 966000.0, "drawdown_percent": 3.4000000000000004, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.41%
+2026-04-25 10:55:39,339 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3397021, "datetime": "2026-04-25T10:55:39.339702", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.41%", "details": {"peak_equity": 1000000.0, "current_equity": 965900.0, "drawdown_percent": 3.4099999999999997, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.42%
+2026-04-25 10:55:39,339 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3397021, "datetime": "2026-04-25T10:55:39.339702", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.42%", "details": {"peak_equity": 1000000.0, "current_equity": 965800.0, "drawdown_percent": 3.42, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.43%
+2026-04-25 10:55:39,339 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3397021, "datetime": "2026-04-25T10:55:39.339702", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.43%", "details": {"peak_equity": 1000000.0, "current_equity": 965700.0, "drawdown_percent": 3.4299999999999997, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.44%
+2026-04-25 10:55:39,339 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3397021, "datetime": "2026-04-25T10:55:39.339702", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.44%", "details": {"peak_equity": 1000000.0, "current_equity": 965600.0, "drawdown_percent": 3.44, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.45%
+2026-04-25 10:55:39,339 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3397021, "datetime": "2026-04-25T10:55:39.339702", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.45%", "details": {"peak_equity": 1000000.0, "current_equity": 965500.0, "drawdown_percent": 3.45, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.46%
+2026-04-25 10:55:39,339 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3397021, "datetime": "2026-04-25T10:55:39.339702", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.46%", "details": {"peak_equity": 1000000.0, "current_equity": 965400.0, "drawdown_percent": 3.46, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.47%
+2026-04-25 10:55:39,340 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.340704, "datetime": "2026-04-25T10:55:39.340704", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.47%", "details": {"peak_equity": 1000000.0, "current_equity": 965300.0, "drawdown_percent": 3.47, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.48%
+2026-04-25 10:55:39,340 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.340704, "datetime": "2026-04-25T10:55:39.340704", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.48%", "details": {"peak_equity": 1000000.0, "current_equity": 965200.0, "drawdown_percent": 3.4799999999999995, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.49%
+2026-04-25 10:55:39,340 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.340704, "datetime": "2026-04-25T10:55:39.340704", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.49%", "details": {"peak_equity": 1000000.0, "current_equity": 965100.0, "drawdown_percent": 3.49, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.50%
+2026-04-25 10:55:39,340 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.340704, "datetime": "2026-04-25T10:55:39.340704", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.50%", "details": {"peak_equity": 1000000.0, "current_equity": 965000.0, "drawdown_percent": 3.5000000000000004, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.51%
+2026-04-25 10:55:39,340 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.340704, "datetime": "2026-04-25T10:55:39.340704", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.51%", "details": {"peak_equity": 1000000.0, "current_equity": 964900.0, "drawdown_percent": 3.51, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.52%
+2026-04-25 10:55:39,340 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.340704, "datetime": "2026-04-25T10:55:39.340704", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.52%", "details": {"peak_equity": 1000000.0, "current_equity": 964800.0, "drawdown_percent": 3.52, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.53%
+2026-04-25 10:55:39,340 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.340704, "datetime": "2026-04-25T10:55:39.340704", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.53%", "details": {"peak_equity": 1000000.0, "current_equity": 964700.0, "drawdown_percent": 3.53, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.54%
+2026-04-25 10:55:39,340 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.340704, "datetime": "2026-04-25T10:55:39.340704", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.54%", "details": {"peak_equity": 1000000.0, "current_equity": 964600.0, "drawdown_percent": 3.54, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.55%
+2026-04-25 10:55:39,340 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.340704, "datetime": "2026-04-25T10:55:39.340704", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.55%", "details": {"peak_equity": 1000000.0, "current_equity": 964500.0, "drawdown_percent": 3.55, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.56%
+2026-04-25 10:55:39,340 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.340704, "datetime": "2026-04-25T10:55:39.340704", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.56%", "details": {"peak_equity": 1000000.0, "current_equity": 964400.0, "drawdown_percent": 3.56, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.57%
+2026-04-25 10:55:39,342 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.340704, "datetime": "2026-04-25T10:55:39.340704", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.57%", "details": {"peak_equity": 1000000.0, "current_equity": 964300.0, "drawdown_percent": 3.5700000000000003, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.58%
+2026-04-25 10:55:39,342 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.342206, "datetime": "2026-04-25T10:55:39.342206", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.58%", "details": {"peak_equity": 1000000.0, "current_equity": 964200.0, "drawdown_percent": 3.58, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.59%
+2026-04-25 10:55:39,342 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.342206, "datetime": "2026-04-25T10:55:39.342206", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.59%", "details": {"peak_equity": 1000000.0, "current_equity": 964100.0, "drawdown_percent": 3.5900000000000003, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.60%
+2026-04-25 10:55:39,342 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.342206, "datetime": "2026-04-25T10:55:39.342206", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.60%", "details": {"peak_equity": 1000000.0, "current_equity": 964000.0, "drawdown_percent": 3.5999999999999996, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.61%
+2026-04-25 10:55:39,342 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.342206, "datetime": "2026-04-25T10:55:39.342206", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.61%", "details": {"peak_equity": 1000000.0, "current_equity": 963900.0, "drawdown_percent": 3.61, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.62%
+2026-04-25 10:55:39,342 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.342206, "datetime": "2026-04-25T10:55:39.342206", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.62%", "details": {"peak_equity": 1000000.0, "current_equity": 963800.0, "drawdown_percent": 3.62, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.63%
+2026-04-25 10:55:39,342 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.342206, "datetime": "2026-04-25T10:55:39.342206", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.63%", "details": {"peak_equity": 1000000.0, "current_equity": 963700.0, "drawdown_percent": 3.63, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.64%
+2026-04-25 10:55:39,343 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.342206, "datetime": "2026-04-25T10:55:39.342206", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.64%", "details": {"peak_equity": 1000000.0, "current_equity": 963600.0, "drawdown_percent": 3.64, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.65%
+2026-04-25 10:55:39,343 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3432086, "datetime": "2026-04-25T10:55:39.343209", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.65%", "details": {"peak_equity": 1000000.0, "current_equity": 963500.0, "drawdown_percent": 3.65, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.66%
+2026-04-25 10:55:39,343 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3432086, "datetime": "2026-04-25T10:55:39.343209", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.66%", "details": {"peak_equity": 1000000.0, "current_equity": 963400.0, "drawdown_percent": 3.66, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.67%
+2026-04-25 10:55:39,343 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3432086, "datetime": "2026-04-25T10:55:39.343209", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.67%", "details": {"peak_equity": 1000000.0, "current_equity": 963300.0, "drawdown_percent": 3.6700000000000004, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.68%
+2026-04-25 10:55:39,343 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3432086, "datetime": "2026-04-25T10:55:39.343209", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.68%", "details": {"peak_equity": 1000000.0, "current_equity": 963200.0, "drawdown_percent": 3.6799999999999997, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.69%
+2026-04-25 10:55:39,343 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3432086, "datetime": "2026-04-25T10:55:39.343209", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.69%", "details": {"peak_equity": 1000000.0, "current_equity": 963100.0, "drawdown_percent": 3.6900000000000004, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.70%
+2026-04-25 10:55:39,343 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3432086, "datetime": "2026-04-25T10:55:39.343209", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.70%", "details": {"peak_equity": 1000000.0, "current_equity": 963000.0, "drawdown_percent": 3.6999999999999997, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.71%
+2026-04-25 10:55:39,344 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3432086, "datetime": "2026-04-25T10:55:39.343209", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.71%", "details": {"peak_equity": 1000000.0, "current_equity": 962900.0, "drawdown_percent": 3.71, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.72%
+2026-04-25 10:55:39,344 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3442085, "datetime": "2026-04-25T10:55:39.344208", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.72%", "details": {"peak_equity": 1000000.0, "current_equity": 962800.0, "drawdown_percent": 3.7199999999999998, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.73%
+2026-04-25 10:55:39,344 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3442085, "datetime": "2026-04-25T10:55:39.344208", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.73%", "details": {"peak_equity": 1000000.0, "current_equity": 962700.0, "drawdown_percent": 3.73, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.74%
+2026-04-25 10:55:39,344 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3442085, "datetime": "2026-04-25T10:55:39.344208", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.74%", "details": {"peak_equity": 1000000.0, "current_equity": 962600.0, "drawdown_percent": 3.74, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.75%
+2026-04-25 10:55:39,344 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3442085, "datetime": "2026-04-25T10:55:39.344208", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.75%", "details": {"peak_equity": 1000000.0, "current_equity": 962500.0, "drawdown_percent": 3.75, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.76%
+2026-04-25 10:55:39,344 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3442085, "datetime": "2026-04-25T10:55:39.344208", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.76%", "details": {"peak_equity": 1000000.0, "current_equity": 962400.0, "drawdown_percent": 3.7600000000000002, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.77%
+2026-04-25 10:55:39,344 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3442085, "datetime": "2026-04-25T10:55:39.344208", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.77%", "details": {"peak_equity": 1000000.0, "current_equity": 962300.0, "drawdown_percent": 3.7699999999999996, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.78%
+2026-04-25 10:55:39,345 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3442085, "datetime": "2026-04-25T10:55:39.344208", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.78%", "details": {"peak_equity": 1000000.0, "current_equity": 962200.0, "drawdown_percent": 3.7800000000000002, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.79%
+2026-04-25 10:55:39,345 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3452084, "datetime": "2026-04-25T10:55:39.345208", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.79%", "details": {"peak_equity": 1000000.0, "current_equity": 962100.0, "drawdown_percent": 3.7900000000000005, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.80%
+2026-04-25 10:55:39,345 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3452084, "datetime": "2026-04-25T10:55:39.345208", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.80%", "details": {"peak_equity": 1000000.0, "current_equity": 962000.0, "drawdown_percent": 3.8, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.81%
+2026-04-25 10:55:39,345 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3452084, "datetime": "2026-04-25T10:55:39.345208", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.81%", "details": {"peak_equity": 1000000.0, "current_equity": 961900.0, "drawdown_percent": 3.81, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.82%
+2026-04-25 10:55:39,345 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3457115, "datetime": "2026-04-25T10:55:39.345711", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.82%", "details": {"peak_equity": 1000000.0, "current_equity": 961800.0, "drawdown_percent": 3.82, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.83%
+2026-04-25 10:55:39,345 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3457115, "datetime": "2026-04-25T10:55:39.345711", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.83%", "details": {"peak_equity": 1000000.0, "current_equity": 961700.0, "drawdown_percent": 3.83, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.84%
+2026-04-25 10:55:39,345 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3457115, "datetime": "2026-04-25T10:55:39.345711", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.84%", "details": {"peak_equity": 1000000.0, "current_equity": 961600.0, "drawdown_percent": 3.84, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.85%
+2026-04-25 10:55:39,345 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3457115, "datetime": "2026-04-25T10:55:39.345711", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.85%", "details": {"peak_equity": 1000000.0, "current_equity": 961500.0, "drawdown_percent": 3.85, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.86%
+2026-04-25 10:55:39,345 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3457115, "datetime": "2026-04-25T10:55:39.345711", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.86%", "details": {"peak_equity": 1000000.0, "current_equity": 961400.0, "drawdown_percent": 3.8600000000000003, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.87%
+2026-04-25 10:55:39,345 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3457115, "datetime": "2026-04-25T10:55:39.345711", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.87%", "details": {"peak_equity": 1000000.0, "current_equity": 961300.0, "drawdown_percent": 3.8699999999999997, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.88%
+2026-04-25 10:55:39,345 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3457115, "datetime": "2026-04-25T10:55:39.345711", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.88%", "details": {"peak_equity": 1000000.0, "current_equity": 961200.0, "drawdown_percent": 3.88, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.89%
+2026-04-25 10:55:39,346 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3457115, "datetime": "2026-04-25T10:55:39.345711", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.89%", "details": {"peak_equity": 1000000.0, "current_equity": 961100.0, "drawdown_percent": 3.8899999999999997, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.90%
+2026-04-25 10:55:39,346 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.346712, "datetime": "2026-04-25T10:55:39.346712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.90%", "details": {"peak_equity": 1000000.0, "current_equity": 961000.0, "drawdown_percent": 3.9, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.91%
+2026-04-25 10:55:39,346 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.346712, "datetime": "2026-04-25T10:55:39.346712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.91%", "details": {"peak_equity": 1000000.0, "current_equity": 960900.0, "drawdown_percent": 3.91, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.92%
+2026-04-25 10:55:39,346 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.346712, "datetime": "2026-04-25T10:55:39.346712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.92%", "details": {"peak_equity": 1000000.0, "current_equity": 960800.0, "drawdown_percent": 3.92, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.93%
+2026-04-25 10:55:39,346 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.346712, "datetime": "2026-04-25T10:55:39.346712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.93%", "details": {"peak_equity": 1000000.0, "current_equity": 960700.0, "drawdown_percent": 3.93, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.94%
+2026-04-25 10:55:39,346 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.346712, "datetime": "2026-04-25T10:55:39.346712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.94%", "details": {"peak_equity": 1000000.0, "current_equity": 960600.0, "drawdown_percent": 3.94, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.95%
+2026-04-25 10:55:39,346 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.346712, "datetime": "2026-04-25T10:55:39.346712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.95%", "details": {"peak_equity": 1000000.0, "current_equity": 960500.0, "drawdown_percent": 3.95, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.96%
+2026-04-25 10:55:39,347 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.346712, "datetime": "2026-04-25T10:55:39.346712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.96%", "details": {"peak_equity": 1000000.0, "current_equity": 960400.0, "drawdown_percent": 3.9600000000000004, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.97%
+2026-04-25 10:55:39,347 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.347712, "datetime": "2026-04-25T10:55:39.347712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.97%", "details": {"peak_equity": 1000000.0, "current_equity": 960300.0, "drawdown_percent": 3.9699999999999998, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.98%
+2026-04-25 10:55:39,347 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.347712, "datetime": "2026-04-25T10:55:39.347712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.98%", "details": {"peak_equity": 1000000.0, "current_equity": 960200.0, "drawdown_percent": 3.9800000000000004, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.99%
+2026-04-25 10:55:39,347 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.347712, "datetime": "2026-04-25T10:55:39.347712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.99%", "details": {"peak_equity": 1000000.0, "current_equity": 960100.0, "drawdown_percent": 3.9899999999999998, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.00%
+2026-04-25 10:55:39,347 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.347712, "datetime": "2026-04-25T10:55:39.347712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.00%", "details": {"peak_equity": 1000000.0, "current_equity": 960000.0, "drawdown_percent": 4.0, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.01%
+2026-04-25 10:55:39,347 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.347712, "datetime": "2026-04-25T10:55:39.347712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.01%", "details": {"peak_equity": 1000000.0, "current_equity": 959900.0, "drawdown_percent": 4.01, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.02%
+2026-04-25 10:55:39,347 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.347712, "datetime": "2026-04-25T10:55:39.347712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.02%", "details": {"peak_equity": 1000000.0, "current_equity": 959800.0, "drawdown_percent": 4.02, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.03%
+2026-04-25 10:55:39,348 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.347712, "datetime": "2026-04-25T10:55:39.347712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.03%", "details": {"peak_equity": 1000000.0, "current_equity": 959700.0, "drawdown_percent": 4.03, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.04%
+2026-04-25 10:55:39,348 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3487122, "datetime": "2026-04-25T10:55:39.348712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.04%", "details": {"peak_equity": 1000000.0, "current_equity": 959600.0, "drawdown_percent": 4.04, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.05%
+2026-04-25 10:55:39,348 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3487122, "datetime": "2026-04-25T10:55:39.348712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.05%", "details": {"peak_equity": 1000000.0, "current_equity": 959500.0, "drawdown_percent": 4.05, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.06%
+2026-04-25 10:55:39,348 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3487122, "datetime": "2026-04-25T10:55:39.348712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.06%", "details": {"peak_equity": 1000000.0, "current_equity": 959400.0, "drawdown_percent": 4.06, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.07%
+2026-04-25 10:55:39,349 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3487122, "datetime": "2026-04-25T10:55:39.348712", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.07%", "details": {"peak_equity": 1000000.0, "current_equity": 959300.0, "drawdown_percent": 4.07, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.08%
+2026-04-25 10:55:39,349 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3492148, "datetime": "2026-04-25T10:55:39.349215", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.08%", "details": {"peak_equity": 1000000.0, "current_equity": 959200.0, "drawdown_percent": 4.08, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.09%
+2026-04-25 10:55:39,349 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3492148, "datetime": "2026-04-25T10:55:39.349215", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.09%", "details": {"peak_equity": 1000000.0, "current_equity": 959100.0, "drawdown_percent": 4.09, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.10%
+2026-04-25 10:55:39,349 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3492148, "datetime": "2026-04-25T10:55:39.349215", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.10%", "details": {"peak_equity": 1000000.0, "current_equity": 959000.0, "drawdown_percent": 4.1000000000000005, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.11%
+2026-04-25 10:55:39,349 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3497162, "datetime": "2026-04-25T10:55:39.349716", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.11%", "details": {"peak_equity": 1000000.0, "current_equity": 958900.0, "drawdown_percent": 4.109999999999999, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.12%
+2026-04-25 10:55:39,349 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3497162, "datetime": "2026-04-25T10:55:39.349716", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.12%", "details": {"peak_equity": 1000000.0, "current_equity": 958800.0, "drawdown_percent": 4.12, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.13%
+2026-04-25 10:55:39,349 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3497162, "datetime": "2026-04-25T10:55:39.349716", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.13%", "details": {"peak_equity": 1000000.0, "current_equity": 958700.0, "drawdown_percent": 4.130000000000001, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.14%
+2026-04-25 10:55:39,349 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3497162, "datetime": "2026-04-25T10:55:39.349716", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.14%", "details": {"peak_equity": 1000000.0, "current_equity": 958600.0, "drawdown_percent": 4.14, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.15%
+2026-04-25 10:55:39,349 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3497162, "datetime": "2026-04-25T10:55:39.349716", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.15%", "details": {"peak_equity": 1000000.0, "current_equity": 958500.0, "drawdown_percent": 4.15, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.16%
+2026-04-25 10:55:39,349 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3497162, "datetime": "2026-04-25T10:55:39.349716", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.16%", "details": {"peak_equity": 1000000.0, "current_equity": 958400.0, "drawdown_percent": 4.16, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.17%
+2026-04-25 10:55:39,349 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3497162, "datetime": "2026-04-25T10:55:39.349716", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.17%", "details": {"peak_equity": 1000000.0, "current_equity": 958300.0, "drawdown_percent": 4.17, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.18%
+2026-04-25 10:55:39,350 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3497162, "datetime": "2026-04-25T10:55:39.349716", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.18%", "details": {"peak_equity": 1000000.0, "current_equity": 958200.0, "drawdown_percent": 4.18, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.19%
+2026-04-25 10:55:39,350 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3507187, "datetime": "2026-04-25T10:55:39.350719", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.19%", "details": {"peak_equity": 1000000.0, "current_equity": 958100.0, "drawdown_percent": 4.19, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.20%
+2026-04-25 10:55:39,350 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3507187, "datetime": "2026-04-25T10:55:39.350719", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.20%", "details": {"peak_equity": 1000000.0, "current_equity": 958000.0, "drawdown_percent": 4.2, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.21%
+2026-04-25 10:55:39,350 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3507187, "datetime": "2026-04-25T10:55:39.350719", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.21%", "details": {"peak_equity": 1000000.0, "current_equity": 957900.0, "drawdown_percent": 4.21, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.22%
+2026-04-25 10:55:39,350 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3507187, "datetime": "2026-04-25T10:55:39.350719", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.22%", "details": {"peak_equity": 1000000.0, "current_equity": 957800.0, "drawdown_percent": 4.22, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.23%
+2026-04-25 10:55:39,350 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3507187, "datetime": "2026-04-25T10:55:39.350719", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.23%", "details": {"peak_equity": 1000000.0, "current_equity": 957700.0, "drawdown_percent": 4.2299999999999995, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.24%
+2026-04-25 10:55:39,350 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3507187, "datetime": "2026-04-25T10:55:39.350719", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.24%", "details": {"peak_equity": 1000000.0, "current_equity": 957600.0, "drawdown_percent": 4.24, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.25%
+2026-04-25 10:55:39,350 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3507187, "datetime": "2026-04-25T10:55:39.350719", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.25%", "details": {"peak_equity": 1000000.0, "current_equity": 957500.0, "drawdown_percent": 4.25, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.26%
+2026-04-25 10:55:39,350 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3507187, "datetime": "2026-04-25T10:55:39.350719", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.26%", "details": {"peak_equity": 1000000.0, "current_equity": 957400.0, "drawdown_percent": 4.26, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.27%
+2026-04-25 10:55:39,352 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3507187, "datetime": "2026-04-25T10:55:39.350719", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.27%", "details": {"peak_equity": 1000000.0, "current_equity": 957300.0, "drawdown_percent": 4.2700000000000005, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.28%
+2026-04-25 10:55:39,352 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3522213, "datetime": "2026-04-25T10:55:39.352221", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.28%", "details": {"peak_equity": 1000000.0, "current_equity": 957200.0, "drawdown_percent": 4.279999999999999, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.29%
+2026-04-25 10:55:39,352 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3522213, "datetime": "2026-04-25T10:55:39.352221", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.29%", "details": {"peak_equity": 1000000.0, "current_equity": 957100.0, "drawdown_percent": 4.29, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.30%
+2026-04-25 10:55:39,352 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3522213, "datetime": "2026-04-25T10:55:39.352221", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.30%", "details": {"peak_equity": 1000000.0, "current_equity": 957000.0, "drawdown_percent": 4.3, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.31%
+2026-04-25 10:55:39,352 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3522213, "datetime": "2026-04-25T10:55:39.352221", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.31%", "details": {"peak_equity": 1000000.0, "current_equity": 956900.0, "drawdown_percent": 4.31, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.32%
+2026-04-25 10:55:39,352 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3522213, "datetime": "2026-04-25T10:55:39.352221", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.32%", "details": {"peak_equity": 1000000.0, "current_equity": 956800.0, "drawdown_percent": 4.32, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.33%
+2026-04-25 10:55:39,353 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3522213, "datetime": "2026-04-25T10:55:39.352221", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.33%", "details": {"peak_equity": 1000000.0, "current_equity": 956700.0, "drawdown_percent": 4.33, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.34%
+2026-04-25 10:55:39,353 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3532236, "datetime": "2026-04-25T10:55:39.353224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.34%", "details": {"peak_equity": 1000000.0, "current_equity": 956600.0, "drawdown_percent": 4.34, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.35%
+2026-04-25 10:55:39,353 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3532236, "datetime": "2026-04-25T10:55:39.353224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.35%", "details": {"peak_equity": 1000000.0, "current_equity": 956500.0, "drawdown_percent": 4.35, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.36%
+2026-04-25 10:55:39,353 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3532236, "datetime": "2026-04-25T10:55:39.353224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.36%", "details": {"peak_equity": 1000000.0, "current_equity": 956400.0, "drawdown_percent": 4.36, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.37%
+2026-04-25 10:55:39,353 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3532236, "datetime": "2026-04-25T10:55:39.353224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.37%", "details": {"peak_equity": 1000000.0, "current_equity": 956300.0, "drawdown_percent": 4.37, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.38%
+2026-04-25 10:55:39,353 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3532236, "datetime": "2026-04-25T10:55:39.353224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.38%", "details": {"peak_equity": 1000000.0, "current_equity": 956200.0, "drawdown_percent": 4.38, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.39%
+2026-04-25 10:55:39,353 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3532236, "datetime": "2026-04-25T10:55:39.353224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.39%", "details": {"peak_equity": 1000000.0, "current_equity": 956100.0, "drawdown_percent": 4.390000000000001, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.40%
+2026-04-25 10:55:39,354 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3532236, "datetime": "2026-04-25T10:55:39.353224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.40%", "details": {"peak_equity": 1000000.0, "current_equity": 956000.0, "drawdown_percent": 4.3999999999999995, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.41%
+2026-04-25 10:55:39,354 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3542237, "datetime": "2026-04-25T10:55:39.354224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.41%", "details": {"peak_equity": 1000000.0, "current_equity": 955900.0, "drawdown_percent": 4.41, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.42%
+2026-04-25 10:55:39,354 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3542237, "datetime": "2026-04-25T10:55:39.354224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.42%", "details": {"peak_equity": 1000000.0, "current_equity": 955800.0, "drawdown_percent": 4.42, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.43%
+2026-04-25 10:55:39,354 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3542237, "datetime": "2026-04-25T10:55:39.354224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.43%", "details": {"peak_equity": 1000000.0, "current_equity": 955700.0, "drawdown_percent": 4.43, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.44%
+2026-04-25 10:55:39,354 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3542237, "datetime": "2026-04-25T10:55:39.354224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.44%", "details": {"peak_equity": 1000000.0, "current_equity": 955600.0, "drawdown_percent": 4.44, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.45%
+2026-04-25 10:55:39,354 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3542237, "datetime": "2026-04-25T10:55:39.354224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.45%", "details": {"peak_equity": 1000000.0, "current_equity": 955500.0, "drawdown_percent": 4.45, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.46%
+2026-04-25 10:55:39,354 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3542237, "datetime": "2026-04-25T10:55:39.354224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.46%", "details": {"peak_equity": 1000000.0, "current_equity": 955400.0, "drawdown_percent": 4.46, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.47%
+2026-04-25 10:55:39,355 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3542237, "datetime": "2026-04-25T10:55:39.354224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.47%", "details": {"peak_equity": 1000000.0, "current_equity": 955300.0, "drawdown_percent": 4.47, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.48%
+2026-04-25 10:55:39,355 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.355224, "datetime": "2026-04-25T10:55:39.355224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.48%", "details": {"peak_equity": 1000000.0, "current_equity": 955200.0, "drawdown_percent": 4.4799999999999995, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.49%
+2026-04-25 10:55:39,355 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.355224, "datetime": "2026-04-25T10:55:39.355224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.49%", "details": {"peak_equity": 1000000.0, "current_equity": 955100.0, "drawdown_percent": 4.49, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.50%
+2026-04-25 10:55:39,355 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.355224, "datetime": "2026-04-25T10:55:39.355224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.50%", "details": {"peak_equity": 1000000.0, "current_equity": 955000.0, "drawdown_percent": 4.5, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.51%
+2026-04-25 10:55:39,355 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.355224, "datetime": "2026-04-25T10:55:39.355224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.51%", "details": {"peak_equity": 1000000.0, "current_equity": 954900.0, "drawdown_percent": 4.51, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.52%
+2026-04-25 10:55:39,355 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.355224, "datetime": "2026-04-25T10:55:39.355224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.52%", "details": {"peak_equity": 1000000.0, "current_equity": 954800.0, "drawdown_percent": 4.52, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.53%
+2026-04-25 10:55:39,355 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.355224, "datetime": "2026-04-25T10:55:39.355224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.53%", "details": {"peak_equity": 1000000.0, "current_equity": 954700.0, "drawdown_percent": 4.53, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.54%
+2026-04-25 10:55:39,355 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.355224, "datetime": "2026-04-25T10:55:39.355224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.54%", "details": {"peak_equity": 1000000.0, "current_equity": 954600.0, "drawdown_percent": 4.54, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.55%
+2026-04-25 10:55:39,356 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.355224, "datetime": "2026-04-25T10:55:39.355224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.55%", "details": {"peak_equity": 1000000.0, "current_equity": 954500.0, "drawdown_percent": 4.55, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.56%
+2026-04-25 10:55:39,356 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3562236, "datetime": "2026-04-25T10:55:39.356224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.56%", "details": {"peak_equity": 1000000.0, "current_equity": 954400.0, "drawdown_percent": 4.5600000000000005, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.57%
+2026-04-25 10:55:39,356 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3562236, "datetime": "2026-04-25T10:55:39.356224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.57%", "details": {"peak_equity": 1000000.0, "current_equity": 954300.0, "drawdown_percent": 4.569999999999999, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.58%
+2026-04-25 10:55:39,356 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3562236, "datetime": "2026-04-25T10:55:39.356224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.58%", "details": {"peak_equity": 1000000.0, "current_equity": 954200.0, "drawdown_percent": 4.58, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.59%
+2026-04-25 10:55:39,356 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3562236, "datetime": "2026-04-25T10:55:39.356224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.59%", "details": {"peak_equity": 1000000.0, "current_equity": 954100.0, "drawdown_percent": 4.590000000000001, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.60%
+2026-04-25 10:55:39,356 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3562236, "datetime": "2026-04-25T10:55:39.356224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.60%", "details": {"peak_equity": 1000000.0, "current_equity": 954000.0, "drawdown_percent": 4.6, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.61%
+2026-04-25 10:55:39,356 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3562236, "datetime": "2026-04-25T10:55:39.356224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.61%", "details": {"peak_equity": 1000000.0, "current_equity": 953900.0, "drawdown_percent": 4.61, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.62%
+2026-04-25 10:55:39,357 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3562236, "datetime": "2026-04-25T10:55:39.356224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.62%", "details": {"peak_equity": 1000000.0, "current_equity": 953800.0, "drawdown_percent": 4.62, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.63%
+2026-04-25 10:55:39,357 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3572235, "datetime": "2026-04-25T10:55:39.357224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.63%", "details": {"peak_equity": 1000000.0, "current_equity": 953700.0, "drawdown_percent": 4.63, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.64%
+2026-04-25 10:55:39,357 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3572235, "datetime": "2026-04-25T10:55:39.357224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.64%", "details": {"peak_equity": 1000000.0, "current_equity": 953600.0, "drawdown_percent": 4.64, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.65%
+2026-04-25 10:55:39,357 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3572235, "datetime": "2026-04-25T10:55:39.357224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.65%", "details": {"peak_equity": 1000000.0, "current_equity": 953500.0, "drawdown_percent": 4.65, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.66%
+2026-04-25 10:55:39,357 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3572235, "datetime": "2026-04-25T10:55:39.357224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.66%", "details": {"peak_equity": 1000000.0, "current_equity": 953400.0, "drawdown_percent": 4.66, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.67%
+2026-04-25 10:55:39,357 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3572235, "datetime": "2026-04-25T10:55:39.357224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.67%", "details": {"peak_equity": 1000000.0, "current_equity": 953300.0, "drawdown_percent": 4.67, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.68%
+2026-04-25 10:55:39,357 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3572235, "datetime": "2026-04-25T10:55:39.357224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.68%", "details": {"peak_equity": 1000000.0, "current_equity": 953200.0, "drawdown_percent": 4.68, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.69%
+2026-04-25 10:55:39,357 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3572235, "datetime": "2026-04-25T10:55:39.357224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.69%", "details": {"peak_equity": 1000000.0, "current_equity": 953100.0, "drawdown_percent": 4.6899999999999995, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.70%
+2026-04-25 10:55:39,357 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3572235, "datetime": "2026-04-25T10:55:39.357224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.70%", "details": {"peak_equity": 1000000.0, "current_equity": 953000.0, "drawdown_percent": 4.7, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.71%
+2026-04-25 10:55:39,357 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3572235, "datetime": "2026-04-25T10:55:39.357224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.71%", "details": {"peak_equity": 1000000.0, "current_equity": 952900.0, "drawdown_percent": 4.71, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.72%
+2026-04-25 10:55:39,358 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3572235, "datetime": "2026-04-25T10:55:39.357224", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.72%", "details": {"peak_equity": 1000000.0, "current_equity": 952800.0, "drawdown_percent": 4.72, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.73%
+2026-04-25 10:55:39,358 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3585994, "datetime": "2026-04-25T10:55:39.358599", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.73%", "details": {"peak_equity": 1000000.0, "current_equity": 952700.0, "drawdown_percent": 4.73, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.74%
+2026-04-25 10:55:39,358 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3585994, "datetime": "2026-04-25T10:55:39.358599", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.74%", "details": {"peak_equity": 1000000.0, "current_equity": 952600.0, "drawdown_percent": 4.74, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.75%
+2026-04-25 10:55:39,358 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3585994, "datetime": "2026-04-25T10:55:39.358599", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.75%", "details": {"peak_equity": 1000000.0, "current_equity": 952500.0, "drawdown_percent": 4.75, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.76%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3591018, "datetime": "2026-04-25T10:55:39.359102", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.76%", "details": {"peak_equity": 1000000.0, "current_equity": 952400.0, "drawdown_percent": 4.760000000000001, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.77%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3591018, "datetime": "2026-04-25T10:55:39.359102", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.77%", "details": {"peak_equity": 1000000.0, "current_equity": 952300.0, "drawdown_percent": 4.77, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.78%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3591018, "datetime": "2026-04-25T10:55:39.359102", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.78%", "details": {"peak_equity": 1000000.0, "current_equity": 952200.0, "drawdown_percent": 4.78, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.79%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3591018, "datetime": "2026-04-25T10:55:39.359102", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.79%", "details": {"peak_equity": 1000000.0, "current_equity": 952100.0, "drawdown_percent": 4.79, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.80%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3596513, "datetime": "2026-04-25T10:55:39.359651", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.80%", "details": {"peak_equity": 1000000.0, "current_equity": 952000.0, "drawdown_percent": 4.8, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.81%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3596513, "datetime": "2026-04-25T10:55:39.359651", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.81%", "details": {"peak_equity": 1000000.0, "current_equity": 951900.0, "drawdown_percent": 4.81, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.82%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3596513, "datetime": "2026-04-25T10:55:39.359651", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.82%", "details": {"peak_equity": 1000000.0, "current_equity": 951800.0, "drawdown_percent": 4.82, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.83%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3596513, "datetime": "2026-04-25T10:55:39.359651", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.83%", "details": {"peak_equity": 1000000.0, "current_equity": 951700.0, "drawdown_percent": 4.83, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.84%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3596513, "datetime": "2026-04-25T10:55:39.359651", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.84%", "details": {"peak_equity": 1000000.0, "current_equity": 951600.0, "drawdown_percent": 4.84, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.85%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3596513, "datetime": "2026-04-25T10:55:39.359651", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.85%", "details": {"peak_equity": 1000000.0, "current_equity": 951500.0, "drawdown_percent": 4.8500000000000005, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.86%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3596513, "datetime": "2026-04-25T10:55:39.359651", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.86%", "details": {"peak_equity": 1000000.0, "current_equity": 951400.0, "drawdown_percent": 4.859999999999999, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.87%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3596513, "datetime": "2026-04-25T10:55:39.359651", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.87%", "details": {"peak_equity": 1000000.0, "current_equity": 951300.0, "drawdown_percent": 4.87, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.88%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3596513, "datetime": "2026-04-25T10:55:39.359651", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.88%", "details": {"peak_equity": 1000000.0, "current_equity": 951200.0, "drawdown_percent": 4.88, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.89%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3596513, "datetime": "2026-04-25T10:55:39.359651", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.89%", "details": {"peak_equity": 1000000.0, "current_equity": 951100.0, "drawdown_percent": 4.89, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.90%
+2026-04-25 10:55:39,359 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3596513, "datetime": "2026-04-25T10:55:39.359651", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.90%", "details": {"peak_equity": 1000000.0, "current_equity": 951000.0, "drawdown_percent": 4.9, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.91%
+2026-04-25 10:55:39,361 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.361159, "datetime": "2026-04-25T10:55:39.361159", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.91%", "details": {"peak_equity": 1000000.0, "current_equity": 950900.0, "drawdown_percent": 4.91, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.92%
+2026-04-25 10:55:39,361 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.361159, "datetime": "2026-04-25T10:55:39.361159", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.92%", "details": {"peak_equity": 1000000.0, "current_equity": 950800.0, "drawdown_percent": 4.92, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.93%
+2026-04-25 10:55:39,361 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.361159, "datetime": "2026-04-25T10:55:39.361159", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.93%", "details": {"peak_equity": 1000000.0, "current_equity": 950700.0, "drawdown_percent": 4.93, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.94%
+2026-04-25 10:55:39,361 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.361159, "datetime": "2026-04-25T10:55:39.361159", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.94%", "details": {"peak_equity": 1000000.0, "current_equity": 950600.0, "drawdown_percent": 4.9399999999999995, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.95%
+2026-04-25 10:55:39,361 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.361159, "datetime": "2026-04-25T10:55:39.361159", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.95%", "details": {"peak_equity": 1000000.0, "current_equity": 950500.0, "drawdown_percent": 4.95, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.96%
+2026-04-25 10:55:39,361 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.361159, "datetime": "2026-04-25T10:55:39.361159", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.96%", "details": {"peak_equity": 1000000.0, "current_equity": 950400.0, "drawdown_percent": 4.96, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.97%
+2026-04-25 10:55:39,361 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.361159, "datetime": "2026-04-25T10:55:39.361159", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.97%", "details": {"peak_equity": 1000000.0, "current_equity": 950300.0, "drawdown_percent": 4.97, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.98%
+2026-04-25 10:55:39,361 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.361159, "datetime": "2026-04-25T10:55:39.361159", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.98%", "details": {"peak_equity": 1000000.0, "current_equity": 950200.0, "drawdown_percent": 4.9799999999999995, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 4.99%
+2026-04-25 10:55:39,361 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.361159, "datetime": "2026-04-25T10:55:39.361159", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 4.99%", "details": {"peak_equity": 1000000.0, "current_equity": 950100.0, "drawdown_percent": 4.99, "warning_threshold": 3.0}}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 净值回撤超过阈值: 当前回撤 5.00% > 阈值 5.0%
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"peak_equity": 1000000.0, "current_equity": 950000.0, "drawdown_percent": 5.0, "threshold_percent": 5.0}
+2026-04-25 10:55:39,361 - CRITICAL - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.361159, "datetime": "2026-04-25T10:55:39.361159", "level": "CRITICAL", "message": "净值回撤超过阈值: 当前回撤 5.00% > 阈值 5.0%", "details": {"peak_equity": 1000000.0, "current_equity": 950000.0, "drawdown_percent": 5.0, "threshold_percent": 5.0}}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 净值回撤超过 5.0%
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"reason": "净值回撤超过 5.0%", "timestamp": 1777085739.362666}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 净值回撤超过阈值: 当前回撤 10.00% > 阈值 5.0%
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"peak_equity": 1000000.0, "current_equity": 900000.0, "drawdown_percent": 10.0, "threshold_percent": 5.0}
+2026-04-25 10:55:39,375 - CRITICAL - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085739.3752005, "datetime": "2026-04-25T10:55:39.375201", "level": "CRITICAL", "message": "净值回撤超过阈值: 当前回撤 10.00% > 阈值 5.0%", "details": {"peak_equity": 1000000.0, "current_equity": 900000.0, "drawdown_percent": 10.0, "threshold_percent": 5.0}}
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 净值回撤超过 5.0%
+[2026-04-25 10:55:39] [risk_manager] [CRITICAL]    详情: {"reason": "净值回撤超过 5.0%", "timestamp": 1777085739.3752005}
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 净值回撤超过阈值: 当前回撤 6.00% > 阈值 5.0%
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL]    详情: {"peak_equity": 1000000.0, "current_equity": 940000.0, "drawdown_percent": 6.0, "threshold_percent": 5.0}
+2026-04-25 10:55:45,469 - CRITICAL - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085745.4682813, "datetime": "2026-04-25T10:55:45.468281", "level": "CRITICAL", "message": "净值回撤超过阈值: 当前回撤 6.00% > 阈值 5.0%", "details": {"peak_equity": 1000000.0, "current_equity": 940000.0, "drawdown_percent": 6.0, "threshold_percent": 5.0}}
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 净值回撤超过 5.0%
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL]    详情: {"reason": "净值回撤超过 5.0%", "timestamp": 1777085745.4693143}
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 净值回撤超过阈值: 当前回撤 6.00% > 阈值 5.0%
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL]    详情: {"peak_equity": 1000000.0, "current_equity": 940000.0, "drawdown_percent": 6.0, "threshold_percent": 5.0}
+2026-04-25 10:55:45,476 - CRITICAL - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085745.4744656, "datetime": "2026-04-25T10:55:45.474466", "level": "CRITICAL", "message": "净值回撤超过阈值: 当前回撤 6.00% > 阈值 5.0%", "details": {"peak_equity": 1000000.0, "current_equity": 940000.0, "drawdown_percent": 6.0, "threshold_percent": 5.0}}
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 净值回撤超过 5.0%
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL]    详情: {"reason": "净值回撤超过 5.0%", "timestamp": 1777085745.4770052}
+[2026-04-25 10:55:45] [risk_manager] [WARNING] 📉 [DRAWDOWN_EXCEEDED] 净值回撤接近阈值: 当前回撤 3.50%
+2026-04-25 10:55:45,525 - WARNING - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085745.524218, "datetime": "2026-04-25T10:55:45.524218", "level": "WARNING", "message": "净值回撤接近阈值: 当前回撤 3.50%", "details": {"peak_equity": 1000000.0, "current_equity": 965000.0, "drawdown_percent": 3.5000000000000004, "warning_threshold": 3.0}}
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 紧急停止: 测试紧急停止
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL]    详情: {"reason": "紧急停止: 测试紧急停止", "timestamp": 1777085745.539333}
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 净值回撤超过阈值: 当前回撤 5.00% > 阈值 5.0%
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL]    详情: {"peak_equity": 1000000.0, "current_equity": 950000.0, "drawdown_percent": 5.0, "threshold_percent": 5.0}
+2026-04-25 10:55:45,556 - CRITICAL - {"event_type": "DRAWDOWN_EXCEEDED", "timestamp": 1777085745.5568945, "datetime": "2026-04-25T10:55:45.556895", "level": "CRITICAL", "message": "净值回撤超过阈值: 当前回撤 5.00% > 阈值 5.0%", "details": {"peak_equity": 1000000.0, "current_equity": 950000.0, "drawdown_percent": 5.0, "threshold_percent": 5.0}}
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 净值回撤超过 5.0%
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL]    详情: {"reason": "净值回撤超过 5.0%", "timestamp": 1777085745.5568945}
+[2026-04-25 10:55:45] [risk_manager] [WARNING] ⚠️ [STRATEGY_MARGIN_EXCEEDED] 策略 [StrategyA] 保证金接近阈值: 25.00%
+2026-04-25 10:55:45,570 - WARNING - {"event_type": "STRATEGY_MARGIN_EXCEEDED", "timestamp": 1777085745.569497, "datetime": "2026-04-25T10:55:45.569497", "level": "WARNING", "message": "策略 [StrategyA] 保证金接近阈值: 25.00%", "details": {"strategy_name": "StrategyA", "margin_used": 200000.0, "margin_percent": 25.0, "warning_threshold": 21.0}}
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL] ⚠️ [STRATEGY_MARGIN_EXCEEDED] 策略 [StrategyA] 保证金超过阈值: 40.00% > 30.0%
+[2026-04-25 10:55:45] [risk_manager] [CRITICAL]    详情: {"strategy_name": "StrategyA", "margin_used": 200000.0, "total_asset": 500000.0, "margin_percent": 40.0, "threshold_percent": 30.0}
+2026-04-25 10:55:45,570 - CRITICAL - {"event_type": "STRATEGY_MARGIN_EXCEEDED", "timestamp": 1777085745.5700111, "datetime": "2026-04-25T10:55:45.570011", "level": "CRITICAL", "message": "策略 [StrategyA] 保证金超过阈值: 40.00% > 30.0%", "details": {"strategy_name": "StrategyA", "margin_used": 200000.0, "total_asset": 500000.0, "margin_percent": 40.0, "threshold_percent": 30.0}}
+[2026-04-25 10:57:42] [risk_manager] [WARNING] 🚧 [PRICE_DEVIATION_BLOCKED] 订单价格偏离拦截: 价格偏离超过阈值: 偏离 1.43% > 阈值 1.0%
+2026-04-25 10:57:42,705 - WARNING - {"event_type": "PRICE_DEVIATION_BLOCKED", "timestamp": 1777085862.7044818, "datetime": "2026-04-25T10:57:42.704482", "level": "WARNING", "message": "订单价格偏离拦截: 价格偏离超过阈值: 偏离 1.43% > 阈值 1.0%", "details": {"strategy_name": "TestStrategy", "contract": "SHFE.rb2410", "order_price": 3550.0, "current_price": 3500.0, "deviation_percent": 1.4285714285714286, "threshold_percent": 1.0}}
+[2026-04-25 10:57:42] [risk_manager] [WARNING] 💸 [DAILY_LOSS_EXCEEDED] 日亏损接近限额: 当前亏损 1.50%
+2026-04-25 10:57:42,705 - WARNING - {"event_type": "DAILY_LOSS_EXCEEDED", "timestamp": 1777085862.7055168, "datetime": "2026-04-25T10:57:42.705517", "level": "WARNING", "message": "日亏损接近限额: 当前亏损 1.50%", "details": {"daily_start_equity": 1000000.0, "current_equity": 985000.0, "daily_loss_amount": 15000.0, "daily_loss_percent": 1.5, "warning_threshold": 1.4}}
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL] 💸 [DAILY_LOSS_EXCEEDED] 日亏损超过限额: 当前亏损 2.00% > 限额 2.0%
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL]    详情: {"daily_start_equity": 1000000.0, "current_equity": 980000.0, "daily_loss_amount": 20000.0, "daily_loss_percent": 2.0, "limit_percent": 2.0}
+2026-04-25 10:57:42,705 - CRITICAL - {"event_type": "DAILY_LOSS_EXCEEDED", "timestamp": 1777085862.7055168, "datetime": "2026-04-25T10:57:42.705517", "level": "CRITICAL", "message": "日亏损超过限额: 当前亏损 2.00% > 限额 2.0%", "details": {"daily_start_equity": 1000000.0, "current_equity": 980000.0, "daily_loss_amount": 20000.0, "daily_loss_percent": 2.0, "limit_percent": 2.0}}
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 日亏损超过 2.0%
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL]    详情: {"reason": "日亏损超过 2.0%", "timestamp": 1777085862.7055168}
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL] 💸 [DAILY_LOSS_EXCEEDED] 日亏损超过限额: 当前亏损 3.00% > 限额 2.0%
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL]    详情: {"daily_start_equity": 1000000.0, "current_equity": 970000.0, "daily_loss_amount": 30000.0, "daily_loss_percent": 3.0, "limit_percent": 2.0}
+2026-04-25 10:57:42,708 - CRITICAL - {"event_type": "DAILY_LOSS_EXCEEDED", "timestamp": 1777085862.7080588, "datetime": "2026-04-25T10:57:42.708059", "level": "CRITICAL", "message": "日亏损超过限额: 当前亏损 3.00% > 限额 2.0%", "details": {"daily_start_equity": 1000000.0, "current_equity": 970000.0, "daily_loss_amount": 30000.0, "daily_loss_percent": 3.0, "limit_percent": 2.0}}
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 日亏损超过 2.0%
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL]    详情: {"reason": "日亏损超过 2.0%", "timestamp": 1777085862.7080588}
+[2026-04-25 10:57:42] [risk_manager] [WARNING] 📉📉📉 [CONSECUTIVE_LOSS_EXCEEDED] 策略 [TestStrategy] 连续亏损 5 次，超过限制 5 次
+2026-04-25 10:57:42,711 - WARNING - {"event_type": "CONSECUTIVE_LOSS_EXCEEDED", "timestamp": 1777085862.711046, "datetime": "2026-04-25T10:57:42.711046", "level": "WARNING", "message": "策略 [TestStrategy] 连续亏损 5 次，超过限制 5 次", "details": {"strategy_name": "TestStrategy", "consecutive_losses": 5, "limit": 5}}
+[2026-04-25 10:57:42] [risk_manager] [WARNING] ⏸️ [STRATEGY_PAUSED] 策略 [TestStrategy] 已暂停
+2026-04-25 10:57:42,712 - WARNING - {"event_type": "STRATEGY_PAUSED", "timestamp": 1777085862.711046, "datetime": "2026-04-25T10:57:42.711046", "level": "WARNING", "message": "策略 [TestStrategy] 已暂停", "details": {"strategy_name": "TestStrategy", "reason": "连续亏损 5 次"}}
+[2026-04-25 10:57:42] [risk_manager] [WARNING] 📉📉📉 [CONSECUTIVE_LOSS_EXCEEDED] 策略 [TestStrategy] 连续亏损 6 次，超过限制 5 次
+2026-04-25 10:57:42,712 - WARNING - {"event_type": "CONSECUTIVE_LOSS_EXCEEDED", "timestamp": 1777085862.712042, "datetime": "2026-04-25T10:57:42.712042", "level": "WARNING", "message": "策略 [TestStrategy] 连续亏损 6 次，超过限制 5 次", "details": {"strategy_name": "TestStrategy", "consecutive_losses": 6, "limit": 5}}
+[2026-04-25 10:57:42] [risk_manager] [WARNING] ⏸️ [STRATEGY_PAUSED] 策略 [TestStrategy] 已暂停
+2026-04-25 10:57:42,712 - WARNING - {"event_type": "STRATEGY_PAUSED", "timestamp": 1777085862.712042, "datetime": "2026-04-25T10:57:42.712042", "level": "WARNING", "message": "策略 [TestStrategy] 已暂停", "details": {"strategy_name": "TestStrategy", "reason": "连续亏损 6 次"}}
+[2026-04-25 10:57:42] [risk_manager] [WARNING] 📉📉📉 [CONSECUTIVE_LOSS_EXCEEDED] 策略 [TestStrategy] 连续亏损 7 次，超过限制 5 次
+2026-04-25 10:57:42,713 - WARNING - {"event_type": "CONSECUTIVE_LOSS_EXCEEDED", "timestamp": 1777085862.712042, "datetime": "2026-04-25T10:57:42.712042", "level": "WARNING", "message": "策略 [TestStrategy] 连续亏损 7 次，超过限制 5 次", "details": {"strategy_name": "TestStrategy", "consecutive_losses": 7, "limit": 5}}
+[2026-04-25 10:57:42] [risk_manager] [WARNING] ⏸️ [STRATEGY_PAUSED] 策略 [TestStrategy] 已暂停
+2026-04-25 10:57:42,713 - WARNING - {"event_type": "STRATEGY_PAUSED", "timestamp": 1777085862.713227, "datetime": "2026-04-25T10:57:42.713227", "level": "WARNING", "message": "策略 [TestStrategy] 已暂停", "details": {"strategy_name": "TestStrategy", "reason": "连续亏损 7 次"}}
+[2026-04-25 10:57:42] [risk_manager] [WARNING] 🚧 [PRICE_DEVIATION_BLOCKED] 订单价格偏离拦截: 价格偏离超过阈值: 偏离 5.71% > 阈值 1.0%
+2026-04-25 10:57:42,716 - WARNING - {"event_type": "PRICE_DEVIATION_BLOCKED", "timestamp": 1777085862.716267, "datetime": "2026-04-25T10:57:42.716267", "level": "WARNING", "message": "订单价格偏离拦截: 价格偏离超过阈值: 偏离 5.71% > 阈值 1.0%", "details": {"strategy_name": "AggressiveStrategy", "contract": "SHFE.rb2410", "order_price": 3300.0, "current_price": 3500.0, "deviation_percent": 5.714285714285714, "threshold_percent": 1.0}}
+[2026-04-25 10:57:42] [risk_manager] [WARNING] 📉📉📉 [CONSECUTIVE_LOSS_EXCEEDED] 策略 [AggressiveStrategy] 连续亏损 3 次，超过限制 3 次
+2026-04-25 10:57:42,717 - WARNING - {"event_type": "CONSECUTIVE_LOSS_EXCEEDED", "timestamp": 1777085862.7177722, "datetime": "2026-04-25T10:57:42.717772", "level": "WARNING", "message": "策略 [AggressiveStrategy] 连续亏损 3 次，超过限制 3 次", "details": {"strategy_name": "AggressiveStrategy", "consecutive_losses": 3, "limit": 3}}
+[2026-04-25 10:57:42] [risk_manager] [WARNING] ⏸️ [STRATEGY_PAUSED] 策略 [AggressiveStrategy] 已暂停
+2026-04-25 10:57:42,717 - WARNING - {"event_type": "STRATEGY_PAUSED", "timestamp": 1777085862.7177722, "datetime": "2026-04-25T10:57:42.717772", "level": "WARNING", "message": "策略 [AggressiveStrategy] 已暂停", "details": {"strategy_name": "AggressiveStrategy", "reason": "连续亏损 3 次"}}
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL] 💸 [DAILY_LOSS_EXCEEDED] 日亏损超过限额: 当前亏损 3.00% > 限额 2.0%
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL]    详情: {"daily_start_equity": 1000000.0, "current_equity": 970000.0, "daily_loss_amount": 30000.0, "daily_loss_percent": 3.0, "limit_percent": 2.0}
+2026-04-25 10:57:42,718 - CRITICAL - {"event_type": "DAILY_LOSS_EXCEEDED", "timestamp": 1777085862.718774, "datetime": "2026-04-25T10:57:42.718774", "level": "CRITICAL", "message": "日亏损超过限额: 当前亏损 3.00% > 限额 2.0%", "details": {"daily_start_equity": 1000000.0, "current_equity": 970000.0, "daily_loss_amount": 30000.0, "daily_loss_percent": 3.0, "limit_percent": 2.0}}
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL] [RiskManager] 
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ║                                                                ║
+    ║     ⚠️  系 统 风 控 熔 断 触 发  ⚠️     ║
+    ║                                                                ║
+    ║  🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥  ║
+    ╚══════════════════════════════════════════════════════════════╝
+    
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL] 📉 [DRAWDOWN_EXCEEDED] 系统冻结: 日亏损超过 2.0%
+[2026-04-25 10:57:42] [risk_manager] [CRITICAL]    详情: {"reason": "日亏损超过 2.0%", "timestamp": 1777085862.718774}
