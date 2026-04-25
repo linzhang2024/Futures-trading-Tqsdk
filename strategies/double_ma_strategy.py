@@ -1,8 +1,112 @@
+import os
+import sys
 import logging
 from typing import Optional, List, Dict, Any, Tuple
 from collections import deque
+from datetime import datetime
 
 from strategies.base_strategy import StrategyBase, SignalType
+
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+DEBUG_SIGNAL_LOGGER = None
+DEBUG_SIGNAL_FILE = None
+
+def _init_debug_logger():
+    global DEBUG_SIGNAL_LOGGER, DEBUG_SIGNAL_FILE
+    
+    if DEBUG_SIGNAL_LOGGER is not None:
+        return DEBUG_SIGNAL_LOGGER
+    
+    logs_dir = os.path.join(base_dir, 'logs')
+    os.makedirs(logs_dir, exist_ok=True)
+    
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    DEBUG_SIGNAL_FILE = os.path.join(logs_dir, f'debug_signal_{timestamp}.log')
+    
+    logger = logging.getLogger('debug_signal')
+    logger.setLevel(logging.DEBUG)
+    logger.propagate = False
+    
+    file_handler = logging.FileHandler(DEBUG_SIGNAL_FILE, encoding='utf-8')
+    file_handler.setLevel(logging.DEBUG)
+    file_formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+    file_handler.setFormatter(file_formatter)
+    
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_formatter = logging.Formatter('%(asctime)s [DEBUG_SIGNAL] %(message)s')
+    console_handler.setFormatter(console_formatter)
+    
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    
+    logger.info("=" * 80)
+    logger.info("信号调试日志已初始化")
+    logger.info(f"日志文件: {DEBUG_SIGNAL_FILE}")
+    logger.info("=" * 80)
+    
+    DEBUG_SIGNAL_LOGGER = logger
+    return logger
+
+def get_debug_logger():
+    return _init_debug_logger()
+
+def log_signal_debug(contract: str, cycle: int, data: Dict[str, Any]):
+    logger = get_debug_logger()
+    msg_parts = [f"[{contract}] cycle={cycle}"]
+    
+    if 'close_price' in data:
+        msg_parts.append(f"close={data['close_price']:.2f}")
+    
+    if 'short_ma' in data and data['short_ma'] is not None:
+        msg_parts.append(f"MA5={data['short_ma']:.2f}")
+    if 'prev_short_ma' in data and data['prev_short_ma'] is not None:
+        msg_parts.append(f"prev_MA5={data['prev_short_ma']:.2f}")
+    
+    if 'long_ma' in data and data['long_ma'] is not None:
+        msg_parts.append(f"MA20={data['long_ma']:.2f}")
+    if 'prev_long_ma' in data and data['prev_long_ma'] is not None:
+        msg_parts.append(f"prev_MA20={data['prev_long_ma']:.2f}")
+    
+    if 'rsi' in data and data['rsi'] is not None:
+        msg_parts.append(f"RSI={data['rsi']:.2f}")
+    
+    if 'data_warmed_up' in data:
+        msg_parts.append(f"warmed_up={data['data_warmed_up']}")
+    if 'is_ready' in data:
+        msg_parts.append(f"is_ready={data['is_ready']}")
+    
+    if 'prev_above' in data:
+        msg_parts.append(f"prev_above={data['prev_above']}")
+    if 'curr_above' in data:
+        msg_parts.append(f"curr_above={data['curr_above']}")
+    if 'prev_below' in data:
+        msg_parts.append(f"prev_below={data['prev_below']}")
+    if 'curr_below' in data:
+        msg_parts.append(f"curr_below={data['curr_below']}")
+    
+    if 'signal' in data:
+        msg_parts.append(f"signal={data['signal']}")
+    
+    if 'force_trade' in data:
+        msg_parts.append(f"[FORCE_TRADE] action={data['force_trade']}")
+    
+    if 'position' in data:
+        msg_parts.append(f"position={data['position']}")
+    
+    if 'action' in data:
+        msg_parts.append(f"action={data['action']}")
+    
+    if 'order_status' in data:
+        msg_parts.append(f"order_status={data['order_status']}")
+    
+    if 'order_price' in data:
+        msg_parts.append(f"order_price={data['order_price']:.2f}")
+    
+    msg = " | ".join(msg_parts)
+    logger.info(msg)
+
 
 try:
     import talib
@@ -29,6 +133,8 @@ class DoubleMAStrategy(StrategyBase):
         take_profit_ratio: Optional[float] = None,
         stop_loss_ratio: Optional[float] = None,
         initial_data_days: int = 5,
+        force_trade_test: bool = False,
+        debug_logging: bool = True,
     ):
         super().__init__(connector)
         
@@ -106,6 +212,17 @@ class DoubleMAStrategy(StrategyBase):
         
         self._tp_triggered = 0
         self._sl_triggered = 0
+        
+        self.force_trade_test = force_trade_test
+        self.debug_logging = debug_logging
+        self._cycle_count = 0
+        
+        if self.force_trade_test:
+            self.logger.warning("[FORCE_TRADE] 暴力开仓测试模式已开启！每根K线都会尝试交易")
+        
+        if self.debug_logging:
+            _init_debug_logger()
+            self.logger.info(f"调试日志已启用，将记录每根K线的信号判定")
         
         rsi_info = f", RSI周期={rsi_period}, RSI阈值={rsi_threshold}, RSI过滤={'开启' if use_rsi_filter else '关闭'}"
         tp_sl_info = ""
@@ -324,8 +441,15 @@ class DoubleMAStrategy(StrategyBase):
         return rsi
 
     def update_prices(self, close_price: float):
+        self._cycle_count += 1
+        
         if close_price is None or (isinstance(close_price, float) and close_price != close_price):
-            self.logger.debug("收到无效的收盘价，跳过")
+            self.logger.debug(f"[cycle={self._cycle_count}] 收到无效的收盘价，跳过")
+            if self.debug_logging:
+                log_signal_debug(self.contract, self._cycle_count, {
+                    'close_price': 0.0 if close_price is None else close_price,
+                    'signal': 'INVALID_PRICE',
+                })
             return
         
         self.prev_short_ma = self.short_ma
@@ -341,13 +465,112 @@ class DoubleMAStrategy(StrategyBase):
         
         self.rsi = self._calculate_rsi()
         
+        if self.debug_logging:
+            debug_data = {
+                'close_price': close_price,
+                'short_ma': self.short_ma,
+                'long_ma': self.long_ma,
+                'prev_short_ma': self.prev_short_ma,
+                'prev_long_ma': self.prev_long_ma,
+                'rsi': self.rsi,
+                'data_warmed_up': self._data_warmed_up,
+                'is_ready': self.is_ready(),
+                'position': self._position,
+            }
+            
+            if self.prev_short_ma is not None and self.prev_long_ma is not None:
+                debug_data['prev_above'] = self.prev_short_ma > self.prev_long_ma
+                debug_data['prev_below'] = self.prev_short_ma < self.prev_long_ma
+            
+            if self.short_ma is not None and self.long_ma is not None:
+                debug_data['curr_above'] = self.short_ma > self.long_ma
+                debug_data['curr_below'] = self.short_ma < self.long_ma
+            
+            log_signal_debug(self.contract, self._cycle_count, debug_data)
+        
+        if self.force_trade_test:
+            self._force_trade(close_price)
+            return
+        
         if self._position != 0:
             self._check_take_profit_stop_loss(close_price)
         
         if self._position == 0:
-            self._detect_signal()
+            self._detect_signal(close_price)
         else:
             self.signal = SignalType.HOLD
+    
+    def _force_trade(self, close_price: float):
+        if self.api is None:
+            self.logger.warning(f"[FORCE_TRADE] API 未初始化，无法执行交易")
+            if self.debug_logging:
+                log_signal_debug(self.contract, self._cycle_count, {
+                    'close_price': close_price,
+                    'force_trade': 'SKIP_NO_API',
+                    'position': self._position,
+                })
+            return
+        
+        try:
+            quote = self.api.get_quote(self.contract)
+            
+            if self._position == 0:
+                if self._cycle_count % 2 == 1:
+                    self._place_order(quote, direction="BUY", offset="OPEN", volume=1, limit_price=close_price)
+                    self._position = 1
+                    self._entry_price = close_price
+                    self.logger.info(f"[FORCE_TRADE] cycle={self._cycle_count} 开多单, 价格={close_price:.2f}")
+                    if self.debug_logging:
+                        log_signal_debug(self.contract, self._cycle_count, {
+                            'close_price': close_price,
+                            'force_trade': 'BUY_OPEN',
+                            'position': 1,
+                            'order_price': close_price,
+                        })
+                else:
+                    self._place_order(quote, direction="SELL", offset="OPEN", volume=1, limit_price=close_price)
+                    self._position = -1
+                    self._entry_price = close_price
+                    self.logger.info(f"[FORCE_TRADE] cycle={self._cycle_count} 开空单, 价格={close_price:.2f}")
+                    if self.debug_logging:
+                        log_signal_debug(self.contract, self._cycle_count, {
+                            'close_price': close_price,
+                            'force_trade': 'SELL_OPEN',
+                            'position': -1,
+                            'order_price': close_price,
+                        })
+            else:
+                if self._position > 0:
+                    self._place_order(quote, direction="SELL", offset="CLOSE", volume=self._position, limit_price=close_price)
+                    self.logger.info(f"[FORCE_TRADE] cycle={self._cycle_count} 平多单, 价格={close_price:.2f}")
+                    if self.debug_logging:
+                        log_signal_debug(self.contract, self._cycle_count, {
+                            'close_price': close_price,
+                            'force_trade': 'SELL_CLOSE',
+                            'position': 0,
+                            'order_price': close_price,
+                        })
+                else:
+                    self._place_order(quote, direction="BUY", offset="CLOSE", volume=abs(self._position), limit_price=close_price)
+                    self.logger.info(f"[FORCE_TRADE] cycle={self._cycle_count} 平空单, 价格={close_price:.2f}")
+                    if self.debug_logging:
+                        log_signal_debug(self.contract, self._cycle_count, {
+                            'close_price': close_price,
+                            'force_trade': 'BUY_CLOSE',
+                            'position': 0,
+                            'order_price': close_price,
+                        })
+                self._position = 0
+                self._entry_price = None
+        
+        except Exception as e:
+            self.logger.error(f"[FORCE_TRADE] 交易失败: {e}")
+            if self.debug_logging:
+                log_signal_debug(self.contract, self._cycle_count, {
+                    'close_price': close_price,
+                    'force_trade': f'ERROR_{e}',
+                    'position': self._position,
+                })
 
     def update_from_kline(self, kline_data: Dict[str, Any]):
         if kline_data is None:
@@ -365,17 +588,31 @@ class DoubleMAStrategy(StrategyBase):
         except (ValueError, TypeError) as e:
             self.logger.warning(f"无效的收盘价: {close_price}, 错误: {str(e)}")
 
-    def _detect_signal(self):
+    def _detect_signal(self, close_price: float = 0):
         self.prev_signal = self.signal
         
         if self.short_ma is None or self.long_ma is None:
             self.signal = SignalType.HOLD
+            if self.debug_logging:
+                log_signal_debug(self.contract, self._cycle_count, {
+                    'signal': 'HOLD_MA_NOT_READY',
+                    'short_ma': self.short_ma,
+                    'long_ma': self.long_ma,
+                })
             return
         
         if self.prev_short_ma is None or self.prev_long_ma is None:
             self.signal = SignalType.HOLD
             rsi_status = f", RSI={self.rsi:.2f}" if self.rsi is not None else ""
             self.logger.debug(f"均线数据准备中... 短期均线={self.short_ma:.2f}, 长期均线={self.long_ma:.2f}{rsi_status}")
+            if self.debug_logging:
+                log_signal_debug(self.contract, self._cycle_count, {
+                    'signal': 'HOLD_PREV_MA_NOT_READY',
+                    'short_ma': self.short_ma,
+                    'long_ma': self.long_ma,
+                    'prev_short_ma': self.prev_short_ma,
+                    'prev_long_ma': self.prev_long_ma,
+                })
             return
         
         short_above_prev = self.prev_short_ma > self.prev_long_ma
@@ -385,15 +622,39 @@ class DoubleMAStrategy(StrategyBase):
         short_below_current = self.short_ma < self.long_ma
         
         ma_signal: SignalType = SignalType.HOLD
+        signal_reason = "HOLD_NO_CROSS"
         
         if short_below_prev and short_above_current:
             ma_signal = SignalType.BUY
-            self.logger.info(f"金叉信号: 短期均线({self.short_ma:.2f}) 上穿 长期均线({self.long_ma:.2f})")
+            signal_reason = "GOLDEN_CROSS"
+            self.logger.info(f"[SIGNAL] cycle={self._cycle_count} 金叉信号: 短期均线({self.short_ma:.2f}) 上穿 长期均线({self.long_ma:.2f})")
         elif short_above_prev and short_below_current:
             ma_signal = SignalType.SELL
-            self.logger.info(f"死叉信号: 短期均线({self.short_ma:.2f}) 下穿 长期均线({self.long_ma:.2f})")
+            signal_reason = "DEATH_CROSS"
+            self.logger.info(f"[SIGNAL] cycle={self._cycle_count} 死叉信号: 短期均线({self.short_ma:.2f}) 下穿 长期均线({self.long_ma:.2f})")
         else:
             ma_signal = SignalType.HOLD
+            signal_reason = "HOLD_NO_CROSS"
+            
+            if self.debug_logging:
+                if short_above_prev and short_above_current:
+                    signal_reason = "HOLD_SHORT_ABOVE_LONG"
+                elif short_below_prev and short_below_current:
+                    signal_reason = "HOLD_SHORT_BELOW_LONG"
+        
+        if self.debug_logging:
+            log_signal_debug(self.contract, self._cycle_count, {
+                'signal': signal_reason,
+                'ma_signal': ma_signal.value,
+                'short_ma': self.short_ma,
+                'long_ma': self.long_ma,
+                'prev_short_ma': self.prev_short_ma,
+                'prev_long_ma': self.prev_long_ma,
+                'prev_above': short_above_prev,
+                'curr_above': short_above_current,
+                'prev_below': short_below_prev,
+                'curr_below': short_below_current,
+            })
         
         if ma_signal == SignalType.HOLD:
             self.signal = SignalType.HOLD
@@ -401,13 +662,19 @@ class DoubleMAStrategy(StrategyBase):
         
         if not self.use_rsi_filter:
             self.signal = ma_signal
+            self.logger.info(f"[EXECUTE] cycle={self._cycle_count} 执行交易: 信号={ma_signal.value} (RSI过滤关闭)")
             if self.signal != SignalType.HOLD:
-                self._execute_trade(self.signal)
+                self._execute_trade(self.signal, close_price)
             return
         
         if self.rsi is None:
             self.signal = SignalType.HOLD
-            self.logger.debug(f"RSI 数据未准备好，跳过信号: {ma_signal.value}")
+            self.logger.debug(f"[SIGNAL] cycle={self._cycle_count} RSI 数据未准备好，跳过信号: {ma_signal.value}")
+            if self.debug_logging:
+                log_signal_debug(self.contract, self._cycle_count, {
+                    'signal': 'HOLD_RSI_NOT_READY',
+                    'ma_signal': ma_signal.value,
+                })
             return
         
         rsi_status = ""
@@ -432,12 +699,19 @@ class DoubleMAStrategy(StrategyBase):
         self.signal = final_signal
         
         if final_signal == SignalType.HOLD and ma_signal != SignalType.HOLD:
-            self.logger.info(f"RSI 过滤: 原信号={ma_signal.value}, {rsi_status}")
+            self.logger.info(f"[RSI_FILTER] cycle={self._cycle_count} 原信号={ma_signal.value}, {rsi_status}")
+            if self.debug_logging:
+                log_signal_debug(self.contract, self._cycle_count, {
+                    'signal': 'RSI_FILTERED',
+                    'ma_signal': ma_signal.value,
+                    'rsi': self.rsi,
+                    'rsi_threshold': self.rsi_threshold,
+                })
         elif final_signal != SignalType.HOLD:
-            self.logger.info(f"信号确认: {final_signal.value}, {rsi_status}")
+            self.logger.info(f"[EXECUTE] cycle={self._cycle_count} 执行交易: 信号={final_signal.value}, {rsi_status}")
         
         if self.signal != SignalType.HOLD:
-            self._execute_trade(self.signal)
+            self._execute_trade(self.signal, close_price)
 
     def _check_take_profit_stop_loss(self, current_price: float):
         """检查止盈止损"""
@@ -499,10 +773,10 @@ class DoubleMAStrategy(StrategyBase):
             quote = self.api.get_quote(self.contract)
             
             if self._position > 0:
-                self._place_order(quote, direction="SELL", offset="CLOSE", volume=self._position)
+                self._place_order(quote, direction="SELL", offset="CLOSE", volume=self._position, limit_price=current_price)
                 self.logger.info(f"止盈/止损平仓: 平多单 {self._position} 手, 当前价格={current_price:.2f}")
             elif self._position < 0:
-                self._place_order(quote, direction="BUY", offset="CLOSE", volume=abs(self._position))
+                self._place_order(quote, direction="BUY", offset="CLOSE", volume=abs(self._position), limit_price=current_price)
                 self.logger.info(f"止盈/止损平仓: 平空单 {abs(self._position)} 手, 当前价格={current_price:.2f}")
             
             self._position = 0
@@ -510,7 +784,7 @@ class DoubleMAStrategy(StrategyBase):
         except Exception as e:
             self.logger.error(f"止盈/止损平仓失败: {e}")
 
-    def _execute_trade(self, signal: SignalType):
+    def _execute_trade(self, signal: SignalType, close_price: float = 0):
         """执行交易下单"""
         if self.api is None:
             self.logger.warning("API 未初始化，无法执行交易")
@@ -519,32 +793,33 @@ class DoubleMAStrategy(StrategyBase):
         try:
             quote = self.api.get_quote(self.contract)
             
-            current_price = None
-            if hasattr(quote, 'last_price'):
-                current_price = quote.last_price
-            elif hasattr(quote, 'close'):
-                current_price = quote.close
+            current_price = close_price if close_price > 0 else None
+            if current_price is None:
+                if hasattr(quote, 'last_price'):
+                    current_price = quote.last_price
+                elif hasattr(quote, 'close'):
+                    current_price = quote.close
             
             if signal == SignalType.BUY:
                 if self._position < 0:
-                    self._place_order(quote, direction="BUY", offset="CLOSE", volume=abs(self._position))
+                    self._place_order(quote, direction="BUY", offset="CLOSE", volume=abs(self._position), limit_price=current_price)
                     self._position = 0
                     self._entry_price = None
                 
                 if self._position == 0:
-                    self._place_order(quote, direction="BUY", offset="OPEN", volume=1)
+                    self._place_order(quote, direction="BUY", offset="OPEN", volume=1, limit_price=current_price)
                     self._position = 1
                     if current_price is not None:
                         self._entry_price = current_price
                     
             elif signal == SignalType.SELL:
                 if self._position > 0:
-                    self._place_order(quote, direction="SELL", offset="CLOSE", volume=self._position)
+                    self._place_order(quote, direction="SELL", offset="CLOSE", volume=self._position, limit_price=current_price)
                     self._position = 0
                     self._entry_price = None
                 
                 if self._position == 0:
-                    self._place_order(quote, direction="SELL", offset="OPEN", volume=1)
+                    self._place_order(quote, direction="SELL", offset="OPEN", volume=1, limit_price=current_price)
                     self._position = -1
                     if current_price is not None:
                         self._entry_price = current_price
@@ -552,7 +827,7 @@ class DoubleMAStrategy(StrategyBase):
         except Exception as e:
             self.logger.error(f"执行交易失败: {e}")
 
-    def _place_order(self, quote, direction: str, offset: str, volume: int):
+    def _place_order(self, quote, direction: str, offset: str, volume: int, limit_price: float = 0):
         """下单"""
         try:
             order = self.api.insert_order(
@@ -560,9 +835,10 @@ class DoubleMAStrategy(StrategyBase):
                 direction=direction,
                 offset=offset,
                 volume=volume,
+                limit_price=limit_price,
             )
             self._trade_count += 1
-            self.logger.info(f"下单成功: {direction} {offset} {volume}手 {self.contract}, 交易次数={self._trade_count}")
+            self.logger.info(f"下单成功: {direction} {offset} {volume}手 {self.contract}, 价格={limit_price if limit_price > 0 else '市价'}, 交易次数={self._trade_count}")
             return order
         except Exception as e:
             self.logger.error(f"下单失败: {direction} {offset} {volume}手 {self.contract}, 错误={e}")
