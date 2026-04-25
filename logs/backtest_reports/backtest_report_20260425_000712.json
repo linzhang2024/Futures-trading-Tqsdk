@@ -1,0 +1,188 @@
+{
+  "generated_at": "2026-04-25T00:07:12.692473",
+  "total_backtests": 1,
+  "best_result": {
+    "strategy_name": "DoubleMAStrategy",
+    "params": {
+      "short_period": 5,
+      "long_period": 20,
+      "contract": "SHFE.rb2410",
+      "kline_duration": 60,
+      "use_ema": false
+    },
+    "start_dt": "2024-01-02",
+    "end_dt": "2024-01-10",
+    "initial_equity": 1000000.0,
+    "final_equity": 1000000.0,
+    "performance": {
+      "total_return": 0.0,
+      "total_return_percent": 0.0,
+      "annualized_return": 0.0,
+      "annualized_return_percent": 0.0,
+      "max_drawdown": 0.0,
+      "max_drawdown_percent": 0.0,
+      "sharpe_ratio": 0.0,
+      "sortino_ratio": 0.0,
+      "calmar_ratio": 0.0,
+      "total_trades": 1,
+      "winning_trades": 0,
+      "losing_trades": 0,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "avg_trade_return": 0.0,
+      "total_commission_cost": 100.0,
+      "total_slippage_cost": 0.0,
+      "total_cost": 100.0
+    },
+    "risk_triggered": false,
+    "frozen_during_backtest": false,
+    "frozen_reason": null,
+    "status": "completed",
+    "error_message": null,
+    "equity_curve": [
+      {
+        "cycle": 50,
+        "timestamp": 1777046832.6844633,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 100,
+        "timestamp": 1777046832.6859653,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 150,
+        "timestamp": 1777046832.6869676,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 200,
+        "timestamp": 1777046832.6869676,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 250,
+        "timestamp": 1777046832.6884704,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 300,
+        "timestamp": 1777046832.689473,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      },
+      {
+        "cycle": 350,
+        "timestamp": 1777046832.6904726,
+        "equity": 1000000.0,
+        "margin_used": 0.0
+      }
+    ],
+    "trade_records": [],
+    "risk_events": [],
+    "config_snapshot": {
+      "cost_config": {
+        "default_commission": 100.0,
+        "default_slippage": 50.0
+      }
+    }
+  },
+  "all_results": [
+    {
+      "strategy_name": "DoubleMAStrategy",
+      "params": {
+        "short_period": 5,
+        "long_period": 20,
+        "contract": "SHFE.rb2410",
+        "kline_duration": 60,
+        "use_ema": false
+      },
+      "start_dt": "2024-01-02",
+      "end_dt": "2024-01-10",
+      "initial_equity": 1000000.0,
+      "final_equity": 1000000.0,
+      "performance": {
+        "total_return": 0.0,
+        "total_return_percent": 0.0,
+        "annualized_return": 0.0,
+        "annualized_return_percent": 0.0,
+        "max_drawdown": 0.0,
+        "max_drawdown_percent": 0.0,
+        "sharpe_ratio": 0.0,
+        "sortino_ratio": 0.0,
+        "calmar_ratio": 0.0,
+        "total_trades": 1,
+        "winning_trades": 0,
+        "losing_trades": 0,
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "avg_trade_return": 0.0,
+        "total_commission_cost": 100.0,
+        "total_slippage_cost": 0.0,
+        "total_cost": 100.0
+      },
+      "risk_triggered": false,
+      "frozen_during_backtest": false,
+      "frozen_reason": null,
+      "status": "completed",
+      "error_message": null,
+      "equity_curve": [
+        {
+          "cycle": 50,
+          "timestamp": 1777046832.6844633,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 100,
+          "timestamp": 1777046832.6859653,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 150,
+          "timestamp": 1777046832.6869676,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 200,
+          "timestamp": 1777046832.6869676,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 250,
+          "timestamp": 1777046832.6884704,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 300,
+          "timestamp": 1777046832.689473,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        },
+        {
+          "cycle": 350,
+          "timestamp": 1777046832.6904726,
+          "equity": 1000000.0,
+          "margin_used": 0.0
+        }
+      ],
+      "trade_records": [],
+      "risk_events": [],
+      "config_snapshot": {
+        "cost_config": {
+          "default_commission": 100.0,
+          "default_slippage": 50.0
+        }
+      }
+    }
+  ]
+}

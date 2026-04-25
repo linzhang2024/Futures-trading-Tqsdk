@@ -2629,9 +2629,11 @@ class MockTqApi:
     def get_kline_serial(self, symbol: str, duration_seconds: int) -> MockKlineData:
         """获取模拟 K 线数据"""
         if symbol not in self._klines:
+            kline_count = max(self._max_cycles + 200, 500)
             self._klines[symbol] = self._generate_mock_klines(
                 symbol=symbol,
                 duration_seconds=duration_seconds,
+                count=kline_count,
             )
             self._current_kline_idx[symbol] = 0
         
