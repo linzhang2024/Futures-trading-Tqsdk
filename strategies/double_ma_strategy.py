@@ -823,21 +823,185 @@ class VectorizedMAStrategy(StrategyBase):
         except Exception as e:
             self.logger.error(f"执行交易失败: {e}")
     
-    def _place_order(self, quote, direction: str, offset: str, volume: int, limit_price: float = 0):
-        try:
-            order = self.api.insert_order(
-                quote,
-                direction=direction,
-                offset=offset,
-                volume=volume,
-                limit_price=limit_price,
-            )
-            self._trade_count += 1
-            self.logger.info(f"下单成功: {direction} {offset} {volume}手 {self.contract}, 价格={limit_price if limit_price > 0 else '市价'}, 交易次数={self._trade_count}")
-            return order
-        except Exception as e:
-            self.logger.error(f"下单失败: {direction} {offset} {volume}手 {self.contract}, 错误={e}")
+    def _place_order_with_retry(
+        self, 
+        quote, 
+        direction: str, 
+        offset: str, 
+        volume: int, 
+        limit_price: float = 0,
+        max_retries: int = 2,
+        timeout_seconds: float = 5.0,
+    ):
+        """
+        带重试机制的下单方法 - 实盘级挂单重试逻辑
+        
+        实现逻辑：
+        1. 首先尝试限价单
+        2. 心跳检查：如果 timeout_seconds 秒未成交
+        3. 自动撤单
+        4. 按最新市价追单
+        5. 最多重试 max_retries 次
+        
+        Args:
+            quote: 行情对象
+            direction: 方向 'BUY' | 'SELL'
+            offset: 开平 'OPEN' | 'CLOSE'
+            volume: 手数
+            limit_price: 限价 (0 表示市价)
+            max_retries: 最大重试次数
+            timeout_seconds: 超时时间（秒）
+        
+        Returns:
+            order: 订单对象（成功）或 None（失败）
+        """
+        import time
+        
+        api = self.api
+        if api is None:
+            self.logger.error("API 未初始化，无法下单")
             return None
+        
+        order = None
+        retry_count = 0
+        last_error = None
+        
+        while retry_count <= max_retries:
+            try:
+                current_price = limit_price
+                if current_price <= 0 and hasattr(quote, 'last_price'):
+                    current_price = quote.last_price
+                
+                if retry_count == 0:
+                    if limit_price > 0:
+                        self.logger.info(f"[挂单重试] 第{retry_count+1}次尝试: 限价单 {direction} {offset} {volume}手 @ {limit_price:.2f}")
+                    else:
+                        self.logger.info(f"[挂单重试] 第{retry_count+1}次尝试: 市价单 {direction} {offset} {volume}手")
+                else:
+                    self.logger.warning(f"[挂单重试] 第{retry_count+1}次尝试: 追单 {direction} {offset} {volume}手 @ 现价 {current_price:.2f}")
+                
+                order = api.insert_order(
+                    quote,
+                    direction=direction,
+                    offset=offset,
+                    volume=volume,
+                    limit_price=current_price,
+                )
+                
+                if order is None:
+                    last_error = "订单返回为 None"
+                    self.logger.warning(f"[挂单重试] 下单失败，准备重试...")
+                    retry_count += 1
+                    continue
+                
+                if hasattr(order, 'status') and order.status == 'FINISHED':
+                    self._trade_count += 1
+                    trade_price = getattr(order, 'trade_price', current_price)
+                    self.logger.info(
+                        f"[挂单重试] 下单成功: {direction} {offset} {volume}手 {self.contract}, "
+                        f"价格={trade_price:.2f}, 交易次数={self._trade_count}"
+                    )
+                    return order
+                
+                start_time = time.time()
+                order_filled = False
+                
+                self.logger.info(f"[挂单重试] 等待订单成交，超时时间={timeout_seconds}秒...")
+                
+                while time.time() - start_time < timeout_seconds:
+                    try:
+                        if hasattr(api, 'wait_update'):
+                            api.wait_update(0.1)
+                        
+                        if hasattr(order, 'status'):
+                            if order.status == 'FINISHED':
+                                order_filled = True
+                                break
+                            elif order.status in ['REJECTED', 'CANCELLED']:
+                                self.logger.warning(f"[挂单重试] 订单状态异常: {order.status}")
+                                break
+                        
+                        if hasattr(order, 'volume_left') and order.volume_left <= 0:
+                            order_filled = True
+                            break
+                        
+                        elapsed = time.time() - start_time
+                        remaining = timeout_seconds - elapsed
+                        if remaining > 0 and int(elapsed) != int(elapsed - 0.1):
+                            self.logger.debug(f"[挂单重试] 心跳检查: 已等待 {elapsed:.1f}秒，剩余 {remaining:.1f}秒...")
+                        
+                    except Exception as e:
+                        self.logger.debug(f"[挂单重试] 等待期间异常 (可忽略): {e}")
+                        break
+                
+                if order_filled:
+                    self._trade_count += 1
+                    trade_price = getattr(order, 'trade_price', current_price)
+                    self.logger.info(
+                        f"[挂单重试] 订单成交: {direction} {offset} {volume}手 {self.contract}, "
+                        f"价格={trade_price:.2f}"
+                    )
+                    return order
+                
+                self.logger.warning(f"[挂单重试] 订单超时 ({timeout_seconds}秒)，准备撤单并重试...")
+                
+                try:
+                    if hasattr(api, 'cancel_order'):
+                        api.cancel_order(order)
+                        self.logger.info("[挂单重试] 撤单成功")
+                except Exception as e:
+                    self.logger.debug(f"[挂单重试] 撤单时异常 (可忽略): {e}")
+                
+                retry_count += 1
+                last_error = f"订单超时未成交，已重试 {retry_count} 次"
+                
+                if retry_count <= max_retries:
+                    if hasattr(quote, 'last_price') and quote.last_price > 0:
+                        new_price = quote.last_price
+                    else:
+                        new_price = current_price
+                    
+                    if direction == 'BUY':
+                        new_price = new_price * 1.001
+                    elif direction == 'SELL':
+                        new_price = new_price * 0.999
+                    
+                    self.logger.info(f"[挂单重试] 追单价格调整: {new_price:.2f}")
+                    limit_price = new_price
+                    
+                    if hasattr(api, 'wait_update'):
+                        try:
+                            api.wait_update(0.1)
+                        except:
+                            pass
+                
+            except Exception as e:
+                last_error = str(e)
+                self.logger.error(f"[挂单重试] 下单异常: {e}")
+                retry_count += 1
+                
+                if retry_count <= max_retries:
+                    self.logger.info(f"[挂单重试] 等待 0.5 秒后重试...")
+                    time.sleep(0.5)
+        
+        self.logger.error(
+            f"[挂单重试] 下单失败，已重试 {max_retries} 次，最后错误: {last_error}"
+        )
+        return None
+    
+    def _place_order(self, quote, direction: str, offset: str, volume: int, limit_price: float = 0):
+        """
+        下单入口方法 - 调用带重试机制的下单逻辑
+        """
+        return self._place_order_with_retry(
+            quote=quote,
+            direction=direction,
+            offset=offset,
+            volume=volume,
+            limit_price=limit_price,
+            max_retries=2,
+            timeout_seconds=5.0,
+        )
     
     def get_signal(self) -> SignalType:
         return self.signal
