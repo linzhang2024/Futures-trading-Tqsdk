@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-04-25T11:35:13.843186",
+  "contracts": [
+    {
+      "contract": "SHFE.rb2410",
+      "initial_equity": 1000000.0,
+      "final_equity": 982529.2841891638,
+      "total_return": -17470.715810836176,
+      "total_return_percent": -1.7470715810836177,
+      "max_drawdown": 14657.546409085044,
+      "max_drawdown_percent": 1.4657546409085045,
+      "total_trades": 2639,
+      "winning_trades": 356,
+      "win_rate": 13.489958317544524,
+      "equity_points_count": 28,
+      "trade_records_count": 2639
+    }
+  ],
+  "summary": {
+    "total_contracts": 1,
+    "combined_initial_equity": 1000000.0,
+    "combined_final_equity": 982529.2841891638,
+    "combined_return": -17470.715810836176,
+    "combined_return_percent": -1.7470715810836177,
+    "total_trades": 2639,
+    "total_wins": 356,
+    "overall_win_rate": 13.489958317544524,
+    "max_drawdown_across_contracts": 1.4657546409085045
+  }
+}

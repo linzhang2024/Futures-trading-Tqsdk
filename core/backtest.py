@@ -908,11 +908,17 @@ class BacktestEngine:
             current_dd_percent = drawdown_info.get('current_drawdown_percent', 0.0)
             
             total_trades = 0
+            trade_records = []
             try:
                 if hasattr(account, 'trades') and account.trades:
                     total_trades = len(account.trades)
-            except Exception:
+                    trade_records = list(account.trades)
+                    logging.getLogger(__name__).info(f"获取到 {len(trade_records)} 条交易记录")
+            except Exception as e:
+                logging.getLogger(__name__).warning(f"获取交易记录失败: {e}")
                 pass
+            
+            result_dict['trade_records'] = trade_records
             
             performance_config = performance_config or PerformanceConfig()
             initial_eq = result_dict['initial_equity']
@@ -2555,6 +2561,7 @@ class MockTqSim:
         self._balance = init_balance
         self._positions = {}
         self._trades = []
+        self._total_close_profit = 0.0
         
         self.account = type('obj', (object,), {
             'balance': init_balance,
@@ -2572,6 +2579,18 @@ class MockTqSim:
     
     def get_commission(self, symbol: str) -> float:
         return self._commissions.get(symbol, 5.0)
+    
+    def _get_or_create_position(self, symbol: str) -> Dict[str, Any]:
+        if symbol not in self._positions:
+            self._positions[symbol] = {
+                'long': 0,
+                'short': 0,
+                'long_open_price': 0.0,
+                'short_open_price': 0.0,
+                'long_open_prices': [],
+                'short_open_prices': [],
+            }
+        return self._positions[symbol]
 
 
 class MockTqApi:
@@ -2640,10 +2659,18 @@ class MockTqApi:
         return self._klines[symbol]
     
     def get_quote(self, symbol: str):
-        """获取模拟行情数据"""
-        if symbol not in self._quotes:
-            self._quotes[symbol] = self._generate_mock_quote(symbol)
-        return self._quotes[symbol]
+        """获取模拟行情数据 - 每次返回当前实际价格"""
+        return self._generate_mock_quote(symbol)
+    
+    def _get_current_price(self, symbol: str) -> float:
+        """获取当前 K 线的实际收盘价 - 使用最新的 K 线数据而非 _current_kline_idx"""
+        if symbol in self._klines:
+            kline_data = self._klines[symbol]
+            if len(kline_data._data) > 0:
+                latest_idx = len(kline_data._data) - 1
+                return kline_data._data[latest_idx].get('close', self._get_base_price(symbol))
+        
+        return self._get_base_price(symbol)
     
     def get_account(self) -> Dict[str, Any]:
         """获取模拟账户信息"""
@@ -2665,36 +2692,38 @@ class MockTqApi:
         positions = {}
         for symbol, pos in self._account._positions.items():
             if pos['long'] > 0 or pos['short'] > 0:
+                current_price = self._get_current_price(symbol)
                 positions[symbol] = {
                     'buy_volume': pos['long'],
                     'sell_volume': pos['short'],
                     'buy_margin': 0.0,
                     'sell_margin': 0.0,
-                    'buy_open_price': 0.0,
-                    'sell_open_price': 0.0,
-                    'last_price': self._get_base_price(symbol),
+                    'buy_open_price': pos.get('long_open_price', 0.0),
+                    'sell_open_price': pos.get('short_open_price', 0.0),
+                    'last_price': current_price,
                     'float_profit': 0.0,
                 }
         return positions
     
     def _generate_mock_quote(self, symbol: str) -> Any:
-        """生成模拟行情数据"""
-        base_price = self._get_base_price(symbol)
-        volatility = base_price * 0.01
+        """生成模拟行情数据 - 使用当前实际价格"""
+        current_price = self._get_current_price(symbol)
+        volatility = current_price * 0.01
         
         quote_data = {
-            'last_price': base_price,
-            'bid_price1': base_price - volatility * 0.1,
-            'ask_price1': base_price + volatility * 0.1,
+            'last_price': current_price,
+            'bid_price1': current_price - volatility * 0.1,
+            'ask_price1': current_price + volatility * 0.1,
             'bid_volume1': 100,
             'ask_volume1': 100,
-            'high': base_price * 1.02,
-            'low': base_price * 0.98,
-            'open': base_price,
-            'pre_close': base_price * 0.995,
+            'high': current_price * 1.02,
+            'low': current_price * 0.98,
+            'open': current_price,
+            'pre_close': current_price * 0.995,
             'volume': 10000,
-            'amount': base_price * 10000,
+            'amount': current_price * 10000,
             'open_interest': 50000,
+            'underlying_symbol': symbol,
         }
         
         return type('obj', (object,), quote_data)()
@@ -2779,7 +2808,10 @@ class MockTqApi:
         """
         模拟下单，兼容 TqSdk 的接口
         支持传入 quote 对象（有 underlying_symbol 属性）或直接传入 symbol 字符串
+        使用实际行情价格，记录开仓价格，平仓时计算盈亏
         """
+        import time
+        
         if hasattr(quote_or_symbol, 'underlying_symbol'):
             symbol = quote_or_symbol.underlying_symbol
         elif hasattr(quote_or_symbol, 'last_price'):
@@ -2802,8 +2834,70 @@ class MockTqApi:
         
         order_id = f"mock_order_{self._cycle}_{len(self._account._trades)}"
         
-        base_price = self._get_base_price(symbol)
+        if limit_price > 0:
+            trade_price = limit_price
+        elif hasattr(quote_or_symbol, 'last_price') and quote_or_symbol.last_price > 0:
+            trade_price = quote_or_symbol.last_price
+        else:
+            trade_price = self._get_current_price(symbol)
+        
         commission = self._account.get_commission(symbol)
+        
+        position = self._account._get_or_create_position(symbol)
+        
+        profit_loss = 0.0
+        
+        if direction == 'BUY' and offset == 'OPEN':
+            position['long'] += volume
+            position['long_open_prices'].append(trade_price)
+            position['long_open_price'] = sum(position['long_open_prices']) / len(position['long_open_prices'])
+            
+        elif direction == 'SELL' and offset == 'OPEN':
+            position['short'] += volume
+            position['short_open_prices'].append(trade_price)
+            position['short_open_price'] = sum(position['short_open_prices']) / len(position['short_open_prices'])
+            
+        elif direction == 'SELL' and offset == 'CLOSE':
+            if position['long'] > 0:
+                close_volume = min(volume, position['long'])
+                if position['long_open_prices']:
+                    avg_open_price = sum(position['long_open_prices'][-close_volume:]) / close_volume
+                    profit_loss = (trade_price - avg_open_price) * close_volume * 10
+                    
+                    for _ in range(close_volume):
+                        if position['long_open_prices']:
+                            position['long_open_prices'].pop(0)
+                    
+                    position['long'] -= close_volume
+                    if position['long_open_prices']:
+                        position['long_open_price'] = sum(position['long_open_prices']) / len(position['long_open_prices'])
+                    else:
+                        position['long_open_price'] = 0.0
+                    
+                    self._account._total_close_profit += profit_loss
+                    self._equity += profit_loss
+                
+        elif direction == 'BUY' and offset == 'CLOSE':
+            if position['short'] > 0:
+                close_volume = min(volume, position['short'])
+                if position['short_open_prices']:
+                    avg_open_price = sum(position['short_open_prices'][-close_volume:]) / close_volume
+                    profit_loss = (avg_open_price - trade_price) * close_volume * 10
+                    
+                    for _ in range(close_volume):
+                        if position['short_open_prices']:
+                            position['short_open_prices'].pop(0)
+                    
+                    position['short'] -= close_volume
+                    if position['short_open_prices']:
+                        position['short_open_price'] = sum(position['short_open_prices']) / len(position['short_open_prices'])
+                    else:
+                        position['short_open_price'] = 0.0
+                    
+                    self._account._total_close_profit += profit_loss
+                    self._equity += profit_loss
+        
+        self._equity -= commission * volume
         
         trade = {
             'order_id': order_id,
@@ -2811,28 +2905,26 @@ class MockTqApi:
             'direction': direction,
             'offset': offset,
             'volume': volume,
-            'price': base_price,
+            'price': trade_price,
+            'profit_loss': profit_loss,
             'commission': commission * volume,
             'cycle': self._cycle,
+            'timestamp': time.time(),
         }
         self._account._trades.append(trade)
         
-        if direction == 'BUY' and offset == 'OPEN':
-            if symbol not in self._account._positions:
-                self._account._positions[symbol] = {'long': 0, 'short': 0}
-            self._account._positions[symbol]['long'] += volume
-        elif direction == 'SELL' and offset == 'OPEN':
-            if symbol not in self._account._positions:
-                self._account._positions[symbol] = {'long': 0, 'short': 0}
-            self._account._positions[symbol]['short'] += volume
+        self._account.account.close_profit = self._account._total_close_profit
+        self._account.account.balance = self._equity
+        self._account.account.available = self._equity
         
-        self._logger.debug(f"模拟订单: {direction} {offset} {volume}手 {symbol} @ {base_price}")
+        self._logger.debug(f"模拟订单: {direction} {offset} {volume}手 {symbol} @ {trade_price:.2f}, 盈亏={profit_loss:.2f}")
         
         return type('obj', (object,), {
             'order_id': order_id,
             'status': 'FINISHED',
             'volume_orign': volume,
             'volume_left': 0,
+            'trade_price': trade_price,
         })()
     
     def cancel_order(self, order):

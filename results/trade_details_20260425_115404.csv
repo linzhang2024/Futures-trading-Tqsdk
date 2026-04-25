@@ -1,0 +1,2 @@
+﻿contract,timestamp,direction,offset,volume,price,profit_loss,commission,datetime
+SHFE.rb2410,1777089244.0472283,SELL,OPEN,1,4489.745572882269,0.0,5.0,2026-04-25 11:54:04
