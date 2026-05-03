@@ -133,11 +133,13 @@ class AdaptiveMAStrategy(AdaptiveMomentumStrategy):
         rsi_period: int = 14,
         rsi_threshold: float = 50.0,
         atr_period: int = 14,
-        atr_entry_multiplier: float = 1.2,
+        atr_entry_multiplier: float = 1.5,
         atr_exit_multiplier: float = 2.0,
         risk_per_trade_percent: float = 0.01,
-        trailing_stop_atr_multiplier: float = 1.5,
+        trailing_stop_atr_multiplier: float = 1.0,
         position_atr_divisor: float = 2.0,
+        max_position_value_percent: float = 0.2,
+        break_even_atr_multiplier: float = 1.0,
         initial_data_days: int = 5,
         force_trade_test: bool = False,
         debug_logging: bool = True,
@@ -167,27 +169,39 @@ class AdaptiveMAStrategy(AdaptiveMomentumStrategy):
         )
         
         self.position_atr_divisor = position_atr_divisor
+        self.max_position_value_percent = max_position_value_percent
+        self.break_even_atr_multiplier = break_even_atr_multiplier
+        self._is_break_even_active = False
         
         if position_atr_divisor <= 0:
             raise ValueError("仓位计算 ATR 除数必须大于 0")
+        
+        if max_position_value_percent <= 0 or max_position_value_percent > 1:
+            raise ValueError("单笔合约价值最大比例必须在 0-1 之间")
         
         self.logger.info(
             f"自适应多因子策略初始化: "
             f"ATR入场过滤倍数={atr_entry_multiplier}, "
             f"追踪止损启动倍数={atr_exit_multiplier}, "
             f"追踪止损距离={trailing_stop_atr_multiplier}×ATR, "
-            f"仓位公式: (总资产×{risk_per_trade_percent*100}%) / ({position_atr_divisor}×ATR)"
+            f"仓位公式: (总资产×{risk_per_trade_percent*100}%) / ({position_atr_divisor}×ATR), "
+            f"单笔合约价值上限={max_position_value_percent*100}%保证金, "
+            f"保本逻辑触发={break_even_atr_multiplier}×ATR"
         )
     
     def _calculate_position_size(self, atr: float, current_price: float) -> float:
         """
-        动态仓位计算
+        动态仓位计算（带仓位上限限制）
         
         用户需求公式（简化版）：
         下单手数 = (总资产 * 1%) / (2 * ATR)
         
         实际实现（考虑合约乘数）：
         下单手数 = (总资产 * 1%) / (2 * ATR * 合约乘数)
+        
+        新增限制：
+        - 单笔合约价值严禁超过保证金可用额度的 20%
+        - 合约价值 = 手数 * 当前价格 * 合约乘数
         
         逻辑说明：
         - 行情波动大（ATR大）→ 分母大 → 仓位小
@@ -199,13 +213,17 @@ class AdaptiveMAStrategy(AdaptiveMomentumStrategy):
         
         Args:
             atr: 当前 ATR 值
-            current_price: 当前价格（用于兼容性，本公式不直接使用）
+            current_price: 当前价格（用于计算合约价值上限）
             
         Returns:
-            计算出的仓位手数（至少1手）
+            计算出的仓位手数（至少1手，不超过上限）
         """
         if atr is None or atr <= 0:
             self.logger.warning("[动态仓位] ATR 无效，使用默认仓位 1 手")
+            return 1.0
+        
+        if current_price is None or current_price <= 0:
+            self.logger.warning("[动态仓位] 当前价格无效，使用默认仓位 1 手")
             return 1.0
         
         risk_amount = self._total_capital * self.risk_per_trade_percent
@@ -218,7 +236,22 @@ class AdaptiveMAStrategy(AdaptiveMomentumStrategy):
         
         position_size = risk_amount / denominator
         
+        max_contract_value = self._total_capital * self.max_position_value_percent
+        max_position_by_value = max_contract_value / (current_price * self.contract_multiplier)
+        
+        original_position_size = position_size
+        position_size = min(position_size, max_position_by_value)
+        
         position_size = max(1.0, position_size)
+        
+        if position_size < original_position_size:
+            self.logger.info(
+                f"[动态仓位] 仓位上限触发: "
+                f"原计算仓位={original_position_size:.2f}手, "
+                f"合约价值上限={self.max_position_value_percent*100}%保证金, "
+                f"最大允许仓位={max_position_by_value:.2f}手, "
+                f"调整后仓位={position_size:.2f}手"
+            )
         
         self.logger.debug(
             f"[动态仓位] 计算: 总资产={self._total_capital:,.0f}, "
@@ -422,17 +455,19 @@ class AdaptiveMAStrategy(AdaptiveMomentumStrategy):
     
     def _update_trailing_stop(self, current_price: float):
         """
-        追踪止损逻辑（重写以更清晰地体现用户需求）
+        追踪止损逻辑（带保本逻辑）
         
         用户需求：
-        只要盈利超过 2 倍 ATR，启动追踪止损，止损位设在 最高价 - 1.5 * ATR
+        1. 盈利达 1.0*ATR 后，立即将止损位移至成本价（保本逻辑）
+        2. 盈利超过 2 倍 ATR，启动追踪止损，止损位设在 最高价 - 1.0 * ATR
         
         实现逻辑：
         1. 持续更新持仓期间的最高价/最低价
-        2. 当盈利超过 atr_exit_multiplier (默认2.0) 倍 ATR 时，启动追踪止损
-        3. 止损位 = 最高价 - trailing_stop_atr_multiplier (默认1.5) * ATR（做多）
-           或 = 最低价 + trailing_stop_atr_multiplier (默认1.5) * ATR（做空）
-        4. 止损位只向有利方向移动（上移/下移）
+        2. 当盈利 >= break_even_atr_multiplier (默认1.0) 倍 ATR 时，将止损位移至成本价
+        3. 当盈利 >= atr_exit_multiplier (默认2.0) 倍 ATR 时，启动追踪止损
+        4. 追踪止损位 = 最高价 - trailing_stop_atr_multiplier (默认1.0) * ATR（做多）
+           或 = 最低价 + trailing_stop_atr_multiplier (默认1.0) * ATR（做空）
+        5. 止损位只向有利方向移动（上移/下移）
         """
         if self._position == 0 or self.atr is None:
             return
@@ -448,30 +483,44 @@ class AdaptiveMAStrategy(AdaptiveMomentumStrategy):
                 profit_amount = (current_price - self._entry_price) * self.contract_multiplier
                 profit_atr = profit_amount / self.atr if self.atr > 0 else 0
                 
-                if not self._trailing_stop_active:
+                if not self._is_break_even_active and not self._trailing_stop_active:
                     self.logger.debug(
                         f"[追踪止损] 多单状态: 入场价={self._entry_price:.2f}, 当前价={current_price:.2f}, "
-                        f"盈利={profit_atr:.2f}×ATR, 启动阈值={self.atr_exit_multiplier}×ATR"
+                        f"盈利={profit_atr:.2f}×ATR, 保本阈值={self.break_even_atr_multiplier}×ATR, "
+                        f"追踪止损启动阈值={self.atr_exit_multiplier}×ATR"
                     )
                 
-                if profit_atr >= self.atr_exit_multiplier and not self._trailing_stop_active:
+                if profit_atr >= self.break_even_atr_multiplier and not self._is_break_even_active and not self._trailing_stop_active:
+                    self._is_break_even_active = True
+                    self._trailing_stop_price = self._entry_price
                     self._trailing_stop_active = True
                     self.logger.info(
-                        f"[追踪止损] 启动追踪止损: 盈利={profit_atr:.2f}×ATR >= {self.atr_exit_multiplier}×ATR"
+                        f"[保本逻辑] 触发保本: 盈利={profit_atr:.2f}×ATR >= {self.break_even_atr_multiplier}×ATR, "
+                        f"止损位设置为成本价={self._entry_price:.2f}"
                     )
                 
                 if self._trailing_stop_active:
-                    new_stop = self._highest_price_since_entry - self.trailing_stop_atr_multiplier * self.atr
-                    
-                    if self._trailing_stop_price is None or new_stop > self._trailing_stop_price:
-                        self._trailing_stop_price = new_stop
-                        self.logger.info(
-                            f"[追踪止损] 多单止损位上移: "
-                            f"旧={self._trailing_stop_price:.2f if self._trailing_stop_price else 'N/A'}, "
-                            f"新={new_stop:.2f}, "
-                            f"最高价={self._highest_price_since_entry:.2f}, "
-                            f"止损距离={self.trailing_stop_atr_multiplier}×ATR={self.trailing_stop_atr_multiplier*self.atr:.2f}"
-                        )
+                    if profit_atr >= self.atr_exit_multiplier:
+                        new_stop = self._highest_price_since_entry - self.trailing_stop_atr_multiplier * self.atr
+                        
+                        if self._trailing_stop_price is None or new_stop > self._trailing_stop_price:
+                            self._trailing_stop_price = new_stop
+                            if self._is_break_even_active and new_stop > self._entry_price:
+                                self.logger.info(
+                                    f"[追踪止损] 多单止损位上移（从保本模式切换到追踪止损）: "
+                                    f"旧={self._entry_price:.2f}（成本价）, "
+                                    f"新={new_stop:.2f}, "
+                                    f"最高价={self._highest_price_since_entry:.2f}, "
+                                    f"止损距离={self.trailing_stop_atr_multiplier}×ATR={self.trailing_stop_atr_multiplier*self.atr:.2f}"
+                                )
+                            else:
+                                self.logger.info(
+                                    f"[追踪止损] 多单止损位上移: "
+                                    f"旧={self._trailing_stop_price:.2f if self._trailing_stop_price else 'N/A'}, "
+                                    f"新={new_stop:.2f}, "
+                                    f"最高价={self._highest_price_since_entry:.2f}, "
+                                    f"止损距离={self.trailing_stop_atr_multiplier}×ATR={self.trailing_stop_atr_multiplier*self.atr:.2f}"
+                                )
         
         elif self._position < 0:
             if self._lowest_price_since_entry is None or current_price < self._lowest_price_since_entry:
@@ -484,30 +533,82 @@ class AdaptiveMAStrategy(AdaptiveMomentumStrategy):
                 profit_amount = (self._entry_price - current_price) * self.contract_multiplier
                 profit_atr = profit_amount / self.atr if self.atr > 0 else 0
                 
-                if not self._trailing_stop_active:
+                if not self._is_break_even_active and not self._trailing_stop_active:
                     self.logger.debug(
                         f"[追踪止损] 空单状态: 入场价={self._entry_price:.2f}, 当前价={current_price:.2f}, "
-                        f"盈利={profit_atr:.2f}×ATR, 启动阈值={self.atr_exit_multiplier}×ATR"
+                        f"盈利={profit_atr:.2f}×ATR, 保本阈值={self.break_even_atr_multiplier}×ATR, "
+                        f"追踪止损启动阈值={self.atr_exit_multiplier}×ATR"
                     )
                 
-                if profit_atr >= self.atr_exit_multiplier and not self._trailing_stop_active:
+                if profit_atr >= self.break_even_atr_multiplier and not self._is_break_even_active and not self._trailing_stop_active:
+                    self._is_break_even_active = True
+                    self._trailing_stop_price = self._entry_price
                     self._trailing_stop_active = True
                     self.logger.info(
-                        f"[追踪止损] 启动追踪止损: 盈利={profit_atr:.2f}×ATR >= {self.atr_exit_multiplier}×ATR"
+                        f"[保本逻辑] 触发保本: 盈利={profit_atr:.2f}×ATR >= {self.break_even_atr_multiplier}×ATR, "
+                        f"止损位设置为成本价={self._entry_price:.2f}"
                     )
                 
                 if self._trailing_stop_active:
-                    new_stop = self._lowest_price_since_entry + self.trailing_stop_atr_multiplier * self.atr
-                    
-                    if self._trailing_stop_price is None or new_stop < self._trailing_stop_price:
-                        self._trailing_stop_price = new_stop
-                        self.logger.info(
-                            f"[追踪止损] 空单止损位下移: "
-                            f"旧={self._trailing_stop_price:.2f if self._trailing_stop_price else 'N/A'}, "
-                            f"新={new_stop:.2f}, "
-                            f"最低价={self._lowest_price_since_entry:.2f}, "
-                            f"止损距离={self.trailing_stop_atr_multiplier}×ATR={self.trailing_stop_atr_multiplier*self.atr:.2f}"
-                        )
+                    if profit_atr >= self.atr_exit_multiplier:
+                        new_stop = self._lowest_price_since_entry + self.trailing_stop_atr_multiplier * self.atr
+                        
+                        if self._trailing_stop_price is None or new_stop < self._trailing_stop_price:
+                            self._trailing_stop_price = new_stop
+                            if self._is_break_even_active and new_stop < self._entry_price:
+                                self.logger.info(
+                                    f"[追踪止损] 空单止损位下移（从保本模式切换到追踪止损）: "
+                                    f"旧={self._entry_price:.2f}（成本价）, "
+                                    f"新={new_stop:.2f}, "
+                                    f"最低价={self._lowest_price_since_entry:.2f}, "
+                                    f"止损距离={self.trailing_stop_atr_multiplier}×ATR={self.trailing_stop_atr_multiplier*self.atr:.2f}"
+                                )
+                            else:
+                                self.logger.info(
+                                    f"[追踪止损] 空单止损位下移: "
+                                    f"旧={self._trailing_stop_price:.2f if self._trailing_stop_price else 'N/A'}, "
+                                    f"新={new_stop:.2f}, "
+                                    f"最低价={self._lowest_price_since_entry:.2f}, "
+                                    f"止损距离={self.trailing_stop_atr_multiplier}×ATR={self.trailing_stop_atr_multiplier*self.atr:.2f}"
+                                )
+    
+    def _close_position(self, current_price: float):
+        """
+        平仓（重写父类方法，添加保本逻辑标志重置）
+        """
+        if self._position == 0:
+            return
+        
+        if self.api is None:
+            self.logger.warning("API 未初始化，无法执行平仓")
+            self._position = 0
+            self._entry_price = None
+            self._highest_price_since_entry = None
+            self._lowest_price_since_entry = None
+            self._trailing_stop_active = False
+            self._trailing_stop_price = None
+            self._is_break_even_active = False
+            return
+        
+        try:
+            quote = self.api.get_quote(self.contract)
+            
+            if self._position > 0:
+                self._place_order(quote, direction="SELL", offset="CLOSE", volume=abs(self._position), limit_price=current_price)
+                self.logger.info(f"平仓: 平多单 {self._position} 手, 当前价格={current_price:.2f}")
+            elif self._position < 0:
+                self._place_order(quote, direction="BUY", offset="CLOSE", volume=abs(self._position), limit_price=current_price)
+                self.logger.info(f"平仓: 平空单 {abs(self._position)} 手, 当前价格={current_price:.2f}")
+            
+            self._position = 0
+            self._entry_price = None
+            self._highest_price_since_entry = None
+            self._lowest_price_since_entry = None
+            self._trailing_stop_active = False
+            self._trailing_stop_price = None
+            self._is_break_even_active = False
+        except Exception as e:
+            self.logger.error(f"平仓失败: {e}")
     
     def get_strategy_config(self) -> Dict[str, Any]:
         """获取策略配置参数"""
@@ -526,6 +627,8 @@ class AdaptiveMAStrategy(AdaptiveMomentumStrategy):
             'trailing_stop_atr_multiplier': self.trailing_stop_atr_multiplier,
             'risk_per_trade_percent': self.risk_per_trade_percent,
             'position_atr_divisor': self.position_atr_divisor,
+            'max_position_value_percent': self.max_position_value_percent,
+            'break_even_atr_multiplier': self.break_even_atr_multiplier,
             'contract_multiplier': self.contract_multiplier,
             'position_formula': f"(总资产 × {self.risk_per_trade_percent*100}%) / ({self.position_atr_divisor} × ATR)",
         }
