@@ -145,6 +145,7 @@ class AdaptiveMAStrategy(AdaptiveMomentumStrategy):
         debug_logging: bool = True,
         slippage_ticks: float = 1.0,
         contract_multiplier: int = 10,
+        **kwargs,
     ):
         super().__init__(
             connector=connector,
@@ -166,6 +167,7 @@ class AdaptiveMAStrategy(AdaptiveMomentumStrategy):
             debug_logging=debug_logging,
             slippage_ticks=slippage_ticks,
             contract_multiplier=contract_multiplier,
+            **kwargs,
         )
         
         self.position_atr_divisor = position_atr_divisor

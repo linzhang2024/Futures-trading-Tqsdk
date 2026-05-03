@@ -129,8 +129,21 @@ class AdaptiveMomentumStrategy(StrategyBase):
         debug_logging: bool = True,
         slippage_ticks: float = 1.0,
         contract_multiplier: int = 10,
+        **kwargs,
     ):
         super().__init__(connector)
+        
+        if kwargs:
+            ignored_keys = [
+                'use_rsi_filter',
+                'take_profit_ratio',
+                'stop_loss_ratio',
+            ]
+            for key, value in kwargs.items():
+                if key not in ignored_keys:
+                    self.logger.warning(
+                        f"[AdaptiveMomentumStrategy] 忽略未知参数: {key} = {value}"
+                    )
         
         if short_period <= 0 or long_period <= 0:
             raise ValueError("均线周期必须大于 0")
