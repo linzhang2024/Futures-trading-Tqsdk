@@ -3781,3 +3781,11 @@
 2026-04-25 12:23:09,545 - WARNING - {"event_type": "API_TIMEOUT", "timestamp": 1777090989.544875, "datetime": "2026-04-25T12:23:09.544875", "level": "WARNING", "message": "API响应超时: 11.06秒 > 阈值 3.0秒", "details": {"elapsed_seconds": 11.064286708831787, "timeout_threshold": 3.0, "consecutive_timeouts": 1}}
 [2026-04-25 12:24:01] [__init__] [WARNING] ⚠️ [API_TIMEOUT] API响应超时: 10.30秒 > 阈值 3.0秒
 2026-04-25 12:24:01,588 - WARNING - {"event_type": "API_TIMEOUT", "timestamp": 1777091041.5880656, "datetime": "2026-04-25T12:24:01.588066", "level": "WARNING", "message": "API响应超时: 10.30秒 > 阈值 3.0秒", "details": {"elapsed_seconds": 10.299423217773438, "timeout_threshold": 3.0, "consecutive_timeouts": 1}}
+[2026-04-25 16:05:41] [__init__] [WARNING] ⚠️ [API_TIMEOUT] API响应超时: 4.45秒 > 阈值 3.0秒
+2026-04-25 16:05:41,714 - WARNING - {"event_type": "API_TIMEOUT", "timestamp": 1777104341.7145398, "datetime": "2026-04-25T16:05:41.714540", "level": "WARNING", "message": "API响应超时: 4.45秒 > 阈值 3.0秒", "details": {"elapsed_seconds": 4.448466062545776, "timeout_threshold": 3.0, "consecutive_timeouts": 1}}
+[2026-04-25 16:05:41] [__init__] [WARNING] ⚠️ [API_TIMEOUT] API响应超时: 4.46秒 > 阈值 3.0秒
+2026-04-25 16:05:41,723 - WARNING - {"event_type": "API_TIMEOUT", "timestamp": 1777104341.723672, "datetime": "2026-04-25T16:05:41.723672", "level": "WARNING", "message": "API响应超时: 4.46秒 > 阈值 3.0秒", "details": {"elapsed_seconds": 4.4565980434417725, "timeout_threshold": 3.0, "consecutive_timeouts": 1}}
+[2026-04-25 16:05:41] [__init__] [WARNING] ⚠️ [API_TIMEOUT] API响应超时: 4.47秒 > 阈值 3.0秒
+2026-04-25 16:05:41,739 - WARNING - {"event_type": "API_TIMEOUT", "timestamp": 1777104341.739145, "datetime": "2026-04-25T16:05:41.739145", "level": "WARNING", "message": "API响应超时: 4.47秒 > 阈值 3.0秒", "details": {"elapsed_seconds": 4.465512990951538, "timeout_threshold": 3.0, "consecutive_timeouts": 1}}
+[2026-04-25 16:05:41] [__init__] [WARNING] ⚠️ [API_TIMEOUT] API响应超时: 4.46秒 > 阈值 3.0秒
+2026-04-25 16:05:41,745 - WARNING - {"event_type": "API_TIMEOUT", "timestamp": 1777104341.7441828, "datetime": "2026-04-25T16:05:41.744183", "level": "WARNING", "message": "API响应超时: 4.46秒 > 阈值 3.0秒", "details": {"elapsed_seconds": 4.462998867034912, "timeout_threshold": 3.0, "consecutive_timeouts": 1}}
