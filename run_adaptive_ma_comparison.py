@@ -738,11 +738,13 @@ def run_comparison():
         'rsi_period': 14,
         'rsi_threshold': 50.0,
         'atr_period': 14,
-        'atr_entry_multiplier': 1.2,
+        'atr_entry_multiplier': 1.5,
         'atr_exit_multiplier': 2.0,
         'risk_per_trade_percent': 0.01,
-        'trailing_stop_atr_multiplier': 1.5,
+        'trailing_stop_atr_multiplier': 1.0,
         'position_atr_divisor': 2.0,
+        'max_position_value_percent': 0.2,
+        'break_even_atr_multiplier': 1.0,
         'contract_multiplier': contract_multiplier,
         'debug_logging': False,
     }
@@ -774,11 +776,15 @@ def run_comparison():
     logger.info("  【动态仓位管理】")
     logger.info(f"    单笔风险比例: {new_strategy_params['risk_per_trade_percent'] * 100}%")
     logger.info(f"    仓位公式: (总资产 × {new_strategy_params['risk_per_trade_percent']*100}%) / ({new_strategy_params['position_atr_divisor']} × ATR)")
+    logger.info(f"    单笔合约价值上限: {new_strategy_params['max_position_value_percent']*100}% 保证金")
     logger.info(f"    - 波动大（ATR大）→ 仓位小")
     logger.info(f"    - 波动小（ATR小）→ 仓位大")
+    logger.info(f"    - 防止 ATR 过小时重仓")
     logger.info("")
     logger.info("  【智能追踪止损】")
-    logger.info(f"    启动条件: 盈利 > {new_strategy_params['atr_exit_multiplier']} × ATR")
+    logger.info(f"    保本逻辑触发: 盈利 >= {new_strategy_params['break_even_atr_multiplier']} × ATR")
+    logger.info(f"    - 此时止损位移至成本价，确保不亏损")
+    logger.info(f"    追踪止损启动: 盈利 > {new_strategy_params['atr_exit_multiplier']} × ATR")
     logger.info(f"    止损距离: {new_strategy_params['trailing_stop_atr_multiplier']} × ATR")
     logger.info(f"    - 做多: 止损位 = 最高价 - {new_strategy_params['trailing_stop_atr_multiplier']}×ATR")
     logger.info(f"    - 做空: 止损位 = 最低价 + {new_strategy_params['trailing_stop_atr_multiplier']}×ATR")
