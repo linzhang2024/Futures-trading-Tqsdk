@@ -381,7 +381,7 @@ class VectorizedMAStrategy(StrategyBase):
         logger.info("=" * 80)
         logger.info("")
     
-    def update_prices(self, close_price: float):
+    def update_prices(self, close_price: float, high_price: float = None, low_price: float = None, open_price: float = None):
         self._cycle_count += 1
         
         if close_price is None or (isinstance(close_price, float) and close_price != close_price):

@@ -1,0 +1,74 @@
+{
+  "generated_at": "2026-04-25T15:31:48.158299",
+  "contracts": [
+    "SHFE.rb",
+    "DCE.i"
+  ],
+  "initial_capital": 1000000.0,
+  "old_strategy": "DoubleMAStrategy",
+  "new_strategy": "AdaptiveMomentumStrategy",
+  "results": {
+    "SHFE.rb": {
+      "old_strategy": {
+        "total_trades": 8,
+        "win_rate": 50.0,
+        "winning_trades": 4,
+        "losing_trades": 4,
+        "total_profit_loss": 996.7676758414336,
+        "total_return_percent": 0.09967676758414336,
+        "max_drawdown_percent": 0.16223634992683603,
+        "sharpe_ratio": -22.306538810552883
+      },
+      "new_strategy": {
+        "total_trades": 4,
+        "win_rate": 75.0,
+        "winning_trades": 3,
+        "losing_trades": 1,
+        "total_profit_loss": 43628.36105966987,
+        "total_return_percent": 4.362836105966987,
+        "max_drawdown_percent": 1.068130567062245,
+        "sharpe_ratio": -1.5629477923439399
+      }
+    },
+    "DCE.i": {
+      "old_strategy": {
+        "total_trades": 29,
+        "win_rate": 44.827586206896555,
+        "winning_trades": 13,
+        "losing_trades": 16,
+        "total_profit_loss": 3171.259748723185,
+        "total_return_percent": 0.31712597487231853,
+        "max_drawdown_percent": 1.1221791446644485,
+        "sharpe_ratio": -0.9835117725304235
+      },
+      "new_strategy": {
+        "total_trades": 4,
+        "win_rate": 75.0,
+        "winning_trades": 3,
+        "losing_trades": 1,
+        "total_profit_loss": 13409.534196561737,
+        "total_return_percent": 1.3409534196561737,
+        "max_drawdown_percent": 0.003940973157953854,
+        "sharpe_ratio": 0.31713743190907634
+      }
+    }
+  },
+  "improvements": {
+    "SHFE.rb": {
+      "win_rate_improvement": 25.0,
+      "max_drawdown_improvement": -0.905894217135409,
+      "sharpe_improvement": 20.743591018208942
+    },
+    "DCE.i": {
+      "win_rate_improvement": 30.172413793103445,
+      "max_drawdown_improvement": 1.1182381715064946,
+      "sharpe_improvement": 1.3006492044395
+    }
+  },
+  "overall_summary": {
+    "average_win_rate_improvement": 27.586206896551722,
+    "average_max_drawdown_improvement": 0.10617197718554283,
+    "average_sharpe_improvement": 11.02212011132422
+  },
+  "conclusion": "新策略在胜率和风险控制方面均优于旧策略"
+}
